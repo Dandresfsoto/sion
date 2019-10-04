@@ -265,9 +265,15 @@ LOGIN_EXEMPT_URLS = (
     r'^login/',
 )
 
+
+
 PHONENUMBER_DEFAULT_REGION = "CO"
 
-
+# https://docs.djangoproject.com/en/dev/ref/contrib/staticfiles/#staticfiles-finders
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+]
 
 
 SOCIAL_AUTH_REDIRECT_IS_HTTPS = True
