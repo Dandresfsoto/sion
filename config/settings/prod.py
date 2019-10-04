@@ -34,6 +34,9 @@ AZURE_CUSTOM_DOMAIN = env('AZURE_CUSTOM_DOMAIN')
 MEDIA_URL = env('MEDIA_URL')
 
 
+INSTALLED_APPS += ['gunicorn']  # noqa F405
+
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,

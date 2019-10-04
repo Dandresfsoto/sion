@@ -242,21 +242,33 @@ USE_L10N = True
 
 USE_TZ = True
 
+SITE_ID = 1
+
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/2.0/howto/static-files/
-
-MEDIA_URL = '/media/'
-MEDIA_ROOT = str(BASE_DIR('media'))
-
-
-
-STATICFILES_DIRS = (
-    str(BASE_DIR.path('static')),
-)
+# https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_ROOT = str(ROOT_DIR('staticfiles'))
 STATIC_URL = '/static/'
+
+# Extra places for collectstatic to find static files.
+
+STATICFILES_DIRS = [
+    str(BASE_DIR.path('static')),
+]
+
+# https://docs.djangoproject.com/en/dev/ref/contrib/staticfiles/#staticfiles-finders
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+]
+
+# Media
+MEDIA_ROOT = str(BASE_DIR('media'))
+MEDIA_URL = '/media/'
+
+
+
 
 AUTH_USER_MODEL = "usuarios.User"
 SOCIAL_AUTH_USER_MODEL = "usuarios.User"
