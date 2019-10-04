@@ -150,7 +150,7 @@ LOCAL_APPS = [
     'cpe_2018',
     'desplazamiento',
     'formatos',
-    #'fest_2019'
+    'fest_2019'
 ]
 
 
@@ -286,10 +286,6 @@ STATICFILES_FINDERS = [
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 ]
-
-
-SOCIAL_AUTH_REDIRECT_IS_HTTPS = True
-SOCIAL_AUTH_SANITIZE_REDIRECTS = True
 
 
 

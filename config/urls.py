@@ -48,7 +48,7 @@ urlpatterns = [
     path('contratos/', include('mis_contratos.urls')),
     path('ofertas/', include('ofertas.urls')),
     path('cpe_2018/', include('cpe_2018.urls')),
-    #path('fest_2019/', include('fest_2019.urls')),
+    path('fest_2019/', include('fest_2019.urls')),
 
     path('rest/v1.0/usuarios/', include('usuarios.rest_urls')),
     path('rest/v1.0/recursos_humanos/', include('recursos_humanos.rest_urls')),
@@ -57,7 +57,7 @@ urlpatterns = [
     path('rest/v1.0/mis_contratos/', include('mis_contratos.rest_urls')),
     path('rest/v1.0/ofertas/', include('ofertas.rest_urls')),
     path('rest/v1.0/cpe_2018/', include('cpe_2018.rest_urls')),
-    #path('rest/v1.0/fest_2019/', include('fest_2019.rest_urls')),
+    path('rest/v1.0/fest_2019/', include('fest_2019.rest_urls')),
 
 ]
 
