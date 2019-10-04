@@ -1,7 +1,7 @@
 {% extends "mail_templated/base.tpl" %}
 
 {% block subject %}
-Hola {{ first_name }}, bienvenido a OP+
+Hola {{ first_name }}, bienvenido a SION
 {% endblock %}
 
 
@@ -19,8 +19,8 @@ Hola {{ first_name }}, bienvenido a OP+
 			<td style="padding: 10px 0 30px 0;">
 				<table align="center" border="0" cellpadding="0" cellspacing="0" width="600" style="border: 1px solid #cccccc; border-collapse: collapse;">
 					<tr>
-						<td align="center" bgcolor="#025930" style="padding: 50px; color: #fff; font-size: 100px; font-weight: bold; font-family: Arial, sans-serif;">
-							<img src="{{ url_base }}/static/img/op.png" alt="OP+" height="100" style="display: block;" />
+						<td align="center" bgcolor="#4C666E" style="padding: 50px; color: #fff; font-size: 100px; font-weight: bold; font-family: Arial, sans-serif;">
+							<img src="{{ url_base }}/static/img/sion.png" alt="SION" height="100" style="display: block;" />
 						</td>
 					</tr>
 					<tr>
@@ -33,7 +33,7 @@ Hola {{ first_name }}, bienvenido a OP+
 								</tr>
 								<tr>
 									<td style="padding: 20px 0 30px 0; color: #153643; font-family: Arial, sans-serif; font-size: 16px; line-height: 20px;">
-										Has creado una cuenta en el sistema de información OP+ usando este correo electrónico,
+										Has creado una cuenta en el sistema de información SION usando este correo electrónico,
                                         a continuación encuentras los datos de acceso y el vinculo para verificar tu cuenta.
 									</td>
 								</tr>
@@ -58,12 +58,12 @@ Hola {{ first_name }}, bienvenido a OP+
 
 														<tr>
 															<td style="padding: 25px 0 0 0; color: #153643; font-family: Arial, sans-serif; font-size: 16px; line-height: 20px;">
-																<p>Url: <b><a href="http://opmas.co/">http://opmas.co/</a></b></p>
+																<p>Url: <b><a href="http://iracaz1.com/">http://iracaz1.com/</a></b></p>
                                                                 <p>Email: <b>{{ email }}</b></p>
                                                                 <p>Contraseña: <b>{{ password }}</b></p>
-                                                                <table class="buttonwrapper" bgcolor="#025930" border="0" cellspacing="0" cellpadding="0">
+                                                                <table class="buttonwrapper" bgcolor="#4C666E" border="0" cellspacing="0" cellpadding="0">
                                                                     <tr>
-                                                                      <td width="240" class="button" height="45" style="text-align: center; font-size: 16px; font-family: sans-serif; font-weight: bold; padding: 0 30px 0 30px;background:#025930;">
+                                                                      <td width="240" class="button" height="45" style="text-align: center; font-size: 16px; font-family: sans-serif; font-weight: bold; padding: 0 30px 0 30px;background:#4C666E;">
                                                                         <a href="{{ url_base }}/verificar?email={{email}}&code={{code}}" style="color: #ffffff; text-decoration: none;">Verificar cuenta</a>
                                                                       </td>
                                                                     </tr>
@@ -95,7 +95,7 @@ Hola {{ first_name }}, bienvenido a OP+
 						</td>
 					</tr>
 					<tr>
-						<td bgcolor="#025930" style="padding: 30px 30px 30px 30px;">
+						<td bgcolor="#4C666E" style="padding: 30px 30px 30px 30px;">
 							<table border="0" cellpadding="0" cellspacing="0" width="100%">
 								<tr>
 									<td style="color: #ffffff; font-family: Arial, sans-serif; font-size: 14px;" width="75%">
