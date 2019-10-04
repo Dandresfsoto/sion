@@ -855,11 +855,11 @@ textarea.materialize-textarea:focus:not([readonly]) {
   justify-content: space-between !important;
 }
 .iti-flag {
-  background-image: url("../node_modules/intl-tel-input/build/img/flags.png");
+
 }
 @media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min--moz-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 2/1), only screen and (min-device-pixel-ratio: 2), only screen and (min-resolution: 192dpi), only screen and (min-resolution: 2dppx) {
   .iti-flag {
-    background-image: url("../node_modules/intl-tel-input/build/img/flags@2x.png");
+
   }
 }
 .input-field label:not(.label-icon).active {
