@@ -65,7 +65,7 @@ EMAIL_GERENCIA = env('SICAN_EMAIL_GERENCIA')
 EMAIL_CONTABILIDAD = env('SICAN_EMAIL_CONTABILIDAD')
 EMAIL_USE_TLS = True
 
-ADMINS = [('Diego Fonseca','dandresto@gmail.com')]
+ADMINS = [('Diego Fonseca','dandresfsoto@gmail.com')]
 
 CHANNEL_LAYERS = {
     "default": {
