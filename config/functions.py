@@ -40,7 +40,7 @@ def construir_reporte(titulos,contenidos,formatos,ancho_columnas,nombre,fecha,us
                                                                              ),
                                                                    fill=PatternFill(
                                                                        fill_type='solid',
-                                                                       start_color='025930',
+                                                                       start_color='4C666E',
                                                                        end_color='FF000000'
                                                                    ),
                                                                    alignment=Alignment(
@@ -71,7 +71,7 @@ def construir_reporte(titulos,contenidos,formatos,ancho_columnas,nombre,fecha,us
                         ws.cell(row=row_num,column=col_num+1).value = contenido[col_num][0]
                         ws.cell(row=row_num, column=col_num + 1).hyperlink = contenido[col_num][1]
 
-                    ws.cell(row=row_num, column=col_num + 1).style = Style(font=Font(name='Arial', size=10, bold=True,color='FF025930'),
+                    ws.cell(row=row_num, column=col_num + 1).style = Style(font=Font(name='Arial', size=10, bold=True,color='FF4C666E'),
                                                                            alignment=Alignment(
                                                                                horizontal='center',
                                                                                vertical='center',
@@ -241,7 +241,7 @@ def construir_reporte_pagina(output_in,sheet_name,titulos,contenidos,formatos,an
                         ws.cell(row=row_num,column=col_num+1).value = contenido[col_num][0]
                         ws.cell(row=row_num, column=col_num + 1).hyperlink = contenido[col_num][1]
 
-                    ws.cell(row=row_num, column=col_num + 1).style = Style(font=Font(name='Arial', size=10, bold=True,color='FF025930'),
+                    ws.cell(row=row_num, column=col_num + 1).style = Style(font=Font(name='Arial', size=10, bold=True,color='FF4C666E'),
                                                                            alignment=Alignment(
                                                                                horizontal='center',
                                                                                vertical='center',
