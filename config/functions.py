@@ -40,7 +40,7 @@ def construir_reporte(titulos,contenidos,formatos,ancho_columnas,nombre,fecha,us
                                                                              ),
                                                                    fill=PatternFill(
                                                                        fill_type='solid',
-                                                                       start_color='4C666E',
+                                                                       start_color='FF4C666E',
                                                                        end_color='FF000000'
                                                                    ),
                                                                    alignment=Alignment(
