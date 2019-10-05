@@ -2,6 +2,14 @@ version: '3'
 
 services:
 
+  db:
+    image: postgres
+    container_name: postgres
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+
   django:
     build:
       context: .
@@ -9,6 +17,8 @@ services:
     image: opmas_production_django
     container_name: django_app
     restart: always
+    depends_on:
+      - db
     volumes:
       - static_volume:/app/staticfiles
       - ./media:/app/media
@@ -84,3 +94,4 @@ services:
 
 volumes:
   static_volume:
+  db-data:
