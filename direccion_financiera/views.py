@@ -592,11 +592,11 @@ class ReporteReportesView(LoginRequiredMixin,
             send_mail_templated_reporte(
                 template,
                 {
-                    'url_base': 'https://' + self.request.META['HTTP_HOST'],
+                    'url_base': 'http://' + self.request.META['HTTP_HOST'],
                     'nombre_reporte': str(reporte.consecutivo.id) + ' - ' + reporte.nombre,
                     'valor': reporte.pretty_print_valor_descuentos(),
                     'proyecto': reporte.proyecto.nombre,
-                    'respaldo': 'https://' + self.request.META['HTTP_HOST'] + str(reporte.url_respaldo()),
+                    'respaldo': 'http://' + self.request.META['HTTP_HOST'] + str(reporte.url_respaldo()),
                     'usuario': reporte.usuario_actualizacion.get_full_name_string()
                 },
                 DEFAULT_FROM_EMAIL,
