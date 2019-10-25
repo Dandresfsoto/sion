@@ -95,6 +95,8 @@ class Reportes(models.Model):
 
     valor = MoneyField(max_digits=10, decimal_places=2, default_currency='COP')
 
+    efectivo = models.BooleanField(default=False)
+
     def pretty_print_respaldo(self):
         try:
             url = self.respaldo.url

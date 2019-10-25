@@ -206,11 +206,11 @@ class TerceroPagosListApi(BaseDatatableView):
 
 class ReportesListApi(BaseDatatableView):
     model = Reportes
-    columns = ['consecutivo', 'usuario_actualizacion','usuario_creacion', 'creation', 'nombre',
+    columns = ['consecutivo', 'usuario_actualizacion','usuario_creacion', 'efectivo','creation', 'nombre',
                'plano', 'valor', 'estado', 'servicio']
 
-    order_columns = ['consecutivo', 'usuario_actualizacion','usuario_creacion', 'creation', 'nombre',
-                     'plano', 'valor', 'estado', 'servicio']
+    order_columns = ['consecutivo', 'usuario_actualizacion','usuario_creacion', 'efectivo','creation', 'nombre',
+               'plano', 'valor', 'estado', 'servicio']
 
 
     def filter_queryset(self, qs):
@@ -273,8 +273,19 @@ class ReportesListApi(BaseDatatableView):
             return row.usuario_actualizacion.first_name
 
 
+
+        elif column == 'efectivo':
+
+            if row.efectivo:
+                tipo = "Efectivo"
+
+            else:
+                tipo = "Bancarizado"
+
+            return tipo
+
+
         elif column == 'creation':
-            return row.pretty_creation_datetime()
             return row.pretty_creation_datetime()
 
 
@@ -337,6 +348,9 @@ class PagosListApi(BaseDatatableView):
 
 
     def get_initial_queryset(self):
+
+        self.reporte = Reportes.objects.get(id = self.kwargs['pk'])
+
         return self.model.objects.filter(reporte__id = self.kwargs['pk'])
 
     def filter_queryset(self, qs):
@@ -384,10 +398,13 @@ class PagosListApi(BaseDatatableView):
             amortizaciones = Amortizaciones.objects.filter(pago_descontado__id = row.id)
             render = ""
 
-            if row.tercero.cuenta != '' and row.tercero.cuenta != None and row.tercero.banco != None:
-                render += '<a class="tooltipped link-sec" data-position="top" data-delay="50" data-tooltip="{0} cuenta {1} # {2}">' \
-                          '<i class="material-icons">monetization_on</i>' \
-                          '</a>'.format(row.tercero.banco.nombre,row.tercero.tipo_cuenta,row.tercero.cuenta)
+
+            if not self.reporte.efectivo:
+
+                if row.tercero.cuenta != '' and row.tercero.cuenta != None and row.tercero.banco != None:
+                    render += '<a class="tooltipped link-sec" data-position="top" data-delay="50" data-tooltip="{0} cuenta {1} # {2}">' \
+                              '<i class="material-icons">monetization_on</i>' \
+                              '</a>'.format(row.tercero.banco.nombre,row.tercero.tipo_cuenta,row.tercero.cuenta)
 
             if row.notificado:
                 render += '<a class="tooltipped edit-table" data-position="top" data-delay="50" data-tooltip="Pago notificado a {0}">' \
@@ -504,12 +521,22 @@ class TercerosListApiJson(APIView):
         diccionario = {}
         name = request.query_params.get('name')
         pago_query = request.query_params.get('pago')
+        reporte_id = request.query_params.get('reporte')
+
+        reporte = Reportes.objects.get(id = reporte_id)
 
         if name != None:
 
             q = Q(nombres__icontains = name) | Q(apellidos__icontains = name) | Q(cedula__icontains = name)
 
-            for contratista in Contratistas.objects.exclude(banco = None).filter(q).exclude(cargo = None):
+
+            if reporte.efectivo:
+                filtro = Contratistas.objects.all()
+            else:
+                filtro = Contratistas.objects.exclude(banco=None)
+
+
+            for contratista in filtro.filter(q).exclude(cargo = None):
                 lista.append({
                     'name': contratista.fullname() + " - " +str(contratista.cedula)
                 })

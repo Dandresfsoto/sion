@@ -41,7 +41,12 @@ def build_reporte_interno(id, email):
         else:
             ws['F5'] = reporte.servicio.nombre
         ws['O5'] = reporte.proyecto.nombre
-        ws['J6'] = 'CARGAR A LA CUENTA {0}'.format(reporte.proyecto.cuenta)
+
+
+        if reporte.efectivo:
+            ws['J6'] = 'PAGO EN EFECTIVO'
+        else:
+            ws['J6'] = 'CARGAR A LA CUENTA {0}'.format(reporte.proyecto.cuenta)
 
         ws['F6'] = reporte.tipo_soporte.nombre
 
@@ -58,9 +63,15 @@ def build_reporte_interno(id, email):
             ws['D' + str(i)] = pago.tercero.cargo.nombre.upper()
             ws['E' + str(i)] = pago.tercero.fullname().upper()
             ws['G' + str(i)] = pago.tercero.cedula
-            ws['H' + str(i)] = pago.tercero.banco.nombre.upper()
-            ws['I' + str(i)] = pago.tercero.tipo_cuenta.upper()
-            ws['J' + str(i)] = pago.tercero.cuenta
+
+            if reporte.efectivo:
+                ws['H' + str(i)] = ''
+                ws['I' + str(i)] = ''
+                ws['J' + str(i)] = ''
+            else:
+                ws['H' + str(i)] = pago.tercero.banco.nombre.upper()
+                ws['I' + str(i)] = pago.tercero.tipo_cuenta.upper()
+                ws['J' + str(i)] = pago.tercero.cuenta
             ws['L' + str(i)] = pago.valor_descuentos().amount
             ws['O' + str(i)] = pago.observacion_pretty().upper()
             i += 1
@@ -203,14 +214,14 @@ def build_reporte_pagos(id):
     proceso = "SICAN-REPORTE-PAGOS"
 
 
-    titulos = ['Consecutivo', 'Fecha creación', 'Reporte', 'Nombre', 'Servicio', 'Proyecto', 'Contratista', 'Cedula', 'Valor inicial', 'Descuentos',
+    titulos = ['Consecutivo', 'Fecha creación', 'Reporte', 'Tipo','Nombre', 'Servicio', 'Proyecto', 'Contratista', 'Cedula', 'Valor inicial', 'Descuentos',
                'Valor','Estado']
 
-    formatos = ['0', 'dd/mm/yy', '0', 'General', 'General', 'General', 'General', '0', '"$"#,##0.00_);[Red]("$"#,##0.00)', '"$"#,##0.00_);[Red]("$"#,##0.00)',
+    formatos = ['0', 'dd/mm/yy', '0', 'General', 'General', 'General', 'General', 'General', '0', '"$"#,##0.00_);[Red]("$"#,##0.00)', '"$"#,##0.00_);[Red]("$"#,##0.00)',
                 '"$"#,##0.00_);[Red]("$"#,##0.00)', 'General']
 
     ancho_columnas = [20, 30, 30, 30, 30, 30, 30, 30, 30, 30,
-                      30, 30]
+                      30, 30, 30]
 
     contenidos = []
 
@@ -221,6 +232,7 @@ def build_reporte_pagos(id):
             int(i),
             pago.creation,
             pago.reporte.consecutivo.id,
+            'Efectivo' if pago.reporte.efectivo else 'Bancarizado',
             pago.reporte.nombre,
             pago.reporte.servicio.nombre,
             pago.reporte.proyecto.nombre,

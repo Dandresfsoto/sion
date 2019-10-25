@@ -94,7 +94,7 @@ block body_script_auth
 
                 $.ajax({
                     type: 'GET',
-                    url: '/rest/v1.0/direccion_financiera/terceros/list/?name=' + $("#id_tercero").val(),
+                    url: '/rest/v1.0/direccion_financiera/terceros/list/?name=' + $("#id_tercero").val() + '&reporte={{reporte.id}}',
                     success: function (response) {
                         var tercerosArray = response.lista;
                         var dataTerceros = {};
@@ -260,7 +260,7 @@ block body_script_auth
 
                 $.ajax({
                     type: 'GET',
-                    url: '/rest/v1.0/direccion_financiera/terceros/list/?pago={{pago.id}}&name=' + $("#id_tercero").val(),
+                    url: '/rest/v1.0/direccion_financiera/terceros/list/?pago={{pago.id}}&name=' + $("#id_tercero").val() + '&reporte={{reporte.id}}',
                     success: function (response) {
                         var tercerosArray = response.lista;
                         var dataTerceros = {};

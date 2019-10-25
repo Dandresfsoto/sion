@@ -577,12 +577,21 @@ class ReporteReportesView(LoginRequiredMixin,
                             amortizacion.disabled = False
                             amortizacion.save()
 
-            adjuntos = [
-                ('PAGO '+ str(reporte.consecutivo.id) + ' - REPORTE FIRMADO.' + str(reporte.firma.name.split('.')[-1]), reporte.firma.read(),
-                 mimetypes.guess_type(reporte.firma.name)[0]),
-                ('PAGO ' + str(reporte.consecutivo.id) + ' - ARCHIVO PLANO.' + str(reporte.plano.name.split('.')[-1]), reporte.plano.read(),
-                 mimetypes.guess_type(reporte.plano.name)[0])
-            ]
+
+            if reporte.efectivo:
+                adjuntos = [
+                    ('PAGO ' + str(reporte.consecutivo.id) + ' - REPORTE FIRMADO.' + str(reporte.firma.name.split('.')[-1]), reporte.firma.read(),
+                     mimetypes.guess_type(reporte.firma.name)[0])
+                ]
+
+            else:
+
+                adjuntos = [
+                    ('PAGO '+ str(reporte.consecutivo.id) + ' - REPORTE FIRMADO.' + str(reporte.firma.name.split('.')[-1]), reporte.firma.read(),
+                     mimetypes.guess_type(reporte.firma.name)[0]),
+                    ('PAGO ' + str(reporte.consecutivo.id) + ' - ARCHIVO PLANO.' + str(reporte.plano.name.split('.')[-1]), reporte.plano.read(),
+                     mimetypes.guess_type(reporte.plano.name)[0])
+                ]
 
             if reporte.respaldo.name != '':
                 template = 'mail/direccion_financiera/reportes/reporte.tpl'
@@ -692,7 +701,7 @@ class PagosListView(LoginRequiredMixin,
         kwargs['url_datatable'] = '/rest/v1.0/direccion_financiera/reportes/pagos/' + str(self.kwargs['pk'])
         kwargs['permiso_crear'] = False if reporte.estado != 'Carga de pagos' else self.request.user.has_perm('usuarios.direccion_financiera.reportes.crear')
         kwargs['breadcrum_active'] = reporte.nombre
-        kwargs['show'] = True if reporte.file.name != '' and reporte.plano.name != '' else False
+        kwargs['show'] = True if reporte.file.name != '' or reporte.plano.name != '' else False
         kwargs['file'] = reporte.url_file()
         kwargs['plano'] = reporte.url_plano()
         return super(PagosListView,self).get_context_data(**kwargs)
@@ -754,7 +763,8 @@ class PagosCreateView(LoginRequiredMixin,
             reporte.plano.delete(save=True)
 
             tasks.build_reporte_interno(str(reporte.id), reporte.usuario_actualizacion.email)
-            functions.build_archivo_plano(str(reporte.id), reporte.usuario_actualizacion.email)
+            if not reporte.efectivo:
+                functions.build_archivo_plano(str(reporte.id), reporte.usuario_actualizacion.email)
 
         else:
 
@@ -814,7 +824,9 @@ class PagosCreateView(LoginRequiredMixin,
             reporte.plano.delete(save=True)
 
             tasks.build_reporte_interno(str(reporte.id), reporte.usuario_actualizacion.email)
-            functions.build_archivo_plano(str(reporte.id), reporte.usuario_actualizacion.email)
+
+            if not reporte.efectivo:
+                functions.build_archivo_plano(str(reporte.id), reporte.usuario_actualizacion.email)
 
         return super(PagosCreateView, self).form_valid(form)
 
@@ -881,7 +893,8 @@ class PagosUpdateView(LoginRequiredMixin,
             reporte.plano.delete(save=True)
 
             tasks.build_reporte_interno(str(reporte.id), reporte.usuario_actualizacion.email)
-            functions.build_archivo_plano(str(reporte.id), reporte.usuario_actualizacion.email)
+            if not reporte.efectivo:
+                functions.build_archivo_plano(str(reporte.id), reporte.usuario_actualizacion.email)
 
 
         else:
@@ -961,7 +974,8 @@ class PagosUpdateView(LoginRequiredMixin,
             reporte.plano.delete(save=True)
 
             tasks.build_reporte_interno(str(reporte.id), reporte.usuario_actualizacion.email)
-            functions.build_archivo_plano(str(reporte.id), reporte.usuario_actualizacion.email)
+            if not reporte.efectivo:
+                functions.build_archivo_plano(str(reporte.id), reporte.usuario_actualizacion.email)
 
         return super(PagosUpdateView, self).form_valid(form)
 

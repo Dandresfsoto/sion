@@ -274,6 +274,12 @@ class ReporteForm(forms.ModelForm):
                     ),
                     Row(
                         Column(
+                            'efectivo',
+                            css_class='s12 m6 l4'
+                        ),
+                    ),
+                    Row(
+                        Column(
                             'inicio',
                             css_class='s12 m6'
                         ),
@@ -331,12 +337,16 @@ class ReporteForm(forms.ModelForm):
 
     class Meta:
         model = Reportes
-        fields = ['nombre','servicio','proyecto','tipo_soporte','inicio','fin','respaldo','firma']
+        fields = ['nombre','servicio','proyecto','tipo_soporte','inicio','fin','respaldo','firma','efectivo']
         labels = {
             'servicio': 'Bien o servicio a gestionar',
             'tipo_soporte': 'Respaldo del reporte',
             'inicio': 'Fecha de inicio',
-            'fin': 'Fecha de finalización'
+            'fin': 'Fecha de finalización',
+            'efectivo': 'Tipo de reporte'
+        }
+        widgets = {
+            'efectivo': forms.Select(choices=[(False,'Bancarizado'),(True,'Efectivo')])
         }
 
 class ReporteUpdateForm(forms.ModelForm):

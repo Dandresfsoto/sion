@@ -74,7 +74,7 @@ var socket = new ReconnectingWebSocket(ws_scheme + '://' + window.location.host 
 
         $.ajax({
             type: 'GET',
-            url: '/rest/v1.0/direccion_financiera/terceros/list/?name=' + $("#id_tercero").val(),
+            url: '/rest/v1.0/direccion_financiera/terceros/list/?name=' + $("#id_tercero").val() + '&reporte={{reporte.id}}',
             success: function (response) {
                 var tercerosArray = response.lista;
                 var dataTerceros = {};
@@ -165,7 +165,7 @@ var socket = new ReconnectingWebSocket(ws_scheme + '://' + window.location.host 
 
         $.ajax({
             type: 'GET',
-            url: '/rest/v1.0/direccion_financiera/terceros/list/?name='+$("#id_tercero").val(),
+            url: '/rest/v1.0/direccion_financiera/terceros/list/?name='+$("#id_tercero").val() + '&reporte={{reporte.id}}',
             success: function (response) {
                 $('#id_descuentos_pendientes').val('{}');
                 var tercerosArray = response.lista;
