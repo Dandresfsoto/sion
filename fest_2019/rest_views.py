@@ -3338,3 +3338,59 @@ class CambioRutasAutocompleteVinculacionAll(autocomplete.Select2QuerySetView):
             qs = qs.filter(q)
 
         return qs
+
+
+
+
+class DirectorioListApi(BaseDatatableView):
+    model = models.Contactos
+    columns = ['id','nombres','apellidos','municipio','cargo','celular']
+    order_columns = ['id','nombres','apellidos','municipio','cargo','celular']
+
+    def get_initial_queryset(self):
+        self.permissions = {
+            "ver": [
+                "usuarios.fest_2019.ver",
+                "usuarios.fest_2019.directorio.ver"
+            ],
+            "editar": [
+                "usuarios.fest_2019.ver",
+                "usuarios.fest_2019.directorio.ver",
+                "usuarios.fest_2019.directorio.editar",
+            ]
+        }
+        return self.model.objects.all()
+
+    def filter_queryset(self, qs):
+        search = self.request.GET.get(u'search[value]', None)
+        if search:
+            q = Q(nombres__icontains=search) | Q(apellidos__icontains=search) | \
+                Q(municipio__nombre__icontains=search) | Q(cargo__icontains=search)
+            qs = qs.filter(q)
+        return qs
+
+    def render_column(self, row, column):
+
+
+        if column == 'id':
+            if self.request.user.has_perms(self.permissions.get('editar')):
+                ret = '<div class="center-align">' \
+                      '<a href="editar/{0}/" class="tooltipped link-sec" data-position="top" data-delay="50" data-tooltip="Editar contacto">' \
+                      '<i class="material-icons">remove_red_eye</i>' \
+                      '</a>' \
+                      '</div>'.format(row.id)
+
+            else:
+                ret = '<div class="center-align">' \
+                           '<i class="material-icons">remove_red_eye</i>' \
+                       '</div>'.format(row.id)
+
+            return ret
+
+
+        elif column == 'municipio':
+            return '{0}, {1}'.format(row.municipio.nombre,row.municipio.departamento.nombre)
+
+
+        else:
+            return super(DirectorioListApi, self).render_column(row, column)

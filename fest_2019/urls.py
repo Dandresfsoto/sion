@@ -140,6 +140,15 @@ urlpatterns = [
     path('ruteo/<uuid:pk>/componentes/', views.RuteoHogaresComponentesListView.as_view()),
     path('ruteo/<uuid:pk>/componentes/<uuid:pk_componente>/cambiar/componente/', views.RuteoHogaresComponentesCambiarView.as_view()),
     path('ruteo/<uuid:pk>/componentes/<uuid:pk_componente>/momentos/', views.RuteoHogaresMomentosListView.as_view()),
+
+
+    #---------------------------------------RUTEO--------------------------------------
+
+    path('directorio/', views.DirectorioListView.as_view()),
+    path('directorio/crear/', views.DirectorioCreateView.as_view()),
+    path('directorio/editar/<uuid:pk>/', views.DirectorioUpdateView.as_view()),
+
+
 ]
 
 

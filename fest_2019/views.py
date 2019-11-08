@@ -138,6 +138,18 @@ class Fest2019OptionsView(LoginRequiredMixin,
                 'sican_description': 'Asignación de rutas a los hogares'
             })
 
+
+        if self.request.user.has_perm('usuarios.fest_2019.directorio.ver'):
+            items.append({
+                'sican_categoria': 'Directorio',
+                'sican_color': 'teal darken-4',
+                'sican_order': 9,
+                'sican_url': 'directorio/',
+                'sican_name': 'Directorio',
+                'sican_icon': 'assignment_ind',
+                'sican_description': 'Directorio de contactos'
+            })
+
         return items
 
     def get_context_data(self, **kwargs):
@@ -4108,3 +4120,93 @@ class RuteoHogaresReporteListadoView(LoginRequiredMixin,
 
 
 #----------------------------------------------------------------------------------
+
+#-------------------------------------- BD ----------------------------------------
+
+class DirectorioListView(LoginRequiredMixin,
+                      MultiplePermissionsRequiredMixin,
+                      TemplateView):
+
+    permissions = {
+        "all": [
+            "usuarios.fest_2019.ver",
+            "usuarios.fest_2019.directorio.ver"
+        ]
+    }
+    login_url = settings.LOGIN_URL
+    template_name = 'fest_2019/directorio/lista.html'
+
+
+    def get_context_data(self, **kwargs):
+        kwargs['title'] = "DIRECTORIO DE CONTACTOS"
+        kwargs['url_datatable'] = '/rest/v1.0/fest_2019/directorio/'
+        kwargs['permiso_crear'] = self.request.user.has_perm('usuarios.fest_2019.directorio.crear')
+        return super(DirectorioListView,self).get_context_data(**kwargs)
+
+
+
+
+class DirectorioCreateView(LoginRequiredMixin,
+                        MultiplePermissionsRequiredMixin,
+                        CreateView):
+
+    login_url = settings.LOGIN_URL
+    template_name = 'fest_2019/directorio/crear.html'
+    form_class = forms.ContactoCreateForm
+    success_url = "../"
+    models = models.Contactos
+
+    def get_permission_required(self, request=None):
+        permissions = {
+            "all": [
+                "usuarios.fest_2019.ver",
+                "usuarios.fest_2019.directorio.ver",
+                "usuarios.fest_2019.directorio.crear"
+            ]
+        }
+        return permissions
+
+    def form_valid(self, form):
+        self.object = form.save()
+        message = 'Se creó el contacto: {0}'.format(form.cleaned_data['nombres'])
+        messages.add_message(self.request, messages.INFO, message)
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_context_data(self, **kwargs):
+        kwargs['title'] = "NUEVO CONTACTO"
+        return super(DirectorioCreateView,self).get_context_data(**kwargs)
+
+
+class DirectorioUpdateView(LoginRequiredMixin,
+                        MultiplePermissionsRequiredMixin,
+                        UpdateView):
+
+    login_url = settings.LOGIN_URL
+    template_name = 'fest_2019/directorio/editar.html'
+    form_class = forms.ContactoCreateForm
+    success_url = "../../"
+    model = models.Contactos
+
+    def get_permission_required(self, request=None):
+        permissions = {
+            "all": [
+                "usuarios.fest_2019.ver",
+                "usuarios.fest_2019.directorio.ver",
+                "usuarios.fest_2019.directorio.editar"
+            ]
+        }
+        return permissions
+
+    def form_valid(self, form):
+        self.object = form.save()
+        message = 'Se edito el contacto: {0}'.format(self.object.nombres)
+        messages.add_message(self.request, messages.INFO, message)
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_context_data(self, **kwargs):
+        kwargs['title'] = "EDITAR CONTACTO"
+        return super(DirectorioUpdateView,self).get_context_data(**kwargs)
+
+
+    def get_initial(self):
+        return {'pk':self.kwargs['pk']}

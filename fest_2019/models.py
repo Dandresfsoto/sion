@@ -1831,3 +1831,23 @@ class CaracterizacionInicial(models.Model):
             string += categoria.nombre + ', '
 
         return string[:-2]
+
+
+
+
+class Contactos(models.Model):
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, unique=True, editable=False)
+    municipio = models.ForeignKey(Municipios, on_delete=models.DO_NOTHING, related_name='hcontactos_municipio')
+    nombres = models.CharField(max_length=100)
+    apellidos = models.CharField(max_length=100)
+    cargo = models.CharField(max_length=100)
+    celular = models.CharField(max_length=100)
+    email = models.EmailField(max_length=100)
+    resguardo = models.CharField(max_length=100)
+    comunidad = models.CharField(max_length=100)
+    lenguas = models.CharField(max_length=100,null=True,blank=True)
+
+
+    def __str__(self):
+        return self.nombres

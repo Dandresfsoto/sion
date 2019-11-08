@@ -48,7 +48,7 @@ urlpatterns = [
     path('contratos/', include('mis_contratos.urls')),
     path('ofertas/', include('ofertas.urls')),
     path('cpe_2018/', include('cpe_2018.urls')),
-    path('fest_2019/', include('fest_2019.urls')),
+    path('iraca/', include('fest_2019.urls')),
 
     path('rest/v1.0/usuarios/', include('usuarios.rest_urls')),
     path('rest/v1.0/recursos_humanos/', include('recursos_humanos.rest_urls')),

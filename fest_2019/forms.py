@@ -1902,3 +1902,76 @@ class CambioRutaVinculacionForm(forms.Form):
                 ),
             )
         )
+
+
+
+
+class ContactoCreateForm(forms.ModelForm):
+
+
+    def __init__(self, *args, **kwargs):
+        super(ContactoCreateForm, self).__init__(*args, **kwargs)
+
+        self.helper = FormHelper(self)
+        self.helper.layout = Layout(
+
+            Row(
+                Fieldset(
+                    'Información del contacto',
+                )
+            ),
+            Row(
+                Column(
+                    'municipio', css_class="s12"
+                )
+            ),
+            Row(
+                Column(
+                    'nombres',css_class="s12 m6 l6"
+                ),
+                Column(
+                    'apellidos', css_class="s12 m6 l6"
+                )
+            ),
+            Row(
+                Column(
+                    'cargo', css_class="s12 m6 l4"
+                ),
+                Column(
+                    'celular', css_class="s12 m6 l4"
+                ),
+                Column(
+                    'email', css_class="s12 m6 l4"
+                )
+            ),
+            Row(
+                Column(
+                    'resguardo', css_class="s12 m6 "
+                ),
+                Column(
+                    'comunidad', css_class="s12 m6 "
+                ),
+                Column(
+                    'lenguas', css_class="s12 m6 "
+                ),
+            ),
+            Row(
+                Column(
+                    Div(
+                        Submit(
+                            'submit',
+                            'Guardar',
+                            css_class='button-submit'
+                        ),
+                        css_class="right-align"
+                    ),
+                    css_class="s12"
+                ),
+            )
+        )
+
+    class Meta:
+        model = models.Contactos
+        fields = ['municipio','nombres','apellidos','cargo','celular','email','resguardo','comunidad','lenguas']
+        widgets = {
+        }

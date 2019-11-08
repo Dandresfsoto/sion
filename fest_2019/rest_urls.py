@@ -106,4 +106,10 @@ urlpatterns = [
 
     path('ruteo/autocomplete/vinculacion/rutas/<uuid:pk_ruta>/', rest_views.CambioRutasAutocompleteVinculacion.as_view()),
     path('ruteo/autocomplete/vinculacion/rutas/', rest_views.CambioRutasAutocompleteVinculacionAll.as_view()),
+
+
+
+    path('directorio/', rest_views.DirectorioListApi.as_view()),
+
+
 ]

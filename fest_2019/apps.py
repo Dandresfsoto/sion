@@ -8,7 +8,7 @@ class Fest2019Config(AppConfig):
         self.sican_icon = "accessibility"
         self.sican_description = "Proyecto IRACA intervención 2019 - 2020"
         self.sican_color = "grey darken-4"
-        self.sican_url = '/fest_2019/'
+        self.sican_url = '/iraca/'
         self.sican_categoria = 'Iraca'
         self.sican_order = 10
         self.sican_permiso = 'usuarios.fest_2019.ver'
