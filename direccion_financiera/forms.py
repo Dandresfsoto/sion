@@ -288,110 +288,13 @@ class ReporteForm(forms.ModelForm):
                             css_class='s12 m6'
                         )
                     ),
-                    css_class="s12"
-                ),
-            ),
-            Row(
-                Fieldset(
-                    'Archivos',
-                )
-            ),
-            Row(
-                Column(
-                    HTML(
-                        """
-                        <p style="font-size:1.2rem;"><b>Respaldo del reporte</b></p>
-                        <p style="display:inline;"><b>Actualmente:</b>{{ respaldo_url | safe }}</p>
-                        """
-                    ),
-                    'respaldo',
-                    css_class='s12'
-                )
-            ),
-            Row(
-                Column(
-                    HTML(
-                        """
-                        <p style="font-size:1.2rem;"><b>Reporte interno firmado</b></p>
-                        <p style="display:inline;"><b>Actualmente:</b>{{ firma_url | safe }}</p>
-                        """
-                    ),
-                    'firma',
-                    css_class='s12'
-                )
-            ),
-            Row(
-                Column(
-                    Div(
-                        Submit(
-                            'submit',
-                            'Guardar',
-                            css_class='button-submit'
-                        ),
-                        css_class="right-align"
-                    ),
-                    css_class="s12"
-                ),
-            )
-        )
-
-    class Meta:
-        model = Reportes
-        fields = ['nombre','servicio','proyecto','tipo_soporte','inicio','fin','respaldo','firma','efectivo']
-        labels = {
-            'servicio': 'Bien o servicio a gestionar',
-            'tipo_soporte': 'Respaldo del reporte',
-            'inicio': 'Fecha de inicio',
-            'fin': 'Fecha de finalización',
-            'efectivo': 'Tipo de reporte'
-        }
-        widgets = {
-            'efectivo': forms.Select(choices=[(False,'Bancarizado'),(True,'Efectivo')])
-        }
-
-class ReporteUpdateForm(forms.ModelForm):
-
-
-    def __init__(self, *args, **kwargs):
-        super(ReporteUpdateForm, self).__init__(*args, **kwargs)
-
-
-        self.fields['respaldo'].widget = forms.FileInput()
-        self.fields['firma'].widget = forms.FileInput()
-
-        self.helper = FormHelper(self)
-        self.helper.layout = Layout(
-
-            Row(
-                Fieldset(
-                    'Información del reporte',
-                )
-            ),
-            Row(
-                Column(
                     Row(
                         Column(
-                            'nombre',
-                            css_class='s12'
-                        ),
-                    ),
-                    Row(
-                        Column(
-                            'proyecto',
+                            'numero_contrato',
                             css_class='s12 m6'
                         ),
                         Column(
-                            'tipo_soporte',
-                            css_class='s12 m6'
-                        ),
-                    ),
-                    Row(
-                        Column(
-                            'inicio',
-                            css_class='s12 m6'
-                        ),
-                        Column(
-                            'fin',
+                            'numero_documento_equivalente',
                             css_class='s12 m6'
                         )
                     ),
@@ -444,11 +347,128 @@ class ReporteUpdateForm(forms.ModelForm):
 
     class Meta:
         model = Reportes
-        fields = ['nombre','proyecto','tipo_soporte','inicio','fin','respaldo','firma']
+        fields = ['nombre','servicio','proyecto','tipo_soporte','inicio','fin','respaldo','firma','efectivo','numero_contrato','numero_documento_equivalente']
+        labels = {
+            'servicio': 'Bien o servicio a gestionar',
+            'tipo_soporte': 'Respaldo del reporte',
+            'inicio': 'Fecha de pago',
+            'fin': 'Fecha de cargue',
+            'efectivo': 'Tipo de reporte'
+        }
+        widgets = {
+            'efectivo': forms.Select(choices=[(False,'Bancarizado'),(True,'Efectivo')])
+        }
+
+class ReporteUpdateForm(forms.ModelForm):
+
+
+    def __init__(self, *args, **kwargs):
+        super(ReporteUpdateForm, self).__init__(*args, **kwargs)
+
+
+        self.fields['respaldo'].widget = forms.FileInput()
+        self.fields['firma'].widget = forms.FileInput()
+
+        self.helper = FormHelper(self)
+        self.helper.layout = Layout(
+
+            Row(
+                Fieldset(
+                    'Información del reporte',
+                )
+            ),
+            Row(
+                Column(
+                    Row(
+                        Column(
+                            'nombre',
+                            css_class='s12'
+                        ),
+                    ),
+                    Row(
+                        Column(
+                            'proyecto',
+                            css_class='s12 m6'
+                        ),
+                        Column(
+                            'tipo_soporte',
+                            css_class='s12 m6'
+                        ),
+                    ),
+                    Row(
+                        Column(
+                            'inicio',
+                            css_class='s12 m6'
+                        ),
+                        Column(
+                            'fin',
+                            css_class='s12 m6'
+                        )
+                    ),
+                    Row(
+                        Column(
+                            'numero_contrato',
+                            css_class='s12 m6'
+                        ),
+                        Column(
+                            'numero_documento_equivalente',
+                            css_class='s12 m6'
+                        )
+                    ),
+                    css_class="s12"
+                ),
+            ),
+            Row(
+                Fieldset(
+                    'Archivos',
+                )
+            ),
+            Row(
+                Column(
+                    HTML(
+                        """
+                        <p style="font-size:1.2rem;"><b>Respaldo del reporte</b></p>
+                        <p style="display:inline;"><b>Actualmente:</b>{{ respaldo_url | safe }}</p>
+                        """
+                    ),
+                    'respaldo',
+                    css_class='s12'
+                )
+            ),
+            Row(
+                Column(
+                    HTML(
+                        """
+                        <p style="font-size:1.2rem;"><b>Reporte interno firmado</b></p>
+                        <p style="display:inline;"><b>Actualmente:</b>{{ firma_url | safe }}</p>
+                        """
+                    ),
+                    'firma',
+                    css_class='s12'
+                )
+            ),
+            Row(
+                Column(
+                    Div(
+                        Submit(
+                            'submit',
+                            'Guardar',
+                            css_class='button-submit'
+                        ),
+                        css_class="right-align"
+                    ),
+                    css_class="s12"
+                ),
+            )
+        )
+
+    class Meta:
+        model = Reportes
+        fields = ['nombre','proyecto','tipo_soporte','inicio','fin','respaldo','firma','numero_contrato','numero_documento_equivalente']
         labels = {
             'tipo_soporte': 'Respaldo del reporte',
-            'inicio': 'Fecha de inicio',
-            'fin': 'Fecha de finalización'
+            'inicio': 'Fecha de pago',
+            'fin': 'Fecha de cargue'
         }
 
 class ResultadoReporteForm(forms.ModelForm):

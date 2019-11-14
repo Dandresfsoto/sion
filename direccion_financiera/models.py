@@ -97,6 +97,11 @@ class Reportes(models.Model):
 
     efectivo = models.BooleanField(default=False)
 
+
+    numero_contrato = models.CharField(max_length=200,blank=True,null=True)
+    numero_documento_equivalente = models.CharField(max_length=200,blank=True,null=True)
+
+
     def pretty_print_respaldo(self):
         try:
             url = self.respaldo.url

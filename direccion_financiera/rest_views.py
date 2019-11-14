@@ -206,10 +206,10 @@ class TerceroPagosListApi(BaseDatatableView):
 
 class ReportesListApi(BaseDatatableView):
     model = Reportes
-    columns = ['consecutivo', 'usuario_actualizacion','usuario_creacion', 'efectivo','creation', 'nombre',
+    columns = ['consecutivo', 'usuario_actualizacion','usuario_creacion', 'efectivo', 'proyecto','creation', 'nombre',
                'plano', 'valor', 'estado', 'servicio']
 
-    order_columns = ['consecutivo', 'usuario_actualizacion','usuario_creacion', 'efectivo','creation', 'nombre',
+    order_columns = ['consecutivo', 'usuario_actualizacion','usuario_creacion', 'efectivo','proyecto','creation', 'nombre',
                'plano', 'valor', 'estado', 'servicio']
 
 
@@ -287,6 +287,11 @@ class ReportesListApi(BaseDatatableView):
 
         elif column == 'creation':
             return row.pretty_creation_datetime()
+
+
+
+        elif column == 'proyecto':
+            return row.proyecto.nombre
 
 
 
