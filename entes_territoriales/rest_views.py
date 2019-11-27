@@ -10,8 +10,8 @@ from rest_framework import status
 
 class ReunionesListApi(BaseDatatableView):
     model = models.Reuniones
-    columns = ['id','usuario_actualizacion','region','creation','municipio','update_datetime','usuario_creacion']
-    order_columns = ['id','usuario_actualizacion','region','creation','municipio','update_datetime','usuario_creacion']
+    columns = ['id','usuario_actualizacion','creation','municipio','update_datetime']
+    order_columns = ['id','usuario_actualizacion','creation','municipio','update_datetime']
 
 
     def filter_queryset(self, qs):
@@ -27,7 +27,7 @@ class ReunionesListApi(BaseDatatableView):
         if column == 'id':
 
             ret = ''
-            if self.request.user.has_perm('usuarios.cpe_2018.entes_territoriales.reuniones.ver'):
+            if self.request.user.has_perm('usuarios.fest_2019.entes_territoriales.reuniones.ver'):
                 ret = '<div class="center-align">' \
                       '<a href="{0}/hitos/" class="tooltipped edit-table" data-position="top" data-delay="50" data-tooltip="Ver hitos {1}, {2}">' \
                       '<i class="material-icons">flag</i>' \
@@ -44,7 +44,7 @@ class ReunionesListApi(BaseDatatableView):
         elif column == 'usuario_actualizacion':
 
             ret = ''
-            if self.request.user.has_perm('usuarios.cpe_2018.entes_territoriales.reuniones.ver'):
+            if self.request.user.has_perm('usuarios.fest_2019.entes_territoriales.reuniones.ver'):
                 ret = '<div class="center-align">' \
                       '<a href="{0}/contactos/" class="tooltipped edit-table" data-position="top" data-delay="50" data-tooltip="Ver contactos en {1}, {2}">' \
                       '<i class="material-icons">contacts</i>' \
@@ -63,8 +63,6 @@ class ReunionesListApi(BaseDatatableView):
         elif column == 'creation':
             return str(row.municipio.departamento.nombre)
 
-        elif column == 'region':
-            return str(row.get_region())
 
         elif column == 'municipio':
             return str(row.municipio.nombre)
@@ -72,8 +70,6 @@ class ReunionesListApi(BaseDatatableView):
         elif column == 'update_datetime':
             return str(row.pretty_creation_datetime())
 
-        elif column == 'usuario_creacion':
-            return str(row.usuario_creacion.get_full_name_string())
 
 
         else:
@@ -81,8 +77,8 @@ class ReunionesListApi(BaseDatatableView):
 
 class ReunionesContactosListApi(BaseDatatableView):
     model = models.Contactos
-    columns = ['id','reunion','nombre','cargo','celular','email','observaciones']
-    order_columns = ['id','reunion','nombre','cargo','celular','email','observaciones']
+    columns = ['id','reunion','nombres','apellidos','cargo','celular','email','resguardo','comunidad','lenguas','observaciones']
+    order_columns = ['id','reunion','nombres','apellidos','cargo','celular','email','resguardo','comunidad','lenguas','observaciones']
 
 
     def get_initial_queryset(self):
@@ -101,7 +97,7 @@ class ReunionesContactosListApi(BaseDatatableView):
         if column == 'id':
             reunion = models.Reuniones.objects.get(id = self.kwargs['pk'])
             ret = ''
-            if self.request.user.has_perm('usuarios.cpe_2018.entes_territoriales.reuniones.ver'):
+            if self.request.user.has_perm('usuarios.fest_2019.entes_territoriales.reuniones.ver'):
 
                 ret = '<div class="center-align">' \
                       '<a href="{0}/editar/" class="tooltipped edit-table" data-position="top" data-delay="50" data-tooltip="Editar">' \
@@ -119,7 +115,7 @@ class ReunionesContactosListApi(BaseDatatableView):
 
         elif column == 'reunion':
             ret = ''
-            if self.request.user.has_perm('usuarios.cpe_2018.entes_territoriales.reuniones.ver'):
+            if self.request.user.has_perm('usuarios.fest_2019.entes_territoriales.reuniones.ver'):
 
                 ret = '<div class="center-align">' \
                       '<a href="{0}/soportes/" class="tooltipped link-sec" data-position="top" data-delay="50" data-tooltip="Soportes">' \
@@ -157,8 +153,8 @@ class ReunionesContactosListApi(BaseDatatableView):
 
 class ReunionesHitosListApi(BaseDatatableView):
     model = models.Hito
-    columns = ['id','reunion','tipo','clase','creation','file','estado','observacion']
-    order_columns = ['id','reunion','tipo','clase','creation','file','estado','observacion']
+    columns = ['id','reunion','tipo','creation','file','file2','file3','estado','observacion']
+    order_columns = ['id','reunion','tipo','creation','file','file2','file3','estado','observacion']
 
 
     def get_initial_queryset(self):
@@ -224,11 +220,34 @@ class ReunionesHitosListApi(BaseDatatableView):
 
         elif column == 'file':
             if row.url_file() != None:
-                return '<div class="center-align"><a href="{0}" class="tooltipped edit-table" data-position="top" data-delay="50" data-tooltip="Formato cargado">' \
+                return '<div class="center-align"><a href="{0}" class="tooltipped edit-table" data-position="top" data-delay="50" data-tooltip="Acta">' \
                            '<i class="material-icons" style="font-size: 2rem;">insert_drive_file</i>' \
                         '</a></div>'.format(row.url_file())
             else:
                 return ''
+
+
+
+        elif column == 'file2':
+            if row.url_file() != None:
+                return '<div class="center-align"><a href="{0}" class="tooltipped edit-table" data-position="top" data-delay="50" data-tooltip="Listado de asistencia">' \
+                           '<i class="material-icons" style="font-size: 2rem;">insert_drive_file</i>' \
+                        '</a></div>'.format(row.url_file2())
+            else:
+                return ''
+
+
+
+
+        elif column == 'file3':
+            if row.url_file() != None:
+                return '<div class="center-align"><a href="{0}" class="tooltipped edit-table" data-position="top" data-delay="50" data-tooltip="Otro">' \
+                           '<i class="material-icons" style="font-size: 2rem;">insert_drive_file</i>' \
+                        '</a></div>'.format(row.url_file3())
+            else:
+                return ''
+
+
 
         elif column == 'celular':
             return str(row.celular)

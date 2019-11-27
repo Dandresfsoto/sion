@@ -20,7 +20,7 @@ def delta_contacto(contacto):
                     'insert': 'Nombre: '
                 },
                 {
-                    'insert': contacto.nombre,
+                    'insert': contacto.nombres,
                 },
                 {
                     'insert': '\n'

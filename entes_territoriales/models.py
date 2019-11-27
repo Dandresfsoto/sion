@@ -34,7 +34,7 @@ class Reuniones(models.Model):
         return DepartamentosCpe2018.objects.get(numero = codigo).region.nombre
 
 def upload_dinamic_hito(instance, filename):
-    return '/'.join(['CPE 2018', 'Entes territoriales', 'Reuniones', str(instance.reunion.municipio.departamento.nombre),
+    return '/'.join(['Reuniones', 'Entes territoriales', str(instance.reunion.municipio.departamento.nombre),
                      str(instance.reunion.municipio.nombre), 'Hitos', filename])
 
 class Hito(models.Model):
@@ -42,11 +42,12 @@ class Hito(models.Model):
     creation = models.DateTimeField(auto_now_add=True)
     reunion = models.ForeignKey(Reuniones, on_delete=models.DO_NOTHING)
     tipo = models.CharField(max_length=100)
-    clase = models.CharField(max_length=100)
     fecha = models.DateField()
     estado = models.CharField(max_length=100,default='Esperando aprobación')
     observacion = models.CharField(max_length=500, blank=True, null=True)
     file = models.FileField(upload_to=upload_dinamic_hito, blank=True, null=True, max_length=255)
+    file2 = models.FileField(upload_to=upload_dinamic_hito, blank=True, null=True, max_length=255)
+    file3 = models.FileField(upload_to=upload_dinamic_hito, blank=True, null=True, max_length=255)
     foto_1 = models.FileField(upload_to=upload_dinamic_hito, blank=True, null=True, max_length=255)
     foto_2 = models.FileField(upload_to=upload_dinamic_hito, blank=True, null=True, max_length=255)
     foto_3 = models.FileField(upload_to=upload_dinamic_hito, blank=True, null=True, max_length=255)
@@ -61,13 +62,13 @@ class Hito(models.Model):
         if self.foto_1 != '':
             fotos.append(self.foto_1.url)
 
-        elif self.foto_2 != '':
+        if self.foto_2 != '':
             fotos.append(self.foto_2.url)
 
-        elif self.foto_3 != '':
+        if self.foto_3 != '':
             fotos.append(self.foto_3.url)
 
-        elif self.foto_4 != '':
+        if self.foto_4 != '':
             fotos.append(self.foto_4.url)
 
 
@@ -83,6 +84,14 @@ class Hito(models.Model):
 
     def get_extension(self):
         return str(self.file.path).split('.')[-1]
+
+
+    def get_extension2(self):
+        return str(self.file2.path).split('.')[-1]
+
+
+    def get_extension3(self):
+        return str(self.file3.path).split('.')[-1]
 
 
     def get_region(self):
@@ -130,6 +139,22 @@ class Hito(models.Model):
             pass
         return url
 
+    def url_file2(self):
+        url = None
+        try:
+            url = self.file2.url
+        except:
+            pass
+        return url
+
+    def url_file3(self):
+        url = None
+        try:
+            url = self.file3.url
+        except:
+            pass
+        return url
+
     def pretty_print_url_file(self):
         try:
             url = self.file.url
@@ -137,6 +162,22 @@ class Hito(models.Model):
             return '<p style="display:inline;margin-left:5px;">No hay archivos cargados.</p>'
         else:
             return '<a href="'+ url +'"> '+ str(self.file.name) +'</a>'
+
+    def pretty_print_url_file2(self):
+        try:
+            url = self.file2.url
+        except:
+            return '<p style="display:inline;margin-left:5px;">No hay archivos cargados.</p>'
+        else:
+            return '<a href="'+ url +'"> '+ str(self.file2.name) +'</a>'
+
+    def pretty_print_url_file3(self):
+        try:
+            url = self.file3.url
+        except:
+            return '<p style="display:inline;margin-left:5px;">No hay archivos cargados.</p>'
+        else:
+            return '<a href="'+ url +'"> '+ str(self.file3.name) +'</a>'
 
     def pretty_creation_datetime(self):
         return self.creation.astimezone(settings_time_zone).strftime('%d/%m/%Y - %I:%M:%S %p')
@@ -146,14 +187,22 @@ class Hito(models.Model):
 class Contactos(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, unique=True, editable=False)
     reunion = models.ForeignKey(Reuniones,on_delete=models.DO_NOTHING)
-    nombre = models.CharField(max_length=200)
+    nombres = models.CharField(max_length=100)
+    apellidos = models.CharField(max_length=100)
     cargo = models.CharField(max_length=200)
-    celular = PhoneNumberField(blank=True,null=True)
+    celular = PhoneNumberField()
     email = models.EmailField(max_length=100,blank=True,null=True)
+    resguardo = models.CharField(max_length=100)
+    comunidad = models.CharField(max_length=100)
+    lenguas = models.CharField(max_length=100, null=True, blank=True)
     observaciones = models.TextField(max_length=500,blank=True,null=True)
 
+
+
+
+
     def __str__(self):
-        return self.nombre
+        return self.nombres
 
 
 
@@ -172,8 +221,8 @@ class Registro(models.Model):
 
 
 def upload_dinamic_soportes(instance, filename):
-    return '/'.join(['CPE 2018', 'Entes territoriales', 'Reuniones', str(instance.contacto.reunion.municipio.departamento.nombre),
-                     str(instance.contacto.reunion.municipio.nombre), str(instance.contacto.cargo), str(instance.contacto.nombre), filename])
+    return '/'.join(['Reuniones', 'Entes territoriales', str(instance.contacto.reunion.municipio.departamento.nombre),
+                     str(instance.contacto.reunion.municipio.nombre), str(instance.contacto.cargo), str(instance.contacto.nombres), filename])
 
 class Soportes(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, unique=True, editable=False)

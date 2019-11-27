@@ -107,12 +107,16 @@ class ContactosForm(forms.ModelForm):
             ),
             Row(
                 Column(
-                    'nombre',
-                    css_class='s12 m6'
+                    'nombres',
+                    css_class='s12 m6 l4'
+                ),
+                Column(
+                    'apellidos',
+                    css_class='s12 m6 l4'
                 ),
                 Column(
                     'cargo',
-                    css_class='s12 m6'
+                    css_class='s12 m6 l4'
                 )
             ),
             Row(
@@ -123,6 +127,20 @@ class ContactosForm(forms.ModelForm):
                 Column(
                     'email',
                     css_class='s12 m6'
+                )
+            ),
+            Row(
+                Column(
+                    'resguardo',
+                    css_class='s12 m6 l4'
+                ),
+                Column(
+                    'comunidad',
+                    css_class='s12 m6 l4'
+                ),
+                Column(
+                    'lenguas',
+                    css_class='s12 m6 l4'
                 )
             ),
             Row(
@@ -148,7 +166,7 @@ class ContactosForm(forms.ModelForm):
 
     class Meta:
         model = models.Contactos
-        fields = ['nombre', 'cargo', 'celular', 'email', 'observaciones']
+        fields = ['nombres', 'apellidos', 'cargo', 'celular', 'email', 'resguardo', 'comunidad', 'lenguas','observaciones']
 
 class SoportesForm(forms.ModelForm):
 
@@ -264,22 +282,21 @@ class GestionForm(forms.Form):
 
 class HitoForm(forms.Form):
 
-    tipo = forms.CharField(label='Tipo de hito',max_length=100, widget= forms.Select(choices=[
+    tipo = forms.CharField(label='Tipo de acta',max_length=100, widget= forms.Select(choices=[
         ('','----------'),
-        ('Reunión inicial', 'Reunión inicial'),
-        ('Reunión de seguimiento a compromisos', 'Reunión de seguimiento a compromisos'),
-        ('Reunión de cierre', 'Reunión de cierre'),
+        ('Acta de socialización y concertación', 'Acta de socialización y concertación'),
         ('Otro', 'Otro')
     ]))
-    clase = forms.CharField(label='Clase de reunión', max_length=100, widget=forms.Select(choices=[
-        ('', '----------'),
-        ('Departamental', 'Departamental'),
-        ('Municipal', 'Municipal')
-    ]))
-    fecha = forms.DateField(label = 'Fecha del hito')
+    fecha = forms.DateField(label = 'Fecha del acta')
     contenido = forms.CharField(widget=forms.HiddenInput())
     inicial = forms.CharField(widget=forms.HiddenInput())
-    file = forms.FileField(max_length=255)
+    file = forms.FileField(max_length=255,widget= forms.FileInput(attrs={'data-max-file-size': '10M',
+                                                                         'accept': 'application/pdf'}))
+    file2 = forms.FileField(max_length=255,widget= forms.FileInput(attrs={'data-max-file-size': '10M',
+                                                                         'accept': 'application/pdf'}))
+    file3 = forms.FileField(max_length=255,widget= forms.FileInput(attrs={'data-max-file-size': '10M',
+                                                                         'accept': 'application/pdf'}))
+
     foto_1 = forms.ImageField(max_length=255,required=False,widget= forms.FileInput(attrs={'data-max-file-size': '5M',
                                                                          'accept': 'image/jpg,image/jpeg,image/png'}))
     foto_2 = forms.ImageField(max_length=255, required=False,widget= forms.FileInput(attrs={'data-max-file-size': '5M',
@@ -298,10 +315,11 @@ class HitoForm(forms.Form):
 
             self.fields['inicial'].initial = json.dumps(functions.delta_empty())
             self.fields['tipo'].initial = hito.tipo
-            self.fields['clase'].initial = hito.clase
             self.fields['fecha'].initial = hito.fecha
 
             self.fields['file'].required = False
+            self.fields['file2'].required = False
+            self.fields['file3'].required = False
 
             if hito.url_foto_1() != None:
                 self.fields['foto_1'].widget.attrs['data-default-file'] = hito.url_foto_1()
@@ -330,24 +348,24 @@ class HitoForm(forms.Form):
         self.helper.layout = Layout(
             Row(
                 Fieldset(
-                    'Información del hito:'
+                    'Información del acta:'
                 )
             ),
             Row(
                 Column(
                     'tipo',
-                    css_class='s12 m6 l4'
-                ),
-                Column(
-                    'clase',
-                    css_class='s12 m6 l4'
+                    css_class='s12 m6 l6'
                 ),
                 Column(
                     'fecha',
-                    css_class='s12 m6 l4'
+                    css_class='s12 m6 l6'
                 )
             ),
-
+            Row(
+                Fieldset(
+                    'Formato acta'
+                )
+            ),
             Row(
                 Column(
                     HTML(
@@ -360,14 +378,43 @@ class HitoForm(forms.Form):
                 )
             ),
             Row(
+                Fieldset(
+                    'Lista de asistencia'
+                )
+            ),
+            Row(
                 Column(
                     HTML(
                         """
-                        <p><b>Registro fotográfico:</b></p>
+                        <p style="display:inline;"><b>Actualmente:</b>{{ file2_url | safe }}</p>
                         """
                     ),
+                    'file2',
                     css_class='s12'
-                ),
+                )
+            ),
+            Row(
+                Fieldset(
+                    'Otros'
+                )
+            ),
+            Row(
+                Column(
+                    HTML(
+                        """
+                        <p style="display:inline;"><b>Actualmente:</b>{{ file3_url | safe }}</p>
+                        """
+                    ),
+                    'file3',
+                    css_class='s12'
+                )
+            ),
+            Row(
+                Fieldset(
+                    'Registro fotográfico'
+                )
+            ),
+            Row(
                 Column(
                     'foto_1',
                     css_class='s12 m6 l3'
@@ -383,6 +430,11 @@ class HitoForm(forms.Form):
                 Column(
                     'foto_4',
                     css_class='s12 m6 l3'
+                )
+            ),
+            Row(
+                Fieldset(
+                    'Observación'
                 )
             ),
             Row(

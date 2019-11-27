@@ -112,4 +112,7 @@ urlpatterns = [
     path('directorio/', rest_views.DirectorioListApi.as_view()),
 
 
+    path('entes_territoriales/', include('entes_territoriales.rest_urls')),
+
+
 ]

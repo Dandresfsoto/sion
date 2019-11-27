@@ -24,10 +24,10 @@ class EntesTerritorialesOptionsView(LoginRequiredMixin,
     """
     """
     login_url = settings.LOGIN_URL
-    template_name = 'cpe_2018/entes_territoriales/lista.html'
+    template_name = 'entes_territoriales/lista.html'
     permissions = {
         "all": [
-            "usuarios.cpe_2018.entes_territoriales.ver"
+            "usuarios.fest_2019.entes_territoriales.ver"
         ]
     }
 
@@ -40,22 +40,22 @@ class EntesTerritorialesOptionsView(LoginRequiredMixin,
     def get_items(self):
         items = []
 
-        if self.request.user.has_perm('usuarios.cpe_2018.entes_territoriales.reuniones.ver'):
+        if self.request.user.has_perm('usuarios.fest_2019.entes_territoriales.reuniones.ver'):
             items.append({
                 'sican_categoria': 'Reuniones',
                 'sican_color': 'orange darken-4',
                 'sican_order': 1,
                 'sican_url': 'reuniones/',
-                'sican_name': 'Reuniones',
+                'sican_name': 'Actas de socialización y concertación',
                 'sican_icon': 'data_usage',
-                'sican_description': 'Seguimiento y registro de hitos con los entes territoriales.'
+                'sican_description': 'Seguimiento y registro de actividades.'
             })
 
 
         return items
 
     def get_context_data(self, **kwargs):
-        kwargs['title'] = "ENTES TERRITORIALES - CPE"
+        kwargs['title'] = "GESTIÓN CON COMUNIDADES"
         kwargs['items'] = self.get_items()
         return super(EntesTerritorialesOptionsView,self).get_context_data(**kwargs)
 
@@ -70,19 +70,19 @@ class ReunionesListView(LoginRequiredMixin,
     """
     permissions = {
         "all": [
-            "usuarios.cpe_2018.ver",
-            "usuarios.cpe_2018.entes_territoriales.ver",
-            "usuarios.cpe_2018.entes_territoriales.reuniones.ver"
+            "usuarios.fest_2019.ver",
+            "usuarios.fest_2019.entes_territoriales.ver",
+            "usuarios.fest_2019.entes_territoriales.reuniones.ver"
         ]
     }
     login_url = settings.LOGIN_URL
-    template_name = 'cpe_2018/entes_territoriales/reuniones/lista.html'
+    template_name = 'entes_territoriales/reuniones/lista.html'
 
 
     def get_context_data(self, **kwargs):
-        kwargs['title'] = "REUNIONES"
-        kwargs['url_datatable'] = '/rest/v1.0/cpe_2018/entes_territoriales/reuniones/'
-        kwargs['permiso_crear'] = self.request.user.has_perm('usuarios.cpe_2018.entes_territoriales.reuniones.crear')
+        kwargs['title'] = "ACTAS DE SOCIALIZACIÓN Y CONCERTACIÓN"
+        kwargs['url_datatable'] = '/rest/v1.0/fest_2019/entes_territoriales/reuniones/'
+        kwargs['permiso_crear'] = self.request.user.has_perm('usuarios.fest_2019.entes_territoriales.reuniones.crear')
         return super(ReunionesListView,self).get_context_data(**kwargs)
 
 
@@ -119,14 +119,14 @@ class ReunionesCreateView(LoginRequiredMixin,
 
     permissions = {
         "all": [
-            "usuarios.cpe_2018.ver",
-            "usuarios.cpe_2018.entes_territoriales.ver",
-            "usuarios.cpe_2018.entes_territoriales.reuniones.ver",
-            "usuarios.cpe_2018.entes_territoriales.reuniones.crear"
+            "usuarios.fest_2019.ver",
+            "usuarios.fest_2019.entes_territoriales.ver",
+            "usuarios.fest_2019.entes_territoriales.reuniones.ver",
+            "usuarios.fest_2019.entes_territoriales.reuniones.crear"
         ]
     }
     login_url = settings.LOGIN_URL
-    template_name = 'cpe_2018/entes_territoriales/reuniones/crear.html'
+    template_name = 'entes_territoriales/reuniones/crear.html'
     form_class = forms.ReunionesForm
     success_url = "../"
 
@@ -146,7 +146,7 @@ class ReunionesCreateView(LoginRequiredMixin,
 
     def get_context_data(self, **kwargs):
         kwargs['title'] = "NUEVA GESTIÓN"
-        kwargs['url_autocomplete_municipio'] = '/rest/v1.0/cpe_2018/entes_territoriales/reuniones/autocomplete/municipios/'
+        kwargs['url_autocomplete_municipio'] = '/rest/v1.0/fest_2019/entes_territoriales/reuniones/autocomplete/municipios/'
         return super(ReunionesCreateView,self).get_context_data(**kwargs)
 
 
@@ -157,20 +157,20 @@ class ReunionesContactosListView(LoginRequiredMixin,
     """
     permissions = {
         "all": [
-            "usuarios.cpe_2018.ver",
-            "usuarios.cpe_2018.entes_territoriales.ver",
-            "usuarios.cpe_2018.entes_territoriales.reuniones.ver"
+            "usuarios.fest_2019.ver",
+            "usuarios.fest_2019.entes_territoriales.ver",
+            "usuarios.fest_2019.entes_territoriales.reuniones.ver"
         ]
     }
     login_url = settings.LOGIN_URL
-    template_name = 'cpe_2018/entes_territoriales/reuniones/contactos/lista.html'
+    template_name = 'entes_territoriales/reuniones/contactos/lista.html'
 
 
     def get_context_data(self, **kwargs):
         reunion = models.Reuniones.objects.get(id = self.kwargs['pk'])
         kwargs['title'] = "CONTACTOS"
-        kwargs['url_datatable'] = '/rest/v1.0/cpe_2018/entes_territoriales/reuniones/{0}/contactos/'.format(str(self.kwargs['pk']))
-        kwargs['permiso_crear'] = self.request.user.has_perm('usuarios.cpe_2018.entes_territoriales.reuniones.crear')
+        kwargs['url_datatable'] = '/rest/v1.0/fest_2019/entes_territoriales/reuniones/{0}/contactos/'.format(str(self.kwargs['pk']))
+        kwargs['permiso_crear'] = self.request.user.has_perm('usuarios.fest_2019.entes_territoriales.reuniones.crear')
         kwargs['breadcrum_active'] = str(reunion.municipio)
         return super(ReunionesContactosListView,self).get_context_data(**kwargs)
 
@@ -181,14 +181,14 @@ class ReunionesContactosCreateView(LoginRequiredMixin,
 
     permissions = {
         "all": [
-            "usuarios.cpe_2018.ver",
-            "usuarios.cpe_2018.entes_territoriales.ver",
-            "usuarios.cpe_2018.entes_territoriales.reuniones.ver",
-            "usuarios.cpe_2018.entes_territoriales.reuniones.crear"
+            "usuarios.fest_2019.ver",
+            "usuarios.fest_2019.entes_territoriales.ver",
+            "usuarios.fest_2019.entes_territoriales.reuniones.ver",
+            "usuarios.fest_2019.entes_territoriales.reuniones.crear"
         ]
     }
     login_url = settings.LOGIN_URL
-    template_name = 'cpe_2018/entes_territoriales/reuniones/contactos/crear.html'
+    template_name = 'entes_territoriales/reuniones/contactos/crear.html'
     form_class = forms.ContactosForm
     success_url = "../"
     model = models.Contactos
@@ -221,14 +221,14 @@ class ReunionesContactosUpdateView(LoginRequiredMixin,
 
     permissions = {
         "all": [
-            "usuarios.cpe_2018.ver",
-            "usuarios.cpe_2018.entes_territoriales.ver",
-            "usuarios.cpe_2018.entes_territoriales.reuniones.ver",
-            "usuarios.cpe_2018.entes_territoriales.reuniones.crear"
+            "usuarios.fest_2019.ver",
+            "usuarios.fest_2019.entes_territoriales.ver",
+            "usuarios.fest_2019.entes_territoriales.reuniones.ver",
+            "usuarios.fest_2019.entes_territoriales.reuniones.crear"
         ]
     }
     login_url = settings.LOGIN_URL
-    template_name = 'cpe_2018/entes_territoriales/reuniones/contactos/editar.html'
+    template_name = 'entes_territoriales/reuniones/contactos/editar.html'
     form_class = forms.ContactosForm
     success_url = "../../"
     model = models.Contactos
@@ -254,7 +254,7 @@ class ReunionesContactosUpdateView(LoginRequiredMixin,
         contacto = models.Contactos.objects.get(id=self.kwargs['pk_contacto'])
         kwargs['title'] = "EDITAR CONTACTO"
         kwargs['breadcrum_active'] = str(reunion.municipio)
-        kwargs['breadcrum_active_1'] = contacto.nombre
+        kwargs['breadcrum_active_1'] = contacto.nombres
         return super(ReunionesContactosUpdateView,self).get_context_data(**kwargs)
 
 
@@ -265,26 +265,26 @@ class ReunionesContactosSoportesListView(LoginRequiredMixin,
     """
     permissions = {
         "all": [
-            "usuarios.cpe_2018.ver",
-            "usuarios.cpe_2018.entes_territoriales.ver",
-            "usuarios.cpe_2018.entes_territoriales.reuniones.ver"
+            "usuarios.fest_2019.ver",
+            "usuarios.fest_2019.entes_territoriales.ver",
+            "usuarios.fest_2019.entes_territoriales.reuniones.ver"
         ]
     }
     login_url = settings.LOGIN_URL
-    template_name = 'cpe_2018/entes_territoriales/reuniones/contactos/soportes/lista.html'
+    template_name = 'entes_territoriales/reuniones/contactos/soportes/lista.html'
 
 
     def get_context_data(self, **kwargs):
         reunion = models.Reuniones.objects.get(id = self.kwargs['pk'])
         contacto = models.Contactos.objects.get(id=self.kwargs['pk_contacto'])
         kwargs['title'] = "SOPORTES"
-        kwargs['url_datatable'] = '/rest/v1.0/cpe_2018/entes_territoriales/reuniones/{0}/contactos/{1}/soportes/'.format(
+        kwargs['url_datatable'] = '/rest/v1.0/fest_2019/entes_territoriales/reuniones/{0}/contactos/{1}/soportes/'.format(
             str(self.kwargs['pk']),
             str(self.kwargs['pk_contacto'])
         )
-        kwargs['permiso_crear'] = self.request.user.has_perm('usuarios.cpe_2018.entes_territoriales.reuniones.crear')
+        kwargs['permiso_crear'] = self.request.user.has_perm('usuarios.fest_2019.entes_territoriales.reuniones.crear')
         kwargs['breadcrum_active'] = str(reunion.municipio)
-        kwargs['breadcrum_active_1'] = contacto.nombre
+        kwargs['breadcrum_active_1'] = contacto.nombres
         return super(ReunionesContactosSoportesListView,self).get_context_data(**kwargs)
 
 
@@ -294,14 +294,14 @@ class ReunionesContactosSoportesCreateView(LoginRequiredMixin,
 
     permissions = {
         "all": [
-            "usuarios.cpe_2018.ver",
-            "usuarios.cpe_2018.entes_territoriales.ver",
-            "usuarios.cpe_2018.entes_territoriales.reuniones.ver",
-            "usuarios.cpe_2018.entes_territoriales.reuniones.crear"
+            "usuarios.fest_2019.ver",
+            "usuarios.fest_2019.entes_territoriales.ver",
+            "usuarios.fest_2019.entes_territoriales.reuniones.ver",
+            "usuarios.fest_2019.entes_territoriales.reuniones.crear"
         ]
     }
     login_url = settings.LOGIN_URL
-    template_name = 'cpe_2018/entes_territoriales/reuniones/contactos/soportes/crear.html'
+    template_name = 'entes_territoriales/reuniones/contactos/soportes/crear.html'
     form_class = forms.SoportesForm
     success_url = "../"
     model = models.Soportes
@@ -320,7 +320,7 @@ class ReunionesContactosSoportesCreateView(LoginRequiredMixin,
         contacto = models.Contactos.objects.get(id=self.kwargs['pk_contacto'])
         kwargs['title'] = "NUEVO SOPORTE"
         kwargs['breadcrum_active'] = str(reunion.municipio)
-        kwargs['breadcrum_active_1'] = contacto.nombre
+        kwargs['breadcrum_active_1'] = contacto.nombres
         kwargs['file_url'] = '<p style="display:inline;margin-left:5px;">No hay archivos cargados.</p>'
         return super(ReunionesContactosSoportesCreateView,self).get_context_data(**kwargs)
 
@@ -331,14 +331,14 @@ class ReunionesContactosSoportesUpdateView(LoginRequiredMixin,
 
     permissions = {
         "all": [
-            "usuarios.cpe_2018.ver",
-            "usuarios.cpe_2018.entes_territoriales.ver",
-            "usuarios.cpe_2018.entes_territoriales.reuniones.ver",
-            "usuarios.cpe_2018.entes_territoriales.reuniones.crear"
+            "usuarios.fest_2019.ver",
+            "usuarios.fest_2019.entes_territoriales.ver",
+            "usuarios.fest_2019.entes_territoriales.reuniones.ver",
+            "usuarios.fest_2019.entes_territoriales.reuniones.crear"
         ]
     }
     login_url = settings.LOGIN_URL
-    template_name = 'cpe_2018/entes_territoriales/reuniones/contactos/soportes/actualizar.html'
+    template_name = 'entes_territoriales/reuniones/contactos/soportes/actualizar.html'
     form_class = forms.SoportesForm
     success_url = "../../"
     model = models.Soportes
@@ -352,7 +352,7 @@ class ReunionesContactosSoportesUpdateView(LoginRequiredMixin,
         soporte = models.Soportes.objects.get(id=self.kwargs['pk_soporte'])
         kwargs['title'] = "ACTUALIZAR SOPORTE"
         kwargs['breadcrum_active'] = str(reunion.municipio)
-        kwargs['breadcrum_active_1'] = contacto.nombre
+        kwargs['breadcrum_active_1'] = contacto.nombres
         kwargs['breadcrum_active_2'] = soporte.tipo
         kwargs['file_url'] = soporte.pretty_print_url_minuta()
         return super(ReunionesContactosSoportesUpdateView,self).get_context_data(**kwargs)
@@ -365,19 +365,19 @@ class ReunionesHitosListView(LoginRequiredMixin,
     """
     permissions = {
         "all": [
-            "usuarios.cpe_2018.ver",
-            "usuarios.cpe_2018.entes_territoriales.ver",
-            "usuarios.cpe_2018.entes_territoriales.reuniones.ver"
+            "usuarios.fest_2019.ver",
+            "usuarios.fest_2019.entes_territoriales.ver",
+            "usuarios.fest_2019.entes_territoriales.reuniones.ver"
         ]
     }
     login_url = settings.LOGIN_URL
-    template_name = 'cpe_2018/entes_territoriales/reuniones/hitos/lista.html'
+    template_name = 'entes_territoriales/reuniones/hitos/lista.html'
 
 
     def get_context_data(self, **kwargs):
         reunion = models.Reuniones.objects.get(id=self.kwargs['pk'])
-        kwargs['title'] = "HITOS"
-        kwargs['url_datatable'] = '/rest/v1.0/cpe_2018/entes_territoriales/reuniones/{0}/hitos/'.format(
+        kwargs['title'] = "ACTAS"
+        kwargs['url_datatable'] = '/rest/v1.0/fest_2019/entes_territoriales/reuniones/{0}/hitos/'.format(
             str(self.kwargs['pk'])
         )
         kwargs['breadcrum_active'] = str(reunion.municipio)
@@ -392,18 +392,18 @@ class ReunionesHitosVerView(LoginRequiredMixin,
     """
     permissions = {
         "all": [
-            "usuarios.cpe_2018.ver",
-            "usuarios.cpe_2018.entes_territoriales.ver",
-            "usuarios.cpe_2018.entes_territoriales.reuniones.ver"
+            "usuarios.fest_2019.ver",
+            "usuarios.fest_2019.entes_territoriales.ver",
+            "usuarios.fest_2019.entes_territoriales.reuniones.ver"
         ]
     }
     login_url = settings.LOGIN_URL
-    template_name = 'cpe_2018/entes_territoriales/reuniones/hitos/ver.html'
+    template_name = 'entes_territoriales/reuniones/hitos/ver.html'
 
 
     def get_context_data(self, **kwargs):
         reunion = models.Reuniones.objects.get(id=self.kwargs['pk'])
-        kwargs['title'] = "HITOS"
+        kwargs['title'] = "ACTAS"
         kwargs['breadcrum_active'] = str(reunion.municipio)
         kwargs['hito'] = models.Hito.objects.get(id = self.kwargs['pk_hito'])
         return super(ReunionesHitosVerView,self).get_context_data(**kwargs)
@@ -416,13 +416,13 @@ class ReunionesHitosEstadoUpdateView(LoginRequiredMixin,
     """
     permissions = {
         "all": [
-            "usuarios.cpe_2018.ver",
-            "usuarios.cpe_2018.entes_territoriales.ver",
-            "usuarios.cpe_2018.entes_territoriales.reuniones.ver"
+            "usuarios.fest_2019.ver",
+            "usuarios.fest_2019.entes_territoriales.ver",
+            "usuarios.fest_2019.entes_territoriales.reuniones.ver"
         ]
     }
     login_url = settings.LOGIN_URL
-    template_name = 'cpe_2018/entes_territoriales/reuniones/hitos/estado.html'
+    template_name = 'entes_territoriales/reuniones/hitos/estado.html'
     pk_url_kwarg = 'pk_hito'
     success_url = '../../'
     form_class = forms.HitoEstadoForm
@@ -431,7 +431,7 @@ class ReunionesHitosEstadoUpdateView(LoginRequiredMixin,
 
     def get_context_data(self, **kwargs):
         reunion = models.Reuniones.objects.get(id=self.kwargs['pk'])
-        kwargs['title'] = "HITOS"
+        kwargs['title'] = "ACTAS"
         kwargs['breadcrum_active'] = str(reunion.municipio)
         kwargs['hito'] = models.Hito.objects.get(id = self.kwargs['pk_hito'])
         return super(ReunionesHitosEstadoUpdateView,self).get_context_data(**kwargs)
@@ -456,14 +456,14 @@ class ReunionesHitosCreateView(LoginRequiredMixin,
 
     permissions = {
         "all": [
-            "usuarios.cpe_2018.ver",
-            "usuarios.cpe_2018.entes_territoriales.ver",
-            "usuarios.cpe_2018.entes_territoriales.reuniones.ver",
-            "usuarios.cpe_2018.entes_territoriales.reuniones.crear"
+            "usuarios.fest_2019.ver",
+            "usuarios.fest_2019.entes_territoriales.ver",
+            "usuarios.fest_2019.entes_territoriales.reuniones.ver",
+            "usuarios.fest_2019.entes_territoriales.reuniones.crear"
         ]
     }
     login_url = settings.LOGIN_URL
-    template_name = 'cpe_2018/entes_territoriales/reuniones/hitos/crear.html'
+    template_name = 'entes_territoriales/reuniones/hitos/crear.html'
     form_class = forms.HitoForm
     success_url = "../"
 
@@ -471,9 +471,10 @@ class ReunionesHitosCreateView(LoginRequiredMixin,
 
         contenido = json.loads(form.cleaned_data['contenido'])
         tipo = form.cleaned_data['tipo']
-        clase = form.cleaned_data['clase']
         fecha = form.cleaned_data['fecha']
         file = form.cleaned_data['file']
+        file2 = form.cleaned_data['file2']
+        file3 = form.cleaned_data['file3']
         foto_1 = form.cleaned_data['foto_1']
         foto_2 = form.cleaned_data['foto_2']
         foto_3 = form.cleaned_data['foto_3']
@@ -483,7 +484,8 @@ class ReunionesHitosCreateView(LoginRequiredMixin,
             reunion=models.Reuniones.objects.get(id=self.kwargs['pk']),
             tipo = tipo,
             file = file,
-            clase = clase,
+            file2 = file2,
+            file3 = file3,
             fecha = fecha,
             foto_1 = foto_1,
             foto_2 = foto_2,
@@ -502,9 +504,11 @@ class ReunionesHitosCreateView(LoginRequiredMixin,
 
     def get_context_data(self, **kwargs):
         reunion = models.Reuniones.objects.get(id=self.kwargs['pk'])
-        kwargs['title'] = "AÑADIR HITO"
+        kwargs['title'] = "AÑADIR ACTA"
         kwargs['breadcrum_active'] = str(reunion.municipio)
         kwargs['file_url'] = '<p style="display:inline;margin-left:5px;">No hay archivos cargados.</p>'
+        kwargs['file2_url'] = '<p style="display:inline;margin-left:5px;">No hay archivos cargados.</p>'
+        kwargs['file3_url'] = '<p style="display:inline;margin-left:5px;">No hay archivos cargados.</p>'
         return super(ReunionesHitosCreateView,self).get_context_data(**kwargs)
 
 
@@ -514,14 +518,14 @@ class ReunionesHitosUpdateView(LoginRequiredMixin,
 
     permissions = {
         "all": [
-            "usuarios.cpe_2018.ver",
-            "usuarios.cpe_2018.entes_territoriales.ver",
-            "usuarios.cpe_2018.entes_territoriales.reuniones.ver",
-            "usuarios.cpe_2018.entes_territoriales.reuniones.crear"
+            "usuarios.fest_2019.ver",
+            "usuarios.fest_2019.entes_territoriales.ver",
+            "usuarios.fest_2019.entes_territoriales.reuniones.ver",
+            "usuarios.fest_2019.entes_territoriales.reuniones.crear"
         ]
     }
     login_url = settings.LOGIN_URL
-    template_name = 'cpe_2018/entes_territoriales/reuniones/hitos/editar.html'
+    template_name = 'entes_territoriales/reuniones/hitos/editar.html'
     form_class = forms.HitoForm
     success_url = "../../"
 
@@ -529,9 +533,10 @@ class ReunionesHitosUpdateView(LoginRequiredMixin,
     def form_valid(self, form):
 
         tipo = form.cleaned_data['tipo']
-        clase = form.cleaned_data['clase']
         fecha = form.cleaned_data['fecha']
         file = form.cleaned_data['file']
+        file2 = form.cleaned_data['file2']
+        file3 = form.cleaned_data['file3']
         foto_1 = form.cleaned_data['foto_1']
         foto_2 = form.cleaned_data['foto_2']
         foto_3 = form.cleaned_data['foto_3']
@@ -541,11 +546,16 @@ class ReunionesHitosUpdateView(LoginRequiredMixin,
         #registro = models.Registro.objects.filter(hito=hito)
 
         hito.tipo = tipo
-        hito.clase = clase
         hito.fecha = fecha
 
         if file != None:
             hito.file = file
+
+        if file2 != None:
+            hito.file2 = file2
+
+        if file3 != None:
+            hito.file3 = file3
 
         if foto_1 != None:
             hito.foto_1 = foto_1
@@ -573,11 +583,13 @@ class ReunionesHitosUpdateView(LoginRequiredMixin,
     def get_context_data(self, **kwargs):
         reunion = models.Reuniones.objects.get(id=self.kwargs['pk'])
         hito = models.Hito.objects.get(id = self.kwargs['pk_hito'])
-        kwargs['title'] = "EDITAR HITO"
+        kwargs['title'] = "EDITAR ACTA"
         kwargs['breadcrum_active'] = str(reunion.municipio)
         kwargs['breadcrum_active_1'] = str(hito.tipo)
         kwargs['file_url'] = hito.pretty_print_url_file()
-        kwargs['url_foto'] = '/rest/v1.0/cpe_2018/entes_territoriales/reuniones/{0}/hitos/{1}/api_foto'.format(
+        kwargs['file2_url'] = hito.pretty_print_url_file2()
+        kwargs['file3_url'] = hito.pretty_print_url_file3()
+        kwargs['url_foto'] = '/rest/v1.0/fest_2019/entes_territoriales/reuniones/{0}/hitos/{1}/api_foto'.format(
             reunion.id,
             hito.id
         )
@@ -593,13 +605,13 @@ class ReunionesHitosGestionListView(LoginRequiredMixin,
 
     permissions = {
         "all": [
-            "usuarios.cpe_2018.ver",
-            "usuarios.cpe_2018.entes_territoriales.ver",
-            "usuarios.cpe_2018.entes_territoriales.reuniones.ver",
+            "usuarios.fest_2019.ver",
+            "usuarios.fest_2019.entes_territoriales.ver",
+            "usuarios.fest_2019.entes_territoriales.reuniones.ver",
         ]
     }
     login_url = settings.LOGIN_URL
-    template_name = 'cpe_2018/entes_territoriales/reuniones/hitos/gestion.html'
+    template_name = 'entes_territoriales/reuniones/hitos/gestion.html'
     form_class = forms.GestionForm
 
     def get_success_url(self):

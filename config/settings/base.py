@@ -71,7 +71,7 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [(env('CELERY_BROKER_URL'), 6379)],
+            "hosts": [env('CHANNEL_LAYERS_URL')],
         },
     },
 }
@@ -117,6 +117,7 @@ DJANGO_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
+    'channels',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize'
@@ -127,7 +128,6 @@ THIRD_PARTY_APPS = [
     'crispy_forms_materialize',
     'django_celery_beat',
     'django_celery_results',
-    'channels',
     'rest_framework',
     'phonenumber_field',
     'social_django',

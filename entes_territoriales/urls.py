@@ -8,6 +8,7 @@ urlpatterns = [
     path('reuniones/reporte/', views.ReporteReunionesListView.as_view()),
 
     path('reuniones/crear/', views.ReunionesCreateView.as_view()),
+
     path('reuniones/<uuid:pk>/contactos/', views.ReunionesContactosListView.as_view()),
     path('reuniones/<uuid:pk>/contactos/nuevo/', views.ReunionesContactosCreateView.as_view()),
     path('reuniones/<uuid:pk>/contactos/<uuid:pk_contacto>/editar/', views.ReunionesContactosUpdateView.as_view()),

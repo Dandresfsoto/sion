@@ -49,11 +49,23 @@ class Fest2019OptionsView(LoginRequiredMixin,
     def get_items(self):
         items = []
 
+
+        if self.request.user.has_perm('usuarios.fest_2019.entes_territoriales.ver'):
+            items.append({
+                'sican_categoria': 'Reuniones',
+                'sican_color': 'teal darken-4',
+                'sican_order': 1,
+                'sican_url': 'entes_territoriales/',
+                'sican_name': 'Gestión con comunidades',
+                'sican_icon': 'assistant',
+                'sican_description': 'Registro de información y gestión.'
+            })
+
         if self.request.user.has_perm('usuarios.fest_2019.bd.ver'):
             items.append({
                 'sican_categoria': 'Base de datos',
                 'sican_color': 'brown darken-4',
-                'sican_order': 1,
+                'sican_order': 2,
                 'sican_url': 'bd/',
                 'sican_name': 'Base de datos',
                 'sican_icon': 'data_usage',
@@ -64,7 +76,7 @@ class Fest2019OptionsView(LoginRequiredMixin,
             items.append({
                 'sican_categoria': 'Entregables',
                 'sican_color': 'orange darken-4',
-                'sican_order': 2,
+                'sican_order': 3,
                 'sican_url': 'entregables/',
                 'sican_name': 'Entregables',
                 'sican_icon': 'view_list',
@@ -75,7 +87,7 @@ class Fest2019OptionsView(LoginRequiredMixin,
             items.append({
                 'sican_categoria': 'Rutas',
                 'sican_color': 'green darken-4',
-                'sican_order': 3,
+                'sican_order': 4,
                 'sican_url': 'rutas/',
                 'sican_name': 'Rutas',
                 'sican_icon': 'autorenew',
@@ -86,7 +98,7 @@ class Fest2019OptionsView(LoginRequiredMixin,
             items.append({
                 'sican_categoria': 'Mis rutas',
                 'sican_color': 'blue-grey darken-3',
-                'sican_order': 4,
+                'sican_order': 5,
                 'sican_url': 'misrutas/',
                 'sican_name': 'Mis rutas',
                 'sican_icon': 'assignment_ind',
@@ -97,7 +109,7 @@ class Fest2019OptionsView(LoginRequiredMixin,
             items.append({
                 'sican_categoria': 'Permisos',
                 'sican_color': 'red darken-3',
-                'sican_order': 5,
+                'sican_order': 6,
                 'sican_url': 'permisos/',
                 'sican_name': 'Permisos',
                 'sican_icon': 'apps',
@@ -108,7 +120,7 @@ class Fest2019OptionsView(LoginRequiredMixin,
             items.append({
                 'sican_categoria': 'Soportes',
                 'sican_color': 'teal darken-4',
-                'sican_order': 6,
+                'sican_order': 7,
                 'sican_url': 'soportes/',
                 'sican_name': 'Soportes',
                 'sican_icon': 'insert_drive_file',
@@ -120,7 +132,7 @@ class Fest2019OptionsView(LoginRequiredMixin,
             items.append({
                 'sican_categoria': 'Cortes de pago',
                 'sican_color': 'pink darken-3',
-                'sican_order': 7,
+                'sican_order': 8,
                 'sican_url': 'cortes/',
                 'sican_name': 'Cortes de pago',
                 'sican_icon': 'attach_money',
@@ -131,24 +143,13 @@ class Fest2019OptionsView(LoginRequiredMixin,
             items.append({
                 'sican_categoria': 'Ruteo',
                 'sican_color': 'orange darken-4',
-                'sican_order': 8,
+                'sican_order': 9,
                 'sican_url': 'ruteo/',
                 'sican_name': 'Ruteo',
                 'sican_icon': 'view_list',
                 'sican_description': 'Asignación de rutas a los hogares'
             })
 
-
-        if self.request.user.has_perm('usuarios.fest_2019.directorio.ver'):
-            items.append({
-                'sican_categoria': 'Directorio',
-                'sican_color': 'teal darken-4',
-                'sican_order': 9,
-                'sican_url': 'directorio/',
-                'sican_name': 'Directorio',
-                'sican_icon': 'assignment_ind',
-                'sican_description': 'Directorio de contactos'
-            })
 
         return items
 

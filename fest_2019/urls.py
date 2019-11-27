@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 from fest_2019 import views
 
 urlpatterns = [
@@ -12,6 +12,10 @@ urlpatterns = [
     path('entregables/<uuid:pk_componente>/momentos/', views.VisitasListView.as_view()),
     path('entregables/<uuid:pk_componente>/momentos/<uuid:pk_momento>/instrumentos/', views.InstrumentosListView.as_view()),
     path('entregables/<uuid:pk_componente>/momentos/<uuid:pk_momento>/instrumentos/informe/<uuid:pk_instrumento>/', views.InstrumentosInformeListView.as_view()),
+
+
+
+    path('entes_territoriales/', include('entes_territoriales.urls')),
 
 
     #------------------------------------- RUTAS -------------------------------------
