@@ -173,7 +173,7 @@ class ReunionesHitosListApi(BaseDatatableView):
         if column == 'id':
             reunion = models.Reuniones.objects.get(id = self.kwargs['pk'])
             ret = ''
-            if self.request.user.has_perm('usuarios.cpe_2018.entes_territoriales.reuniones.ver'):
+            if self.request.user.has_perm('usuarios.fest_2019.entes_territoriales.reuniones.ver'):
 
                 ret = '<div class="center-align">' \
                       '<a href="{0}/editar/" class="tooltipped edit-table" data-position="top" data-delay="50" data-tooltip="Editar">' \
@@ -190,7 +190,7 @@ class ReunionesHitosListApi(BaseDatatableView):
 
 
         elif column == 'reunion':
-            if self.request.user.has_perm('usuarios.cpe_2018.entes_territoriales.reuniones.ver'):
+            if self.request.user.has_perm('usuarios.fest_2019.entes_territoriales.reuniones.ver'):
 
                 ret = '<div class="center-align">' \
                       '<a href="{0}/ver/" class="tooltipped link-sec" data-position="top" data-delay="50" data-tooltip="Ver">' \
@@ -256,7 +256,7 @@ class ReunionesHitosListApi(BaseDatatableView):
             return row.pretty_creation_datetime()
 
         elif column == 'estado':
-            if self.request.user.has_perm('usuarios.cpe_2018.entes_territoriales.reuniones.aprobar'):
+            if self.request.user.has_perm('usuarios.fest_2019.entes_territoriales.reuniones.aprobar'):
 
                 ret = '<div class="center-align">' \
                       '<a href="{0}/estado/" class="tooltipped" data-position="top" data-delay="50" data-tooltip="Actualizar estado">' \
@@ -297,7 +297,7 @@ class ReunionesContactosSoportesListApi(BaseDatatableView):
         if column == 'id':
             reunion = models.Reuniones.objects.get(id = self.kwargs['pk'])
             ret = ''
-            if self.request.user.has_perm('usuarios.cpe_2018.entes_territoriales.reuniones.ver'):
+            if self.request.user.has_perm('usuarios.fest_2019.entes_territoriales.reuniones.ver'):
 
                 ret = '<div class="center-align">' \
                       '<a href="{0}/editar/" class="tooltipped edit-table" data-position="top" data-delay="50" data-tooltip="Editar">' \
