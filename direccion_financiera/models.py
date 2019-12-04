@@ -93,7 +93,7 @@ class Reportes(models.Model):
 
     estado = models.CharField(max_length=100)
 
-    valor = MoneyField(max_digits=10, decimal_places=2, default_currency='COP')
+    valor = MoneyField(max_digits=20, decimal_places=2, default_currency='COP')
 
     efectivo = models.BooleanField(default=False)
 
@@ -227,7 +227,7 @@ class Pagos(models.Model):
                                               blank=True, null=True)
 
     reporte = models.ForeignKey(Reportes, on_delete=models.DO_NOTHING)
-    valor = MoneyField(max_digits=10, decimal_places=2, default_currency='COP')
+    valor = MoneyField(max_digits=20, decimal_places=2, default_currency='COP')
     tercero = models.ForeignKey(to='recursos_humanos.Contratistas', on_delete=models.DO_NOTHING)
     observacion = models.TextField(max_length=500)
 
