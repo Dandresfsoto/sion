@@ -1,4 +1,4 @@
-extends ../../../../../../base_auth
+extends ../../../../../base_auth
 
 block title
     |{{title | upper}}
@@ -38,24 +38,18 @@ block side_nav_container
 
 
                     li(class="bold waves-effect waves-light")
-                        a(href="../../../../../../") Actividades: {{ breadcrum_1 | truncatechars:15 }}
+                        a(href="../../../../") Actividades: {{ breadcrum_1 | truncatechars:15 }}
                             i(class="material-icons icon-sican") keyboard_arrow_right
 
                     div(class="divider divider-perfil")
 
 
                     li(class="bold waves-effect waves-light")
-                        a(href="../../../../") {{ breadcrum_2 | truncatechars:15 }}
+                        a(href="../../") {{ breadcrum_2 | truncatechars:15 }}
                             i(class="material-icons icon-sican") keyboard_arrow_right
 
                     div(class="divider divider-perfil")
 
-
-                    li(class="bold waves-effect waves-light")
-                        a(href="../../") Hogar: {{ breadcrum_3 | truncatechars:15 }}
-                            i(class="material-icons icon-sican") keyboard_arrow_right
-
-                    div(class="divider divider-perfil")
 
 
                     li(class="bold waves-effect waves-light breadcrum-active")

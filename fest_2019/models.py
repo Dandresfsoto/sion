@@ -16,6 +16,9 @@ from django.conf import settings
 import json
 from delta import html
 
+
+
+
 settings_time_zone = timezone(settings.TIME_ZONE)
 
 # Create your models here.
@@ -82,7 +85,7 @@ class Momentos(models.Model):
         return InstrumentosRutaObject.objects.filter(hogar = hogar,momento__componente = componente, momento = self).count()
 
     def get_novedades_mis_rutas_actividades(self,ruta):
-        return InstrumentosRutaObject.objects.filter(ruta = ruta, momento = self, estado = 'cargado').values_list('hogar__id',flat=True).distinct().count()
+        return InstrumentosRutaObject.objects.filter(ruta = ruta, momento = self, estado = 'cargado').distinct().count()
 
     def get_numero_instrumentos(self):
         return Instrumentos.objects.filter(momento=self).count()
@@ -91,11 +94,41 @@ class Momentos(models.Model):
         return '{0}.{1}'.format(self.componente.consecutivo,self.consecutivo)
 
     def get_valor_maximo_momento(self,ruta):
-        valor = CuposRutaObject.objects.filter(ruta = ruta, momento = self).aggregate(Sum('valor'))['valor__sum']
-        if valor == None:
+
+
+
+        try:
+            data = json.loads(ruta.valores_actividades)
+        except:
+            data = []
+
+
+        if 'valor_' + str(self.id) in data:
+            valor = data['valor_' + str(self.id)].replace('$ ','').replace(',','')
+
+        else:
             valor = 0
+
         return float(valor)
 
+
+    def get_cantidad_momento(self,ruta):
+
+
+
+        try:
+            data = json.loads(ruta.valores_actividades)
+        except:
+            data = []
+
+
+        if 'cantidad_' + str(self.id) in data:
+            cantidad = data['cantidad_' + str(self.id)]
+
+        else:
+            cantidad = 0
+
+        return cantidad
 
 
     def get_valor_maximo_momento_corte(self,ruta,corte):
@@ -147,6 +180,7 @@ class Instrumentos(models.Model):
     modelo = models.CharField(max_length=100)
     color = models.CharField(max_length=100)
     icon = models.CharField(max_length=100)
+    nivel = models.CharField(max_length=100)
 
     def __str__(self):
         return self.nombre
@@ -174,17 +208,10 @@ class Rutas(models.Model):
     estado = models.CharField(max_length=100,blank=True)
     componente = models.ForeignKey(Componentes, on_delete=models.DO_NOTHING,blank=True,null=True)
 
-    meta_vinculacion = models.IntegerField(default=0)
-    valor_vinculacion = MoneyField(max_digits=10, decimal_places=2, default_currency='COP',default=0)
-    valor_transporte_vinculacion = MoneyField(max_digits=10, decimal_places=2, default_currency='COP', default=0)
-
-    peso_visitas = models.IntegerField(default=0)
-    peso_encuentros = models.IntegerField(default=0)
-    peso_otros = models.IntegerField(default=0)
-
-    valor_actividades = MoneyField(max_digits=10, decimal_places=2, default_currency='COP',default=0)
-    meta_hogares = models.IntegerField(default=0)
     hogares_inscritos = models.IntegerField(default=0)
+
+    tipo_pago = models.CharField(max_length=100)
+    valores_actividades = models.TextField()
 
 
     def __str__(self):
@@ -350,27 +377,14 @@ class Rutas(models.Model):
         return novedades
 
     def update_novedades(self):
-        self.novedades = InstrumentosRutaObject.objects.filter(ruta=self, estado='cargado').values_list('hogar__id','momento__id').distinct().count()
+        self.novedades = InstrumentosRutaObject.objects.filter(ruta=self, estado='cargado').count()
         self.save()
         self.update_progreso()
         return 'Ok'
 
     def update_hogares_inscritos(self):
 
-        if str(self.componente.consecutivo) == '1':
-            objetos_hogares = Hogares.objects.filter(ruta_1 = self)
-
-        elif str(self.componente.consecutivo) == '2':
-            objetos_hogares = Hogares.objects.filter(ruta_2 = self)
-
-        elif str(self.componente.consecutivo) == '3':
-            objetos_hogares = Hogares.objects.filter(ruta_3 = self)
-
-        elif str(self.componente.consecutivo) == '4':
-            objetos_hogares = Hogares.objects.filter(ruta_4 = self)
-
-        else:
-            objetos_hogares = Hogares.objects.none()
+        objetos_hogares = Hogares.objects.filter(rutas = self)
 
         self.hogares_inscritos = objetos_hogares.count()
         self.save()
@@ -602,18 +616,17 @@ class Rutas(models.Model):
 
         return 'Ok'
 
-    def get_instrumentos_list(self,momento,hogar):
+    def get_instrumentos_list(self,momento):
 
         instrumentos_return = []
 
         for instrumento in Instrumentos.objects.filter(momento = momento).order_by('consecutivo'):
-            if InstrumentosRutaObject.objects.filter(ruta=self,momento = momento,hogar = hogar,instrumento = instrumento).count() == 0:
-                instrumentos_return.append({
-                    'id': instrumento.id,
-                    'short_name': instrumento.short_name,
-                    'icon': instrumento.icon,
-                    'color': instrumento.color
-                })
+            instrumentos_return.append({
+                'id': instrumento.id,
+                'short_name': instrumento.short_name,
+                'icon': instrumento.icon,
+                'color': instrumento.color
+            })
 
         return instrumentos_return
 
@@ -666,51 +679,26 @@ class Hogares(models.Model):
     celular2 = models.CharField(max_length=100,blank=True,null=True)
     municipio_residencia = models.ForeignKey(Municipios, on_delete=models.DO_NOTHING, related_name='hogares_municipio_residencia')
 
-    ruta_1 = models.ForeignKey(Rutas,on_delete=models.DO_NOTHING, related_name='ruta1_hogares',blank=True,null=True)
-    ruta_2 = models.ForeignKey(Rutas, on_delete=models.DO_NOTHING, related_name='ruta2_hogares', blank=True, null=True)
-    ruta_3 = models.ForeignKey(Rutas, on_delete=models.DO_NOTHING, related_name='ruta3_hogares', blank=True, null=True)
-    ruta_4 = models.ForeignKey(Rutas, on_delete=models.DO_NOTHING, related_name='ruta4_hogares', blank=True, null=True)
-    ruta_vinculacion = models.ForeignKey(Rutas, on_delete=models.DO_NOTHING, related_name='ruta_vinculacion_hogares', blank=True, null=True)
+    rutas = models.ManyToManyField(Rutas, related_name='rutas',blank=True)
 
 
-    id_elegible = models.IntegerField(blank=True, null=True)
-    id_archivo = models.IntegerField(blank=True, null=True)
-    zona_microfocalizada = models.IntegerField(blank=True,null=True)
-    id_tipo_documento = models.IntegerField(blank=True, null=True)
-    genero = models.IntegerField(blank=True, null=True)
-    id_zona = models.IntegerField(blank=True, null=True)
+    def __str__(self):
+        return self.get_nombres() + ' ' + self.get_apellidos() + ' - ' + str(self.documento)
 
-    codigo_corregimiento = models.IntegerField(blank=True,null=True)
-    nombre_corregimiento = models.CharField(max_length=1000, blank=True, null=True)
-    codigo_vereda = models.IntegerField(blank=True, null=True)
-    nombre_vereda = models.CharField(max_length=1000, blank=True, null=True)
-    ubicacion = models.CharField(max_length=1000, blank=True, null=True)
-    barrio = models.CharField(max_length=100, blank=True, null=True)
-    direccion = models.CharField(max_length=1000, blank=True, null=True)
 
-    cabeza_hogar = models.BooleanField(default=False)
-    dependientes = models.IntegerField(blank=True, null=True)
-    tiene_tierra = models.BooleanField(default=False)
-    area_tierra = models.FloatField(blank=True, null=True)
 
-    existe_mfa = models.IntegerField(blank=True, null=True)
-    codigo_familia_mfa = models.IntegerField(blank=True, null=True)
-    puntaje_mfa = models.FloatField(blank=True, null=True)
+    def get_rutas(self):
 
-    existe_unidos = models.IntegerField(blank=True, null=True)
-    area_unidos = models.FloatField(blank=True, null=True)
-    puntaje_unidos = models.FloatField(blank=True, null=True)
+        rutas = ''
 
-    puntaje_sisben = models.FloatField(blank=True, null=True)
+        for ruta in self.rutas.all():
+            rutas += ruta.nombre + ', '
 
-    folio = models.IntegerField(blank=True, null=True)
+        if rutas != '':
+            rutas = rutas[:-2]
 
-    hecho_victimizante = models.CharField(max_length=100, blank=True, null=True)
-    fecha_hecho_victimizante = models.DateField(blank=True,null=True)
+        return rutas
 
-    puntaje_tiempo = models.FloatField(blank=True, null=True)
-    puntaje_ssv = models.FloatField(blank=True, null=True)
-    puntaje_total = models.FloatField(blank=True, null=True)
 
 
     def get_valor_ruta_vinculacion(self):
@@ -1013,7 +1001,7 @@ class InstrumentosRutaObject(models.Model):
 
     ruta = models.ForeignKey(Rutas, on_delete=models.DO_NOTHING, related_name='instrumento_ruta')
     momento = models.ForeignKey(Momentos, on_delete=models.DO_NOTHING, related_name='instrumento_momento')
-    hogar = models.ForeignKey(Hogares, on_delete=models.DO_NOTHING, related_name='instrumento_hogar')
+    hogares = models.ManyToManyField(Hogares, related_name='instrumento_hogar', blank=True)
     instrumento = models.ForeignKey(Instrumentos, on_delete=models.DO_NOTHING, related_name='instrumento_instrumento',blank=True,null=True)
 
     modelo = models.CharField(max_length=100)
@@ -1024,6 +1012,40 @@ class InstrumentosRutaObject(models.Model):
     estado = models.CharField(max_length=100,blank=True,null=True)
     nombre = models.CharField(max_length=100,blank=True,null=True)
     consecutivo = models.IntegerField(blank=True,null=True)
+
+
+
+    def clean_similares(self):
+
+        from fest_2019 import modelos_instrumentos
+
+        self.modelos = modelos_instrumentos.get_modelo(self.instrumento.modelo)
+
+        if self.instrumento.nivel != 'ruta':
+
+            for instrumento_object in InstrumentosRutaObject.objects.filter(ruta = self.ruta, momento = self.momento, instrumento = self.instrumento).exclude(id = self.id):
+
+                for hogar in self.hogares.all():
+
+                    if hogar in instrumento_object.hogares.all():
+                        instrumento_object.hogares.remove(hogar)
+
+                if instrumento_object.hogares.all().count() == 0:
+                    self.modelos.get('model').objects.get(id = instrumento_object.soporte).delete()
+                    InstrumentosTrazabilidadRutaObject.objects.filter(instrumento = instrumento_object).delete()
+                    ObservacionesInstrumentoRutaObject.objects.filter(instrumento = instrumento_object).delete()
+                    instrumento_object.delete()
+                    self.ruta.update_novedades()
+
+
+
+    def get_hogares_list(self):
+        hogares = ''
+
+        for hogar in self.hogares.all():
+            hogares += '<p>{0} - {1} {2}</p>'.format(hogar.documento,hogar.get_nombres(),hogar.get_apellidos())
+
+        return hogares
 
 
 class ObservacionesInstrumentoRutaObject(models.Model):
@@ -1198,7 +1220,7 @@ class CuposRutaObject(models.Model):
     tipo = models.CharField(max_length=100)
     estado = models.CharField(max_length=100)
     valor = MoneyField(max_digits=10, decimal_places=2, default_currency='COP', default=0)
-    hogar = models.ForeignKey(Hogares,on_delete=models.DO_NOTHING,related_name='cupo_hogar',blank=True,null=True)
+    hogares = models.ManyToManyField(Hogares,related_name='cupo_hogares',blank=True)
     corte = models.ForeignKey(Cortes, on_delete=models.DO_NOTHING, blank=True, null=True)
     translado = models.BooleanField(default=False)
 
@@ -1206,12 +1228,13 @@ class CuposRutaObject(models.Model):
 
 
 def upload_dinamic_fest(instance, filename):
-    return '/'.join(['FEST 2019', str(instance.hogar.id), instance.nombre, filename])
+    return '/'.join(['FEST 2019', str(instance.ruta.id), instance.nombre, filename])
 
 class Documento(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, unique=True, editable=False)
-    hogar = models.ForeignKey(Hogares,on_delete=models.DO_NOTHING,related_name='hogar_documento')
+    hogares = models.ManyToManyField(Hogares,related_name='hogares_documento',blank=True)
     instrumento = models.ForeignKey(Instrumentos,on_delete=models.DO_NOTHING,related_name='instrumento_documento',blank=True,null=True)
+    ruta = models.ForeignKey(Rutas,on_delete=models.DO_NOTHING,related_name='ruta_documento',blank=True,null=True)
     nombre = models.CharField(max_length=100)
 
     file = ContentTypeRestrictedFileField(
@@ -1236,6 +1259,113 @@ class Documento(models.Model):
 
     def get_extension(self):
         return self.file.name.split('.')[-1]
+
+
+
+
+
+
+
+
+
+def upload_dinamic_acta_socializacion_comunidades(instance, filename):
+    return '/'.join(['FEST 2019', str(instance.ruta.id), instance.nombre, filename])
+
+class ActaSocializacionComunidades(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, unique=True, editable=False)
+    hogares = models.ManyToManyField(Hogares,related_name='hogares_acta_socializacion_comunidades',blank=True)
+    instrumento = models.ForeignKey(Instrumentos,on_delete=models.DO_NOTHING,related_name='instrumento_acta_socializacion_comunidades',blank=True,null=True)
+    ruta = models.ForeignKey(Rutas,on_delete=models.DO_NOTHING,related_name='ruta_acta_socializacion_comunidades',blank=True,null=True)
+    nombre = models.CharField(max_length=100)
+
+    nombre_comunidad = models.CharField(max_length=100)
+    resguado_indigena_consejo_comunitario = models.CharField(max_length=100)
+    municipio = models.ForeignKey(Municipios, on_delete=models.DO_NOTHING,related_name='municipio_acta_socializacion_comunidades')
+    nombre_representante = models.CharField(max_length=200)
+    documento_representante = models.IntegerField()
+    cargo_representante = models.CharField(max_length=200)
+    fecha_firma = models.DateField()
+
+
+    file = ContentTypeRestrictedFileField(
+        upload_to=upload_dinamic_acta_socializacion_comunidades,
+        content_types=[
+            'application/pdf',
+        ],
+        max_upload_size=10485760,
+        max_length=255
+    )
+
+
+
+    def url_file(self):
+        url = None
+        try:
+            url = self.file.url
+        except:
+            pass
+        return url
+
+
+    def get_extension(self):
+        return self.file.name.split('.')[-1]
+
+
+
+
+
+
+
+
+def upload_dinamic_acta_vinculacion_hogar(instance, filename):
+    return '/'.join(['FEST 2019', str(instance.ruta.id), instance.nombre, filename])
+
+class ActaVinculacionHogar(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, unique=True, editable=False)
+    hogares = models.ManyToManyField(Hogares,related_name='hogares_acta_vinculacion_hogar',blank=True)
+    instrumento = models.ForeignKey(Instrumentos,on_delete=models.DO_NOTHING,related_name='instrumento_acta_vinculacion_hogar',blank=True,null=True)
+    ruta = models.ForeignKey(Rutas,on_delete=models.DO_NOTHING,related_name='ruta_acta_vinculacion_hogar',blank=True,null=True)
+    nombre = models.CharField(max_length=100)
+
+    fecha_diligenciamiento = models.DateField()
+    municipio = models.ForeignKey(Municipios, on_delete=models.DO_NOTHING,related_name='municipio_acta_vinculacion_hogar')
+    resguado_indigena_consejo_comunitario = models.CharField(max_length=100)
+    nombre_comunidad = models.CharField(max_length=100)
+
+    tipo_identificacion = models.CharField(max_length=100)
+    documento_representante = models.IntegerField()
+    nombre_representante = models.CharField(max_length=200)
+    telefono_celular = models.CharField(max_length=300)
+
+
+    file = ContentTypeRestrictedFileField(
+        upload_to=upload_dinamic_acta_vinculacion_hogar,
+        content_types=[
+            'application/pdf',
+        ],
+        max_upload_size=10485760,
+        max_length=255
+    )
+
+
+
+    def url_file(self):
+        url = None
+        try:
+            url = self.file.url
+        except:
+            pass
+        return url
+
+
+    def get_extension(self):
+        return self.file.name.split('.')[-1]
+
+
+
+
+
+
 
 
 class DocumentoExcel(models.Model):

@@ -783,7 +783,7 @@ def SoportesUpdate(sender, instance, **kwargs):
     soportes_obligatorios = SoportesContratos.objects.filter(contrato = contrato,soporte__requerido = True)
     soportes_opcionales = SoportesContratos.objects.filter(contrato=contrato, soporte__requerido = False)
 
-    if contrato.proyecto.nombre == 'FEST 2019':
+    if contrato.proyecto.nombre in ['IRACA','IRACA Z1','BMO','EEAF','FAST WORK COLOMBIA','UT PROSPERIDAD IRACA','NATIONAL COMMER S.A.S','VENTAS Y SERVICIOS']:
         group = Group.objects.get(name='FEST 2019, gestores')
     else:
         group = Group.objects.get(name='CPE 2018, gestionar solicitudes desplazamiento')

@@ -1,4 +1,4 @@
-extends ../../../../../base_auth
+extends ../../../../base_auth
 
 block title
     |{{title | upper}}
@@ -38,21 +38,14 @@ block side_nav_container
 
 
                     li(class="bold waves-effect waves-light")
-                        a(href="../../../../") Actividades: {{ breadcrum_1 | truncatechars:15 }}
-                            i(class="material-icons icon-sican") keyboard_arrow_right
-
-                    div(class="divider divider-perfil")
-
-
-                    li(class="bold waves-effect waves-light")
-                        a(href="../../") {{ breadcrum_2 | truncatechars:15 }}
+                        a(href="../../") Actividades: {{ breadcrum_1 | truncatechars:15 }}
                             i(class="material-icons icon-sican") keyboard_arrow_right
 
                     div(class="divider divider-perfil")
 
 
                     li(class="bold waves-effect waves-light breadcrum-active")
-                        a(href="#") Hogar: {{ breadcrum_active | truncatechars:15 }}
+                        a(href="#") {{ breadcrum_active | truncatechars:22 }}
                             i(class="material-icons icon-sican") check_circle
 
                     div(class="divider divider-perfil")
@@ -66,7 +59,7 @@ block container_principal
                 tr
                     th Actualizar
                     th Ver
-                    th Consecutivo
+                    th Hogares
                     th Nombre
                     th Estado
                     th Eliminar
@@ -75,7 +68,7 @@ block container_principal
                 tr
                     td Actualizar
                     td Ver
-                    td Consecutivo
+                    td Hogares
                     td Nombre
                     td Estado
                     td Eliminar

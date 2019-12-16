@@ -36,27 +36,6 @@ block side_nav_container
                     div(class="divider divider-perfil")
 
 
-    | {% if permiso_crear %}
-
-    ul(class="collapsible",data-collapsible="accordion")
-        li(class="bold waves-effect waves-light button-menu")
-
-            div(class="collapsible-header active")
-                i(class="material-icons") call_to_action
-                | Acciones
-
-            div(class="collapsible-body collapsible-body-blue")
-                ul
-                    div(class="divider divider-perfil")
-
-                    li(class="bold waves-effect waves-light")
-                        a(href="crear/") Nuevo hogar
-                            i(class="material-icons icon-sican") map
-
-                    div(class="divider divider-perfil")
-
-    | {% endif %}
-
 
 
 block container_principal
@@ -68,12 +47,14 @@ block container_principal
                     th Cédula
                     th Nombre
                     th Municipio
+                    th Ruta(s)
             tbody
                 tr
                     td Editar
                     td Cédula
                     td Nombre
                     td Municipio
+                    td Ruta(s)
 
 
 block body_script_auth

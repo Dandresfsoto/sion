@@ -18,12 +18,28 @@ urlpatterns = [
     path('entes_territoriales/', include('entes_territoriales.urls')),
 
 
+
+
     #------------------------------------- RUTAS -------------------------------------
     #Gestión de rutas
     path('rutas/', views.RutasListView.as_view()),  #Permisos revisados
     path('rutas/crear/', views.RutasCreateView.as_view()),  #Permisos revisados
     path('rutas/editar/<uuid:pk_ruta>/', views.RutasUpdateView.as_view()),  #Permisos revisados
 
+
+    #Gestión de hogares
+    path('rutas/hogares/<uuid:pk_ruta>/', views.RutasHogaresListView.as_view()),    #Permisos revisados
+    path('rutas/hogares/<uuid:pk_ruta>/crear/', views.RutaCrearHogarView.as_view()),    #Permisos revisados
+    path('rutas/hogares/<uuid:pk_ruta>/ver/<uuid:pk_hogar>/', views.RutasHogaresVerView.as_view()), #Permisos revisados
+
+
+    path('rutas/actividades/<uuid:pk_ruta>/', views.RutasActividadesListView.as_view()), #Permisos revisados
+    path('rutas/actividades/<uuid:pk_ruta>/valores/', views.RutasActividadesValoresView.as_view()),
+
+
+    path('rutas/actividades/<uuid:pk_ruta>/instrumentos/<uuid:pk_momento>/', views.RutasInstrumentosHogaresListView.as_view()),     #Permisos revisados
+    path('rutas/actividades/<uuid:pk_ruta>/instrumentos/<uuid:pk_momento>/ver/<uuid:pk_instrumento_object>/', views.RutasInstrumentosVerHogaresView.as_view()), #Permisos revisados
+    path('rutas/actividades/<uuid:pk_ruta>/instrumentos/<uuid:pk_momento>/trazabilidad/<uuid:pk_instrumento_object>/', views.RutasInstrumentosTrazabilidadHogaresView.as_view()),   #Permisos revisados
 
 
     #------------------------------------- CUENTAS DE COBRO -------------------------------------
@@ -36,41 +52,40 @@ urlpatterns = [
 
 
 
-    #Gestión de hogares
-    path('rutas/hogares/<uuid:pk_ruta>/', views.RutasHogaresListView.as_view()),    #Permisos revisados
 
 
 
-    path('rutas/hogares/<uuid:pk_ruta>/ver_miembros/<uuid:pk_hogar>/', views.RutasHogaresMiembrosListView.as_view()),
-    path('rutas/hogares/<uuid:pk_ruta>/ver_miembros/<uuid:pk_hogar>/ver/<uuid:pk_miembro>/', views.RutasHogaresMiembrosVerView.as_view()),
+
+    #path('rutas/hogares/<uuid:pk_ruta>/ver_miembros/<uuid:pk_hogar>/', views.RutasHogaresMiembrosListView.as_view()),
+    #path('rutas/hogares/<uuid:pk_ruta>/ver_miembros/<uuid:pk_hogar>/ver/<uuid:pk_miembro>/', views.RutasHogaresMiembrosVerView.as_view()),
 
 
-    path('rutas/hogares/<uuid:pk_ruta>/cargar/', views.RutasHogaresCreateView.as_view()),
-    path('rutas/hogares/<uuid:pk_ruta>/ver/<uuid:pk_hogar>/', views.RutasHogaresVerView.as_view()), #Permisos revisados
+    #path('rutas/hogares/<uuid:pk_ruta>/cargar/', views.RutasHogaresCreateView.as_view()),
+
 
     #Gestión de actividades
-    path('rutas/actividades/<uuid:pk_ruta>/', views.RutasActividadesListView.as_view()), #Permisos revisados
 
 
 
-    path('rutas/actividades/<uuid:pk_ruta>/objetos/<uuid:pk_momento>/', views.RutasActividadesListObjetosView.as_view()),
 
-    path('rutas/actividades/<uuid:pk_ruta>/objetos/<uuid:pk_momento>/cero/<uuid:pk_cupo>/', views.RutasActividadesObjeroCeroView.as_view()),
+    #path('rutas/actividades/<uuid:pk_ruta>/objetos/<uuid:pk_momento>/', views.RutasActividadesListObjetosView.as_view()),
+
+    #path('rutas/actividades/<uuid:pk_ruta>/objetos/<uuid:pk_momento>/cero/<uuid:pk_cupo>/', views.RutasActividadesObjeroCeroView.as_view()),
 
 
 
-    path('rutas/actividades/<uuid:pk_ruta>/valores/', views.RutasActividadesValoresView.as_view()),
+
 
     path('rutas/actividades/<uuid:pk_ruta>/hogares/<uuid:pk_momento>/', views.RutasActividadesHogaresListView.as_view()),   #Permisos revisados
-    path('rutas/actividades/<uuid:pk_ruta>/hogares/<uuid:pk_momento>/instrumentos/<uuid:pk_hogar>/', views.RutasInstrumentosHogaresListView.as_view()),     #Permisos revisados
+
 
 
     path('rutas/actividades/<uuid:pk_ruta>/hogares/<uuid:pk_momento>/instrumentos/<uuid:pk_hogar>/aprobar/', views.RutasInstrumentoHogarAprobarView.as_view()),
     path('rutas/actividades/<uuid:pk_ruta>/hogares/<uuid:pk_momento>/instrumentos/<uuid:pk_hogar>/rechazar/', views.RutasInstrumentoHogarRechazarView.as_view()),
 
 
-    path('rutas/actividades/<uuid:pk_ruta>/hogares/<uuid:pk_momento>/instrumentos/<uuid:pk_hogar>/ver/<uuid:pk_instrumento_object>/', views.RutasInstrumentosVerHogaresView.as_view()), #Permisos revisados
-    path('rutas/actividades/<uuid:pk_ruta>/hogares/<uuid:pk_momento>/instrumentos/<uuid:pk_hogar>/trazabilidad/<uuid:pk_instrumento_object>/', views.RutasInstrumentosTrazabilidadHogaresView.as_view()),   #Permisos revisados
+
+
 
 
     path('rutas/actividades/<uuid:pk_ruta>/hogares/<uuid:pk_momento>/instrumentos/<uuid:pk_hogar>/preaprobar/<uuid:pk_instrumento_object>/', views.RutasInstrumentosPreaprobarHogaresView.as_view()),   #Permisos revisados
@@ -80,21 +95,30 @@ urlpatterns = [
 
     path('misrutas/', views.MisRutasOptionsView.as_view()),
     path('misrutas/hogares/<uuid:pk_ruta>/', views.MisRutasHogaresListView.as_view()),
-
-    path('misrutas/hogares/<uuid:pk_ruta>/ver_miembros/<uuid:pk_hogar>/', views.MisRutasHogaresMiembrosListView.as_view()),
-    path('misrutas/hogares/<uuid:pk_ruta>/ver_miembros/<uuid:pk_hogar>/ver/<uuid:pk_miembro>/', views.MisRutasHogaresMiembrosVerView.as_view()),
-
+    path('misrutas/hogares/<uuid:pk_ruta>/crear/', views.RutaCrearMisHogaresView.as_view()),    #Permisos revisados
     path('misrutas/hogares/<uuid:pk_ruta>/ver/<uuid:pk_hogar>/', views.MisRutasHogaresVerView.as_view()),
-    path('misrutas/hogares/<uuid:pk_ruta>/agregar_miembro/<uuid:pk_hogar>/', views.MisRutasHogaresAgregarMiembroListView.as_view()),
+
+
+    path('misrutas/actividades/<uuid:pk_ruta>/instrumentos/<uuid:pk_momento>/', views.MisRutasInstrumentosHogaresListView.as_view()),
+    path('misrutas/actividades/<uuid:pk_ruta>/instrumentos/<uuid:pk_momento>/agregar/<uuid:pk_instrumento>/', views.MisRutasInstrumentosFormHogaresListView.as_view()),
+    path('misrutas/actividades/<uuid:pk_ruta>/instrumentos/<uuid:pk_momento>/editar/<uuid:pk_instrumento_object>/', views.MisRutasInstrumentosUpdateHogaresListView.as_view()),
+    path('misrutas/actividades/<uuid:pk_ruta>/instrumentos/<uuid:pk_momento>/ver/<uuid:pk_instrumento_object>/', views.MisRutasInstrumentosVerHogaresView.as_view()),
+    path('misrutas/actividades/<uuid:pk_ruta>/instrumentos/<uuid:pk_momento>/observaciones/<uuid:pk_instrumento_object>/', views.MisRutasInstrumentosHogaresObservacionesListView.as_view()),
+    path('misrutas/actividades/<uuid:pk_ruta>/instrumentos/<uuid:pk_momento>/eliminar/<uuid:pk_instrumento_object>/', views.MisRutasInstrumentosHogaresDeleteView.as_view()),
+
+
+    #path('misrutas/hogares/<uuid:pk_ruta>/ver_miembros/<uuid:pk_hogar>/', views.MisRutasHogaresMiembrosListView.as_view()),
+    #path('misrutas/hogares/<uuid:pk_ruta>/ver_miembros/<uuid:pk_hogar>/ver/<uuid:pk_miembro>/', views.MisRutasHogaresMiembrosVerView.as_view()),
+    #path('misrutas/hogares/<uuid:pk_ruta>/agregar_miembro/<uuid:pk_hogar>/', views.MisRutasHogaresAgregarMiembroListView.as_view()),
 
     path('misrutas/actividades/<uuid:pk_ruta>/', views.MisRutasActividadesListView.as_view()),
     path('misrutas/actividades/<uuid:pk_ruta>/hogares/<uuid:pk_momento>/', views.MisRutasActividadesHogaresListView.as_view()),
-    path('misrutas/actividades/<uuid:pk_ruta>/hogares/<uuid:pk_momento>/instrumentos/<uuid:pk_hogar>/', views.MisRutasInstrumentosHogaresListView.as_view()),
-    path('misrutas/actividades/<uuid:pk_ruta>/hogares/<uuid:pk_momento>/instrumentos/<uuid:pk_hogar>/observaciones/<uuid:pk_instrumento>/', views.MisRutasInstrumentosHogaresObservacionesListView.as_view()),
 
-    path('misrutas/actividades/<uuid:pk_ruta>/hogares/<uuid:pk_momento>/instrumentos/<uuid:pk_hogar>/agregar/<uuid:pk_instrumento>/', views.MisRutasInstrumentosFormHogaresListView.as_view()),
-    path('misrutas/actividades/<uuid:pk_ruta>/hogares/<uuid:pk_momento>/instrumentos/<uuid:pk_hogar>/ver/<uuid:pk_instrumento_object>/', views.MisRutasInstrumentosVerHogaresView.as_view()),
-    path('misrutas/actividades/<uuid:pk_ruta>/hogares/<uuid:pk_momento>/instrumentos/<uuid:pk_hogar>/eliminar/<uuid:pk_instrumento_object>/', views.MisRutasInstrumentosHogaresDeleteView.as_view()),
+
+
+
+
+
 
 
 

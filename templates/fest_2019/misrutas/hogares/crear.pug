@@ -1,4 +1,4 @@
-extends ../../../../../base_auth
+extends ../../../base_auth
 
 block title
     |{{title | upper}}
@@ -31,23 +31,20 @@ block side_nav_container
 
 
                     li(class="bold waves-effect waves-light")
-                        a(href="/iraca/rutas/") Rutas
+                        a(href="/iraca/misrutas/") Mis rutas
                             i(class="material-icons icon-sican") keyboard_arrow_right
 
                     div(class="divider divider-perfil")
 
 
                     li(class="bold waves-effect waves-light")
-                        a(href="../../") Actividades: {{ breadcrum_1 | truncatechars:15 }}
+                        a(href="../") {{ breadcrum_active | truncatechars:15 }}
                             i(class="material-icons icon-sican") keyboard_arrow_right
 
                     div(class="divider divider-perfil")
 
-
-
-
                     li(class="bold waves-effect waves-light breadcrum-active")
-                        a(href="#") {{ breadcrum_active | truncatechars:22 }}
+                        a(href="#") Nuevo hogar
                             i(class="material-icons icon-sican") check_circle
 
                     div(class="divider divider-perfil")
@@ -55,53 +52,32 @@ block side_nav_container
 
 
 block container_principal
-    div(class="container-datatable")
-        table(id="table",class="display responsive no-wrap table table-striped table-bordered",width="100%")
-            thead
-                tr
-                    th Ver
-                    th Trazabilidad
-                    th Hogares
-                    th Nombre
-                    th Estado
-                    th Acciones
-            tbody
-                tr
-                    td Ver
-                    td Trazabilidad
-                    td Hogares
-                    td Nombre
-                    td Estado
-                    td Acciones
-
-
-
+    div(class="container",style="margin-top:40px;")
+        |{% crispy form %}
 
 
 block body_script_auth
     script.
-
         $(document).ready(function () {
+            $("label[for='id_municipio']").addClass('active');
+            $("label[for='id_municipio_residencia']").addClass('active');
 
-            var table = $('#table').DataTable({
-                responsive: true,
-                stateSave: true,
-                searching: true,
-                processing: true,
-                serverSide: true,
-                order: [[ 2, "asc" ]],
-                columnDefs: [{"orderable": false, "targets": [0,1,3]}],
-                ajax: "{{ url_datatable }}",
-                language: {
-                    url: "//cdn.datatables.net/plug-ins/1.10.8/i18n/Spanish.json"
-                },
-                drawCallback: function (settings) {
-                    $('.tooltipped').tooltip({delay: 50});
-                }
-            });
 
-            table.on('responsive-display', function (e, datatable, row, showHide, update) {
-                $('.tooltipped').tooltip({delay: 50});
+            $('#id_municipio').select2();
+            $('#id_municipio_residencia').select2();
+
+
+            $('#id_fecha_nacimiento').pickadate({
+                format: 'dd/mm/yyyy',
+                selectMonths: true,
+                selectYears: 150,
+                monthsFull: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre',
+                    'Octubre', 'Noviembre', 'Diciembre'],
+                weekdaysShort: ['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'],
+                today: 'Hoy',
+                clear: 'Borrar',
+                close: 'Ok',
+                closeOnSelect: false
             });
 
 

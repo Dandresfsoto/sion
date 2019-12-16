@@ -14,6 +14,10 @@ urlpatterns = [
     path('rutas/', rest_views.RutasListApi.as_view()),  #permisos revisados
 
 
+    path('rutas/actividades/<uuid:pk_ruta>/instrumentos/<uuid:pk_momento>/', rest_views.InstrumentosHogaresRutasListApi.as_view()),     #Permisos revisados
+    path('rutas/actividades/<uuid:pk_ruta>/instrumentos/<uuid:pk_momento>/trazabilidad/<uuid:pk_instrumento_object>/', rest_views.InstrumentosHogaresRutasTrazabilidadListApi.as_view()),   #Permisos revisados
+
+
 
     #------------------------------------- CUENTAS DE COBRO -------------------------------------
 
@@ -36,7 +40,7 @@ urlpatterns = [
 
 
     path('rutas/actividades/<uuid:pk_ruta>/hogares/<uuid:pk_momento>/', rest_views.ActividadesHogaresRutasListApi.as_view()),   #permisos revisados
-    path('rutas/actividades/<uuid:pk_ruta>/hogares/<uuid:pk_momento>/instrumentos/<uuid:pk_hogar>/', rest_views.InstrumentosHogaresRutasListApi.as_view()),     #Permisos revisados
+
     path('rutas/actividades/<uuid:pk_ruta>/hogares/<uuid:pk_momento>/instrumentos/<uuid:pk_hogar>/trazabilidad/<uuid:pk_instrumento_object>/', rest_views.InstrumentosHogaresRutasTrazabilidadListApi.as_view()),   #Permisos revisados
 
 
@@ -48,12 +52,16 @@ urlpatterns = [
     path('misrutas/', rest_views.MisRutasListApi.as_view()),
     path('misrutas/hogares/<uuid:pk_ruta>/', rest_views.HogaresMisRutasListApi.as_view()),
 
+    path('misrutas/actividades/<uuid:pk_ruta>/instrumentos/<uuid:pk_momento>/', rest_views.MisInstrumentosHogaresRutasListApi.as_view()),
+    path('misrutas/actividades/<uuid:pk_ruta>/instrumentos/<uuid:pk_momento>/observaciones/<uuid:pk_instrumento_object>/', rest_views.MisInstrumentosHogaresRutasObservacionesListApi.as_view()),
+
+
     path('misrutas/hogares/<uuid:pk_ruta>/ver_miembros/<uuid:pk_hogar>/', rest_views.MiembrosHogaresMisRutasListApi.as_view()),
 
     path('misrutas/actividades/<uuid:pk_ruta>/', rest_views.HogaresMisActividadesListApi.as_view()),
     path('misrutas/actividades/<uuid:pk_ruta>/hogares/<uuid:pk_momento>/', rest_views.MisActividadesHogaresRutasListApi.as_view()),
-    path('misrutas/actividades/<uuid:pk_ruta>/hogares/<uuid:pk_momento>/instrumentos/<uuid:pk_hogar>/', rest_views.MisInstrumentosHogaresRutasListApi.as_view()),
-    path('misrutas/actividades/<uuid:pk_ruta>/hogares/<uuid:pk_momento>/instrumentos/<uuid:pk_hogar>/observaciones/<uuid:pk_instrumento>/', rest_views.MisInstrumentosHogaresRutasObservacionesListApi.as_view()),
+
+
 
 
 

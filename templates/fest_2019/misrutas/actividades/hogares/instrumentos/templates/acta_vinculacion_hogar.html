@@ -56,7 +56,10 @@ var socket = new ReconnectingWebSocket(ws_scheme + '://' + window.location.host 
 
 
     $("label[for='id_hogares']").addClass('active');
+    $("label[for='id_municipio']").addClass('active');
+
     $('#id_hogares').select2();
+    $('#id_municipio').select2();
 
 
     $('#id_file').dropify({
@@ -70,4 +73,21 @@ var socket = new ReconnectingWebSocket(ws_scheme + '://' + window.location.host 
             'error': 'Ooops, algo malo paso.'
         }
     });
+
+
+    $('#id_fecha_diligenciamiento').pickadate({
+        format: 'dd/mm/yyyy',
+        selectMonths: true,
+        selectYears: 150,
+        monthsFull: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre',
+            'Octubre', 'Noviembre', 'Diciembre'],
+        weekdaysShort: ['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'],
+        today: 'Hoy',
+        clear: 'Borrar',
+        close: 'Ok',
+        closeOnSelect: false
+    });
+
+
+
 });</script></body></html>

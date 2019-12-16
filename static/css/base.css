@@ -1,3 +1,8 @@
+.nonfield-errors {
+  background-color: #ffc9d2;
+  padding: 1px !important;
+  margin-bottom: 10px;
+}
 .cuenta-cobro h3 {
   font-size: 1.5rem;
 }

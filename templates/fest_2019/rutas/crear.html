@@ -55,8 +55,10 @@ var socket = new ReconnectingWebSocket(ws_scheme + '://' + window.location.host 
 });</script><script>$(document).ready(function () {
     $("label[for='id_contrato']").addClass('active');
     $("label[for='id_componente']").addClass('active');
+    $("label[for='id_tipo_pago']").addClass('active');
 
     $('#id_componente').material_select();
+    $('#id_tipo_pago').material_select();
 
     $('#id_contrato').select2({
         ajax: {

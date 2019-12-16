@@ -21,6 +21,7 @@ from usuarios.models import Municipios,Departamentos, Corregimientos, Veredas, P
     ComunidadesIndigenas ,LenguasNativas, ConsejosAfro, ComunidadesAfro, CategoriaDiscapacidad, \
     DificultadesPermanentesDiscapacidad, ElementosDiscapacidad, TiposRehabilitacionDiscapacidad
 from direccion_financiera.models import Bancos
+from django.db.models import Sum
 
 
 class HogarCreateForm(forms.ModelForm):
@@ -166,15 +167,8 @@ class RutasCreateForm(forms.Form):
     nombre = forms.CharField(label='Código ruta', max_length=100)
     componente = forms.ModelChoiceField(label='Componente', queryset=models.Componentes.objects.all())
     valor_transporte = forms.CharField(label='Valor transporte del contrato',max_length=100)
-    meta_hogares = forms.IntegerField(label='Meta de hogares')
+    tipo_pago = forms.CharField(label="Tipo de pago",widget=forms.Select(choices=[('completo','Al completar todas las actividades'),('actividad','Por actividad')]))
 
-    meta_vinculacion = forms.IntegerField(label='Meta vinculación de hogares')
-    valor_vinculacion = forms.CharField(label='Valor (Sin incluir transporte)', max_length=100)
-    valor_transporte_vinculacion = forms.CharField(label='Valor transporte', max_length=100)
-
-    peso_visitas = forms.IntegerField(label='Peso visitas (%)')
-    peso_encuentros = forms.IntegerField(label='Peso encuentros (%)')
-    peso_otros = forms.IntegerField(label='Peso otros (%)')
 
     def _clean_fields(self):
         for name, field in self.fields.items():
@@ -211,16 +205,6 @@ class RutasCreateForm(forms.Form):
                 value = field.widget.value_from_datadict(self.data, self.files, self.add_prefix(name))
                 self.cleaned_data[name] = value
 
-    def clean(self):
-        cleaned_data = super().clean()
-        names = {}
-
-        suma = cleaned_data.get('peso_visitas') + cleaned_data.get('peso_encuentros') + cleaned_data.get('peso_otros')
-
-        if suma != 100:
-            self.add_error('peso_visitas', 'La suma debe ser 100%')
-            self.add_error('peso_encuentros', 'La suma debe ser 100%')
-            self.add_error('peso_otros', 'La suma debe ser 100%')
 
     def __init__(self, *args, **kwargs):
         super(RutasCreateForm, self).__init__(*args, **kwargs)
@@ -233,15 +217,7 @@ class RutasCreateForm(forms.Form):
             self.fields['contrato'].initial = ruta.contrato
             self.fields['valor_transporte'].initial = str(ruta.valor_transporte.amount)
             self.fields['componente'].initial = ruta.componente
-            self.fields['meta_hogares'].initial = ruta.meta_hogares
-
-            self.fields['meta_vinculacion'].initial = ruta.meta_vinculacion
-            self.fields['valor_vinculacion'].initial = str(ruta.valor_vinculacion.amount)
-            self.fields['valor_transporte_vinculacion'].initial = str(ruta.valor_transporte_vinculacion.amount)
-
-            self.fields['peso_visitas'].initial = ruta.peso_visitas
-            self.fields['peso_encuentros'].initial = ruta.peso_encuentros
-            self.fields['peso_otros'].initial = ruta.peso_otros
+            self.fields['tipo_pago'].initial = ruta.tipo_pago
 
 
 
@@ -266,59 +242,22 @@ class RutasCreateForm(forms.Form):
             Row(
                 Column(
                     'nombre',
-                    css_class='s12 m6 l4'
+                    css_class='s12 m6 l3'
                 ),
                 Column(
                     'componente',
-                    css_class='s12 m6 l4'
+                    css_class='s12 m6 l3'
                 ),
                 Column(
                     'valor_transporte',
-                    css_class='s12 m6 l4'
+                    css_class='s12 m6 l3'
                 ),
                 Column(
-                    'meta_hogares',
-                    css_class='s12 m6 l4'
+                    'tipo_pago',
+                    css_class='s12 m6 l3'
                 )
             ),
-            Row(
-                Fieldset(
-                    'Vinculacion de hogares:',
-                )
-            ),
-            Row(
-                Column(
-                    'meta_vinculacion',
-                    css_class='s12 m6 l4'
-                ),
-                Column(
-                    'valor_vinculacion',
-                    css_class='s12 m6 l4'
-                ),
-                Column(
-                    'valor_transporte_vinculacion',
-                    css_class='s12 m6 l4'
-                )
-            ),
-            Row(
-                Fieldset(
-                    'Distribución de valores:',
-                )
-            ),
-            Row(
-                Column(
-                    'peso_visitas',
-                    css_class='s12 m6 l4'
-                ),
-                Column(
-                    'peso_encuentros',
-                    css_class='s12 m6 l4'
-                ),
-                Column(
-                    'peso_otros',
-                    css_class='s12 m6 l4'
-                )
-            ),
+
             Row(
                 Column(
                     Div(
@@ -333,6 +272,127 @@ class RutasCreateForm(forms.Form):
                 ),
             )
         )
+
+
+
+
+
+
+class ValoresActividadesForm(forms.Form):
+
+
+
+    def clean(self):
+        cleaned_data = super().clean()
+        ruta = models.Rutas.objects.get(id=self.initial['pk_ruta'])
+
+        valor_total = 0
+
+        for momento in models.Momentos.objects.filter(componente = ruta.componente):
+
+
+            valor_total += float(cleaned_data['valor_' + str(momento.id)].replace('$ ','').replace(',',''))
+
+
+            if models.CuposRutaObject.objects.filter(ruta = ruta,momento = momento).count() > cleaned_data['cantidad_' + str(momento.id)]:
+                self.add_error('cantidad_' + str(momento.id), 'La cantidad de actividades no puede ser reducida')
+
+
+            valor_pago = models.CuposRutaObject.objects.filter(ruta=ruta, momento=momento).aggregate(Sum('valor'))['valor__sum']
+
+            if valor_pago == None:
+                valor_pago = 0
+
+            else:
+                float(valor_pago)
+
+            if valor_pago > float(cleaned_data['valor_' + str(momento.id)].replace('$ ','').replace(',','')):
+                self.add_error('valor_' + str(momento.id), 'El valor de las actividdes no puede ser reducido')
+
+
+
+        if valor_total != float(ruta.valor.amount) - float(ruta.valor_transporte.amount):
+            self.add_error(None,"El valor total de las actividades debe ser $ {:20,.2f}".format(float(ruta.valor.amount) - float(ruta.valor_transporte.amount)))
+
+
+    def __init__(self, *args, **kwargs):
+        super(ValoresActividadesForm, self).__init__(*args, **kwargs)
+
+        ruta = models.Rutas.objects.get(id = kwargs['initial']['pk_ruta'])
+
+        self.helper = FormHelper(self)
+        self.helper.layout = Layout(
+
+            Row(
+                Fieldset(
+                    'Componente: {0}'.format(ruta.componente),
+                )
+            ),
+            Row(
+
+            ),
+
+            Row(
+                Column(
+                    Div(
+                        Submit(
+                            'submit',
+                            'Guardar',
+                            css_class='button-submit'
+                        ),
+                        css_class="right-align"
+                    ),
+                    css_class="s12"
+                ),
+            )
+        )
+
+
+        initial = []
+
+        try:
+            initial = json.loads(ruta.valores_actividades)
+        except:
+            pass
+
+
+        for momento in models.Momentos.objects.filter(componente = ruta.componente):
+
+            self.fields['cantidad_' + str(momento.id)] = forms.IntegerField(label = 'Cantidad de soportes: {0}'.format(momento.nombre))
+
+            if 'cantidad_' + str(momento.id) in initial:
+                self.fields['cantidad_' + str(momento.id)].initial = initial['cantidad_' + str(momento.id)]
+
+
+            self.fields['valor_' + str(momento.id)] = forms.CharField(max_length=200,label = 'Valor total actividades: {0}'.format(momento.nombre))
+
+
+
+
+            if 'valor_' + str(momento.id) in initial:
+                self.fields['valor_' + str(momento.id)].initial = initial['valor_' + str(momento.id)]
+
+
+
+            self.helper.layout.fields[1].fields.append(
+                Column(
+                    Column(
+                        'cantidad_' + str(momento.id),
+                        css_class='s12 m6'
+                    ),
+                    Column(
+                        'valor_' + str(momento.id),
+                        css_class='s12 m6'
+                    ),
+                    css_class='s12'
+                )
+            )
+
+
+
+
+
+
 
 class RutasHogaresForm(forms.Form):
 
@@ -731,10 +791,7 @@ class CuentaCobroEstadoForm(forms.ModelForm):
         }
 
 
-class DocumentoForm(forms.Form):
-
-    file = forms.FileField(widget=forms.FileInput(attrs={'accept': 'application/pdf'}))
-
+class DocumentoForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
@@ -748,36 +805,705 @@ class DocumentoForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super(DocumentoForm, self).__init__(*args, **kwargs)
-        ruta = None
 
-        self.helper = FormHelper(self)
-        self.helper.layout = Layout(
 
-            Row(
-                Fieldset(
-                    kwargs['initial'].get('short_name'),
-                )
-            ),
-            Row(
-                Column(
-                    'file',
-                    css_class='s12'
-                )
-            ),
-            Row(
-                Column(
-                    Div(
-                        Submit(
-                            'submit',
-                            'Guardar',
-                            css_class='button-submit'
-                        ),
-                        css_class="right-align"
-                    ),
-                    css_class="s12"
+        instrumento = models.Instrumentos.objects.get(id = kwargs['initial']['pk_instrumento'])
+
+
+
+        if instrumento.nivel == 'ruta':
+
+
+            self.helper = FormHelper(self)
+            self.helper.layout = Layout(
+
+                Row(
+                    Fieldset(
+                        kwargs['initial'].get('short_name'),
+                    )
                 ),
+                Row(
+                    Column(
+                        'file',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        Div(
+                            Submit(
+                                'submit',
+                                'Guardar',
+                                css_class='button-submit'
+                            ),
+                            css_class="right-align"
+                        ),
+                        css_class="s12"
+                    ),
+                )
             )
-        )
+
+        elif instrumento.nivel == 'individual':
+            self.fields['hogares'] = forms.ModelChoiceField(label = "Hogar",queryset = models.Hogares.objects.filter(rutas=kwargs['initial']['pk_ruta']))
+
+            if 'pk_instrumento_object' in kwargs['initial']:
+
+                instrumento_object = models.InstrumentosRutaObject.objects.get(id = kwargs['initial']['pk_instrumento_object'])
+
+                try:
+                    self.fields['hogares'].initial = instrumento_object.hogares.all()[0]
+                except:
+                    pass
+
+            self.helper = FormHelper(self)
+            self.helper.layout = Layout(
+
+                Row(
+                    Fieldset(
+                        kwargs['initial'].get('short_name'),
+                    )
+                ),
+                Row(
+                    Column(
+                        'file',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        'hogares',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        Div(
+                            Submit(
+                                'submit',
+                                'Guardar',
+                                css_class='button-submit'
+                            ),
+                            css_class="right-align"
+                        ),
+                        css_class="s12"
+                    ),
+                )
+            )
+
+        else:
+            self.fields['hogares'] = forms.ModelMultipleChoiceField(queryset=models.Hogares.objects.filter(rutas=kwargs['initial']['pk_ruta']))
+
+            if 'pk_instrumento_object' in kwargs['initial']:
+                instrumento_object = models.InstrumentosRutaObject.objects.get(id=kwargs['initial']['pk_instrumento_object'])
+
+                self.fields['hogares'].initial = instrumento_object.hogares.all()
+
+            self.helper = FormHelper(self)
+            self.helper.layout = Layout(
+
+                Row(
+                    Fieldset(
+                        kwargs['initial'].get('short_name'),
+                    )
+                ),
+                Row(
+                    Column(
+                        'file',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        'hogares',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        Div(
+                            Submit(
+                                'submit',
+                                'Guardar',
+                                css_class='button-submit'
+                            ),
+                            css_class="right-align"
+                        ),
+                        css_class="s12"
+                    ),
+                )
+            )
+
+
+    class Meta:
+        model = models.Documento
+        fields = ['file']
+        widgets = {
+            'file': forms.ClearableFileInput(attrs={
+                'data-max-file-size': "10M",
+                'accept': 'application/pdf,application/x-pdf'}
+            ),
+        }
+
+
+
+
+
+
+
+
+class ActaSocializacionComunidadesForm(forms.ModelForm):
+
+    def clean(self):
+        cleaned_data = super().clean()
+        file = cleaned_data.get("file")
+
+        if file.name.split('.')[-1] == 'pdf':
+            pass
+        else:
+            self.add_error('file', 'El archivo cargado no tiene un formato valido')
+
+
+    def __init__(self, *args, **kwargs):
+        super(ActaSocializacionComunidadesForm, self).__init__(*args, **kwargs)
+
+
+        instrumento = models.Instrumentos.objects.get(id = kwargs['initial']['pk_instrumento'])
+
+
+
+        if instrumento.nivel == 'ruta':
+
+
+            self.helper = FormHelper(self)
+            self.helper.layout = Layout(
+
+                Row(
+                    Fieldset(
+                        kwargs['initial'].get('short_name'),
+                    )
+                ),
+                Row(
+                    Column(
+                        'nombre_comunidad',
+                        css_class='s12 m6'
+                    ),
+                    Column(
+                        'resguado_indigena_consejo_comunitario',
+                        css_class='s12 m6'
+                    )
+                ),
+                Row(
+                    Column(
+                        'municipio',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        'nombre_representante',
+                        css_class='s12 m6'
+                    ),
+                    Column(
+                        'documento_representante',
+                        css_class='s12 m6'
+                    )
+                ),
+                Row(
+                    Column(
+                        'cargo_representante',
+                        css_class='s12 m6'
+                    ),
+                    Column(
+                        'fecha_firma',
+                        css_class='s12 m6'
+                    )
+                ),
+                Row(
+                    Column(
+                        'file',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        Div(
+                            Submit(
+                                'submit',
+                                'Guardar',
+                                css_class='button-submit'
+                            ),
+                            css_class="right-align"
+                        ),
+                        css_class="s12"
+                    ),
+                )
+            )
+
+        elif instrumento.nivel == 'individual':
+            self.fields['hogares'] = forms.ModelChoiceField(label = "Hogar",queryset = models.Hogares.objects.filter(rutas=kwargs['initial']['pk_ruta']))
+
+            if 'pk_instrumento_object' in kwargs['initial']:
+
+                instrumento_object = models.InstrumentosRutaObject.objects.get(id = kwargs['initial']['pk_instrumento_object'])
+
+                try:
+                    self.fields['hogares'].initial = instrumento_object.hogares.all()[0]
+                except:
+                    pass
+
+            self.helper = FormHelper(self)
+            self.helper.layout = Layout(
+
+                Row(
+                    Fieldset(
+                        kwargs['initial'].get('short_name'),
+                    )
+                ),
+                Row(
+                    Column(
+                        'nombre_comunidad',
+                        css_class='s12 m6'
+                    ),
+                    Column(
+                        'resguado_indigena_consejo_comunitario',
+                        css_class='s12 m6'
+                    )
+                ),
+                Row(
+                    Column(
+                        'municipio',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        'nombre_representante',
+                        css_class='s12 m6'
+                    ),
+                    Column(
+                        'documento_representante',
+                        css_class='s12 m6'
+                    )
+                ),
+                Row(
+                    Column(
+                        'cargo_representante',
+                        css_class='s12 m6'
+                    ),
+                    Column(
+                        'fecha_firma',
+                        css_class='s12 m6'
+                    )
+                ),
+                Row(
+                    Column(
+                        'file',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        'hogares',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        Div(
+                            Submit(
+                                'submit',
+                                'Guardar',
+                                css_class='button-submit'
+                            ),
+                            css_class="right-align"
+                        ),
+                        css_class="s12"
+                    ),
+                )
+            )
+
+        else:
+            self.fields['hogares'] = forms.ModelMultipleChoiceField(queryset=models.Hogares.objects.filter(rutas=kwargs['initial']['pk_ruta']))
+
+            if 'pk_instrumento_object' in kwargs['initial']:
+                instrumento_object = models.InstrumentosRutaObject.objects.get(id=kwargs['initial']['pk_instrumento_object'])
+
+                self.fields['hogares'].initial = instrumento_object.hogares.all()
+
+            self.helper = FormHelper(self)
+            self.helper.layout = Layout(
+
+                Row(
+                    Fieldset(
+                        kwargs['initial'].get('short_name'),
+                    )
+                ),
+                Row(
+                    Column(
+                        'nombre_comunidad',
+                        css_class='s12 m6'
+                    ),
+                    Column(
+                        'resguado_indigena_consejo_comunitario',
+                        css_class='s12 m6'
+                    )
+                ),
+                Row(
+                    Column(
+                        'municipio',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        'nombre_representante',
+                        css_class='s12 m6'
+                    ),
+                    Column(
+                        'documento_representante',
+                        css_class='s12 m6'
+                    )
+                ),
+                Row(
+                    Column(
+                        'cargo_representante',
+                        css_class='s12 m6'
+                    ),
+                    Column(
+                        'fecha_firma',
+                        css_class='s12 m6'
+                    )
+                ),
+                Row(
+                    Column(
+                        'file',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        'hogares',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        Div(
+                            Submit(
+                                'submit',
+                                'Guardar',
+                                css_class='button-submit'
+                            ),
+                            css_class="right-align"
+                        ),
+                        css_class="s12"
+                    ),
+                )
+            )
+
+
+    class Meta:
+        model = models.ActaSocializacionComunidades
+        fields = ['file','nombre_comunidad','resguado_indigena_consejo_comunitario','municipio','nombre_representante',
+                  'documento_representante','cargo_representante','fecha_firma']
+        widgets = {
+            'file': forms.ClearableFileInput(attrs={
+                'data-max-file-size': "10M",
+                'accept': 'application/pdf,application/x-pdf'}
+            ),
+        }
+
+        labels = {
+            'nombre_comunidad': 'Nombre de la comunidad',
+            'resguado_indigena_consejo_comunitario': 'Resguardo indigena o consejo comunitario',
+            'fecha_firma': 'Fecha firma del acta'
+        }
+
+
+
+
+class ActaVinculacionHogarForm(forms.ModelForm):
+
+    def clean(self):
+        cleaned_data = super().clean()
+        file = cleaned_data.get("file")
+
+        if file.name.split('.')[-1] == 'pdf':
+            pass
+        else:
+            self.add_error('file', 'El archivo cargado no tiene un formato valido')
+
+
+    def __init__(self, *args, **kwargs):
+        super(ActaVinculacionHogarForm, self).__init__(*args, **kwargs)
+
+
+        instrumento = models.Instrumentos.objects.get(id = kwargs['initial']['pk_instrumento'])
+
+
+
+        if instrumento.nivel == 'ruta':
+
+
+            self.helper = FormHelper(self)
+            self.helper.layout = Layout(
+
+                Row(
+                    Fieldset(
+                        kwargs['initial'].get('short_name'),
+                    )
+                ),
+                Row(
+                    Column(
+                        'fecha_diligenciamiento',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'nombre_comunidad',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'resguado_indigena_consejo_comunitario',
+                        css_class='s12 m6 l4'
+                    )
+                ),
+                Row(
+                    Column(
+                        'municipio',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        'tipo_identificacion',
+                        css_class='s12 m6'
+                    ),
+                    Column(
+                        'documento_representante',
+                        css_class='s12 m6'
+                    )
+                ),
+                Row(
+                    Column(
+                        'nombre_representante',
+                        css_class='s12 m6'
+                    ),
+                    Column(
+                        'telefono_celular',
+                        css_class='s12 m6'
+                    )
+                ),
+                Row(
+                    Column(
+                        'file',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        Div(
+                            Submit(
+                                'submit',
+                                'Guardar',
+                                css_class='button-submit'
+                            ),
+                            css_class="right-align"
+                        ),
+                        css_class="s12"
+                    ),
+                )
+            )
+
+        elif instrumento.nivel == 'individual':
+            self.fields['hogares'] = forms.ModelChoiceField(label = "Hogar",queryset = models.Hogares.objects.filter(rutas=kwargs['initial']['pk_ruta']))
+
+            if 'pk_instrumento_object' in kwargs['initial']:
+
+                instrumento_object = models.InstrumentosRutaObject.objects.get(id = kwargs['initial']['pk_instrumento_object'])
+
+                try:
+                    self.fields['hogares'].initial = instrumento_object.hogares.all()[0]
+                except:
+                    pass
+
+            self.helper = FormHelper(self)
+            self.helper.layout = Layout(
+
+                Row(
+                    Fieldset(
+                        kwargs['initial'].get('short_name'),
+                    )
+                ),
+                Row(
+                    Column(
+                        'fecha_diligenciamiento',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'nombre_comunidad',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'resguado_indigena_consejo_comunitario',
+                        css_class='s12 m6 l4'
+                    )
+                ),
+                Row(
+                    Column(
+                        'municipio',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        'tipo_identificacion',
+                        css_class='s12 m6'
+                    ),
+                    Column(
+                        'documento_representante',
+                        css_class='s12 m6'
+                    )
+                ),
+                Row(
+                    Column(
+                        'nombre_representante',
+                        css_class='s12 m6'
+                    ),
+                    Column(
+                        'telefono_celular',
+                        css_class='s12 m6'
+                    )
+                ),
+                Row(
+                    Column(
+                        'file',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        'hogares',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        Div(
+                            Submit(
+                                'submit',
+                                'Guardar',
+                                css_class='button-submit'
+                            ),
+                            css_class="right-align"
+                        ),
+                        css_class="s12"
+                    ),
+                )
+            )
+
+        else:
+            self.fields['hogares'] = forms.ModelMultipleChoiceField(queryset=models.Hogares.objects.filter(rutas=kwargs['initial']['pk_ruta']))
+
+            if 'pk_instrumento_object' in kwargs['initial']:
+                instrumento_object = models.InstrumentosRutaObject.objects.get(id=kwargs['initial']['pk_instrumento_object'])
+
+                self.fields['hogares'].initial = instrumento_object.hogares.all()
+
+            self.helper = FormHelper(self)
+            self.helper.layout = Layout(
+
+                Row(
+                    Fieldset(
+                        kwargs['initial'].get('short_name'),
+                    )
+                ),
+                Row(
+                    Column(
+                        'fecha_diligenciamiento',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'nombre_comunidad',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'resguado_indigena_consejo_comunitario',
+                        css_class='s12 m6 l4'
+                    )
+                ),
+                Row(
+                    Column(
+                        'municipio',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        'tipo_identificacion',
+                        css_class='s12 m6'
+                    ),
+                    Column(
+                        'documento_representante',
+                        css_class='s12 m6'
+                    )
+                ),
+                Row(
+                    Column(
+                        'nombre_representante',
+                        css_class='s12 m6'
+                    ),
+                    Column(
+                        'telefono_celular',
+                        css_class='s12 m6'
+                    )
+                ),
+                Row(
+                    Column(
+                        'file',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        'hogares',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        Div(
+                            Submit(
+                                'submit',
+                                'Guardar',
+                                css_class='button-submit'
+                            ),
+                            css_class="right-align"
+                        ),
+                        css_class="s12"
+                    ),
+                )
+            )
+
+
+    class Meta:
+        model = models.ActaVinculacionHogar
+        fields = ['file','fecha_diligenciamiento','municipio','resguado_indigena_consejo_comunitario','nombre_comunidad',
+                  'tipo_identificacion','documento_representante','nombre_representante','telefono_celular']
+        widgets = {
+            'file': forms.ClearableFileInput(attrs={
+                'data-max-file-size': "10M",
+                'accept': 'application/pdf,application/x-pdf'}
+            ),
+        }
+
+        labels = {
+            'nombre_comunidad': 'Nombre de la comunidad',
+            'resguado_indigena_consejo_comunitario': 'Resguardo indigena o consejo comunitario',
+        }
+
+
+
+
 
 class DocumentoExcelForm(forms.Form):
 

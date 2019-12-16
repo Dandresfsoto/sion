@@ -15,8 +15,8 @@ from django.db.models import Q
 
 class HogaresListApi(BaseDatatableView):
     model = models.Hogares
-    columns = ['id','documento','primer_nombre','municipio']
-    order_columns = ['id','documento','primer_nombre','municipio']
+    columns = ['id','documento','primer_nombre','municipio','rutas']
+    order_columns = ['id','documento','primer_nombre','municipio','rutas']
 
     def get_initial_queryset(self):
         self.permissions = {
@@ -69,8 +69,20 @@ class HogaresListApi(BaseDatatableView):
             return '{0}, {1}'.format(row.municipio.nombre,row.municipio.departamento.nombre)
 
 
+
+
+        elif column == 'rutas':
+            return row.get_rutas()
+
+
+
         else:
             return super(HogaresListApi, self).render_column(row, column)
+
+
+
+#------------------------------------- ENTREGABLES -------------------------------------
+
 
 class EntregablesListApi(BaseDatatableView):
     model = models.Componentes
@@ -222,8 +234,8 @@ class InstrumentosListApi(BaseDatatableView):
 
 class RutasListApi(BaseDatatableView):
     model = models.Rutas
-    columns = ['id','creation','nombre','contrato','componente','valor','novedades','progreso','hogares_inscritos','meta_hogares']
-    order_columns = ['id','creation','nombre','contrato','componente','valor','novedades','progreso','hogares_inscritos','meta_hogares']
+    columns = ['id','creation','nombre','contrato','componente','valor','novedades','progreso','hogares_inscritos','usuario_creacion']
+    order_columns = ['id','creation','nombre','contrato','componente','valor','novedades','progreso','hogares_inscritos','usuario_creacion']
 
     def get_initial_queryset(self):
 
@@ -310,13 +322,9 @@ class RutasListApi(BaseDatatableView):
 
         elif column == 'valor':
 
-            tooltip = '<p>Vinculación: {0}</p>' \
-                      '<p>Transporte vinculación: {1}</p>' \
-                      '<p>Ruta: {2}</p>' \
-                      '<p>Transporte ruta: {3}</p>'.format(
-                utils.col2str(row.valor_vinculacion),
-                utils.col2str(row.valor_transporte_vinculacion),
-                utils.col2str(row.valor_actividades),
+            tooltip = '<p>Ruta: {0}</p>' \
+                      '<p>Transporte ruta: {1}</p>'.format(
+                utils.col2str(row.valor - row.valor_transporte),
                 utils.col2str(row.valor_transporte)
             )
 
@@ -340,19 +348,19 @@ class RutasListApi(BaseDatatableView):
             ret = ''
             if self.request.user.has_perms(self.permissions.get('ver_hogares')):
                 ret = '<div class="center-align">' \
-                           '<a href="hogares/{0}" class="tooltipped" data-position="left" data-delay="50" data-tooltip="{1} hogares asignados">' \
+                           '<a href="hogares/{0}" class="tooltipped" data-position="left" data-delay="50" data-tooltip="{1} hogares inscritos">' \
                                 '<b>{1}</b>' \
                            '</a>' \
-                       '</div>'.format(row.id,row.hogares_inscritos,row.meta_hogares)
+                       '</div>'.format(row.id,row.hogares_inscritos)
 
             else:
                 ret = '<div class="center-align">' \
                            '<b>{1}</b>' \
-                       '</div>'.format(row.id,row.hogares_inscritos,row.meta_hogares)
+                       '</div>'.format(row.id,row.hogares_inscritos)
 
             return ret
 
-        elif column == 'meta_hogares':
+        elif column == 'usuario_creacion':
             ret = ''
             if self.request.user.has_perms(self.permissions.get('ver')):
                 ret = '<div class="center-align">' \
@@ -374,8 +382,8 @@ class RutasListApi(BaseDatatableView):
 
 class HogaresRutasListApi(BaseDatatableView):
     model = models.Hogares
-    columns = ['id','documento','primer_nombre','municipio','codigo_corregimiento','nombre_corregimiento']
-    order_columns = ['id','documento','primer_nombre','municipio','codigo_corregimiento','nombre_corregimiento']
+    columns = ['id','documento','primer_nombre','municipio']
+    order_columns = ['id','documento','primer_nombre','municipio']
 
     def get_initial_queryset(self):
         self.ruta = models.Rutas.objects.get(id = self.kwargs['pk_ruta'])
@@ -393,37 +401,7 @@ class HogaresRutasListApi(BaseDatatableView):
             ]
         }
 
-        if self.request.user.is_superuser:
-            if str(self.ruta.componente.consecutivo) == '1':
-                return self.model.objects.filter(ruta_1=self.ruta)
-            elif str(self.ruta.componente.consecutivo) == '2':
-                return self.model.objects.filter(ruta_2=self.ruta)
-            elif str(self.ruta.componente.consecutivo) == '3':
-                return self.model.objects.filter(ruta_3=self.ruta)
-            elif str(self.ruta.componente.consecutivo) == '4':
-                return self.model.objects.filter(ruta_4=self.ruta)
-            else:
-                return self.model.objects.none()
-
-        else:
-
-            if self.permiso == None:
-                return self.model.objects.none()
-            else:
-                ids_ver = self.permiso.rutas_ver.all()
-                if self.ruta in ids_ver:
-                    if str(self.ruta.componente.consecutivo) == '1':
-                        return self.model.objects.filter(ruta_1=self.ruta)
-                    elif str(self.ruta.componente.consecutivo) == '2':
-                        return self.model.objects.filter(ruta_2=self.ruta)
-                    elif str(self.ruta.componente.consecutivo) == '3':
-                        return self.model.objects.filter(ruta_3=self.ruta)
-                    elif str(self.ruta.componente.consecutivo) == '4':
-                        return self.model.objects.filter(ruta_4=self.ruta)
-                    else:
-                        return self.model.objects.none()
-                else:
-                    return self.model.objects.none()
+        return self.model.objects.filter(rutas = self.ruta)
 
 
 
@@ -465,17 +443,6 @@ class HogaresRutasListApi(BaseDatatableView):
             return '{0}, {1}'.format(row.municipio.nombre,row.municipio.departamento.nombre)
 
 
-        elif column == 'codigo_corregimiento':
-            return '<div class="center-align">' + row.get_vinculacion_ruta(self.ruta) + '</div>'
-
-        elif column == 'nombre_corregimiento':
-            ret = '<div class="center-align">' \
-                      '<a href="ver_miembros/{0}" class="tooltipped" data-position="top" data-delay="50" data-tooltip="Ver miembros del hogar">' \
-                            '<b>{1}</b>' \
-                      '</a>' \
-                  '</div>'.format(row.id,row.get_cantidad_miembros())
-            return ret
-
 
         else:
             return super(HogaresRutasListApi, self).render_column(row, column)
@@ -512,8 +479,8 @@ class ContratosAutocomplete(autocomplete.Select2QuerySetView):
 
 class HogaresActividadesListApi(BaseDatatableView):
     model = models.Momentos
-    columns = ['id', 'consecutivo', 'nombre', 'tipo', 'valor_maximo', 'novedades', 'progreso', 'componente']
-    order_columns = ['id', 'consecutivo', 'nombre', 'tipo', 'valor_maximo', 'novedades', 'progreso', 'componente']
+    columns = ['id', 'consecutivo', 'nombre', 'tipo' ,'valor_maximo', 'novedades', 'progreso']
+    order_columns = ['id', 'consecutivo', 'nombre', 'tipo','valor_maximo', 'novedades', 'progreso']
 
     def get_initial_queryset(self):
         self.ruta = models.Rutas.objects.get(id = self.kwargs['pk_ruta'])
@@ -552,17 +519,13 @@ class HogaresActividadesListApi(BaseDatatableView):
         if column == 'id':
             ret = ''
 
-            if row.tipo in ['vinculacion','visita','encuentro','otros']:
-                url = 'hogares'
-            else:
-                url = 'instrumentos'
 
             if self.request.user.has_perms(self.permissions.get('ver')):
                 ret = '<div class="center-align">' \
-                           '<a href="{1}/{0}" class="tooltipped link-sec" data-position="top" data-delay="50" data-tooltip="Ver hogares y/o instrumentos">' \
+                           '<a href="instrumentos/{0}" class="tooltipped link-sec" data-position="top" data-delay="50" data-tooltip="Ver instrumentos">' \
                                 '<i class="material-icons">remove_red_eye</i>' \
                            '</a>' \
-                       '</div>'.format(row.id,url)
+                       '</div>'.format(row.id)
 
             else:
                 ret = '<div class="center-align">' \
@@ -574,36 +537,10 @@ class HogaresActividadesListApi(BaseDatatableView):
         elif column == 'consecutivo':
             return '<div class="center-align"><b>{0}</b></div>'.format(row.consecutivo)
 
+
         elif column == 'tipo':
-            nombre = ''
-            color = ''
-            icono = ''
+            return '<div class="center-align">{0}</div>'.format(row.get_cantidad_momento(self.ruta))
 
-            if row.tipo == 'vinculacion':
-                nombre = 'Vinculación'
-                color = '#558b2f'
-                icono = 'accessibility'
-
-            elif row.tipo == 'visita':
-                nombre = 'Visita'
-                color = '#e65100'
-                icono = 'account_balance'
-
-            elif row.tipo == 'encuentro':
-                nombre = 'Encuentro'
-                color = '#5d4037'
-                icono = 'camera'
-
-            else:
-                nombre = 'Otros'
-                color = '#37474f'
-                icono = 'dashboard'
-
-            return '<div class="center-align">' \
-                   '<a class="tooltipped" data-position="top" data-delay="50" data-tooltip="{0}">' \
-                   '<i style = "color:{1};" class="material-icons">{2}</i>' \
-                   '</a>' \
-                   '</div>'.format(nombre, color,icono)
 
 
         elif column == 'valor_maximo':
@@ -611,6 +548,7 @@ class HogaresActividadesListApi(BaseDatatableView):
 
         elif column == 'novedades':
             novedades = row.get_novedades_mis_rutas_actividades(self.ruta)
+
             if novedades > 0:
                 return '<span class="new badge" data-badge-caption="">{0}</span>'.format(novedades)
             else:
@@ -636,23 +574,7 @@ class HogaresActividadesListApi(BaseDatatableView):
                    '</div>'.format(progreso,tooltip)
 
 
-        elif column == 'componente':
 
-
-            if self.request.user.is_superuser:
-                ret = '<div class="center-align">' \
-                           '<a href="objetos/{0}" class="tooltipped" data-position="top" data-delay="50" data-tooltip="Ver objetos del instrumento">' \
-                                '<b>{1}</b>' \
-                           '</a>' \
-                       '</div>'.format(row.id,row.get_objetos_ruta(self.ruta))
-
-            else:
-                ret = '<div class="center-align">' \
-                           '<b>{0}</b>' \
-                       '</div>'.format(row.get_objetos_ruta(self.ruta))
-
-
-            return ret
 
 
         else:
@@ -880,7 +802,6 @@ class InstrumentosHogaresRutasListApi(BaseDatatableView):
     def get_initial_queryset(self):
         self.ruta = models.Rutas.objects.get(id = self.kwargs['pk_ruta'])
         self.momento = models.Momentos.objects.get(id=self.kwargs['pk_momento'])
-        self.hogar = models.Hogares.objects.get(id=self.kwargs['pk_hogar'])
 
         try:
             self.permiso = models.PermisosCuentasRutas.objects.get(user=self.request.user)
@@ -895,11 +816,11 @@ class InstrumentosHogaresRutasListApi(BaseDatatableView):
         }
 
         if self.request.user.is_superuser:
-            return self.model.objects.filter(ruta=self.ruta, momento=self.momento, hogar=self.hogar)
+            return self.model.objects.filter(ruta=self.ruta, momento=self.momento)
         else:
             ids_ver = self.permiso.rutas_ver.all()
             if self.ruta in ids_ver:
-                return self.model.objects.filter(ruta=self.ruta, momento=self.momento, hogar=self.hogar)
+                return self.model.objects.filter(ruta=self.ruta, momento=self.momento)
             else:
                 return self.model.objects.none()
 
@@ -950,7 +871,7 @@ class InstrumentosHogaresRutasListApi(BaseDatatableView):
 
 
         elif column == 'consecutivo':
-            return '<div class="center-align"><b>{0}</b></div>'.format(row.consecutivo)
+            return row.get_hogares_list()
 
 
         elif column == 'nombre':
@@ -967,6 +888,7 @@ class InstrumentosHogaresRutasListApi(BaseDatatableView):
         elif column == 'ruta':
             ret = ''
 
+            """
             if self.ruta.id in self.permiso.rutas_preaprobar.values_list('id',flat=True) or self.request.user.is_superuser:
 
                 if  row.estado != 'preaprobado' and row.estado != 'aprobado':
@@ -978,7 +900,7 @@ class InstrumentosHogaresRutasListApi(BaseDatatableView):
                     ret += '<a style="color:red;margin-left:10px;" href="rechazar/{0}" class="tooltipped" data-position="top" data-delay="50" data-tooltip="{1}">' \
                                 '<i class="material-icons">{2}</i>' \
                            '</a>'.format(row.id, 'Rechazar', 'highlight_off')
-
+            """
 
             return '<div class="center-align">' + ret + '</div>'
 
@@ -994,7 +916,6 @@ class InstrumentosHogaresRutasTrazabilidadListApi(BaseDatatableView):
     def get_initial_queryset(self):
         self.ruta = models.Rutas.objects.get(id = self.kwargs['pk_ruta'])
         self.momento = models.Momentos.objects.get(id=self.kwargs['pk_momento'])
-        self.hogar = models.Hogares.objects.get(id=self.kwargs['pk_hogar'])
         self.instrumento_object = models.InstrumentosRutaObject.objects.get(id=self.kwargs['pk_instrumento_object'])
 
         try:
@@ -1045,8 +966,8 @@ class InstrumentosHogaresRutasTrazabilidadListApi(BaseDatatableView):
 
 class MisRutasListApi(BaseDatatableView):
     model = models.Rutas
-    columns = ['creation', 'nombre', 'contrato', 'componente', 'valor', 'novedades', 'progreso', 'hogares_inscritos', 'meta_hogares']
-    order_columns = ['creation', 'nombre', 'contrato', 'componente', 'valor', 'novedades', 'progreso', 'hogares_inscritos', 'meta_hogares']
+    columns = ['creation', 'nombre', 'contrato', 'componente', 'valor', 'novedades', 'progreso', 'hogares_inscritos', 'valores_actividades']
+    order_columns = ['creation', 'nombre', 'contrato', 'componente', 'valor', 'novedades', 'progreso', 'hogares_inscritos', 'valores_actividades']
 
     def get_initial_queryset(self):
         self.permissions = {
@@ -1098,13 +1019,9 @@ class MisRutasListApi(BaseDatatableView):
 
         elif column == 'valor':
 
-            tooltip = '<p>Vinculación: {0}</p>' \
-                      '<p>Transporte vinculación: {1}</p>' \
-                      '<p>Ruta: {2}</p>' \
-                      '<p>Transporte ruta: {3}</p>'.format(
-                utils.col2str(row.valor_vinculacion),
-                utils.col2str(row.valor_transporte_vinculacion),
-                utils.col2str(row.valor_actividades),
+            tooltip = '<p>Ruta: {0}</p>' \
+                      '<p>Transporte ruta: {1}</p>'.format(
+                utils.col2str(row.valor - row.valor_transporte),
                 utils.col2str(row.valor_transporte)
             )
 
@@ -1131,16 +1048,16 @@ class MisRutasListApi(BaseDatatableView):
                            '<a href="hogares/{0}" class="tooltipped" data-position="left" data-delay="50" data-tooltip="{1} hogares asignados">' \
                                 '<b>{1}</b>' \
                            '</a>' \
-                       '</div>'.format(row.id,row.hogares_inscritos,row.meta_hogares)
+                       '</div>'.format(row.id,row.hogares_inscritos)
 
             else:
                 ret = '<div class="center-align">' \
                            '<b>{1}</b>' \
-                       '</div>'.format(row.id,row.hogares_inscritos,row.meta_hogares)
+                       '</div>'.format(row.id,row.hogares_inscritos)
 
             return ret
 
-        elif column == 'meta_hogares':
+        elif column == 'valores_actividades':
             ret = ''
             if self.request.user.has_perms(self.permissions.get('ver')):
                 ret = '<div class="center-align">' \
@@ -1161,8 +1078,8 @@ class MisRutasListApi(BaseDatatableView):
 
 class HogaresMisRutasListApi(BaseDatatableView):
     model = models.Hogares
-    columns = ['id','documento','primer_nombre','municipio','codigo_corregimiento','nombre_corregimiento','codigo_vereda']
-    order_columns = ['id','documento','primer_nombre','municipio','codigo_corregimiento','nombre_corregimiento','codigo_vereda']
+    columns = ['id', 'documento', 'primer_nombre', 'municipio']
+    order_columns = ['id', 'documento', 'primer_nombre', 'municipio']
 
     def get_initial_queryset(self):
         self.ruta = models.Rutas.objects.get(id = self.kwargs['pk_ruta'])
@@ -1174,16 +1091,7 @@ class HogaresMisRutasListApi(BaseDatatableView):
             ]
         }
 
-        if str(self.ruta.componente.consecutivo) == '1':
-            return self.model.objects.filter(ruta_1 = self.ruta)
-        elif str(self.ruta.componente.consecutivo) == '2':
-            return self.model.objects.filter(ruta_2=self.ruta)
-        elif str(self.ruta.componente.consecutivo) == '3':
-            return self.model.objects.filter(ruta_3=self.ruta)
-        elif str(self.ruta.componente.consecutivo) == '4':
-            return self.model.objects.filter(ruta_4=self.ruta)
-        else:
-            return self.model.objects.none()
+        return self.model.objects.filter(rutas = self.ruta)
 
     def filter_queryset(self, qs):
         search = self.request.GET.get(u'search[value]', None)
@@ -1223,27 +1131,6 @@ class HogaresMisRutasListApi(BaseDatatableView):
             return '{0}, {1}'.format(row.municipio.nombre,row.municipio.departamento.nombre)
 
 
-        elif column == 'codigo_corregimiento':
-            return '<div class="center-align">' + row.get_vinculacion_ruta(self.ruta) + '</div>'
-
-        elif column == 'nombre_corregimiento':
-            ret = '<div class="center-align">' \
-                      '<a href="ver_miembros/{0}" class="tooltipped" data-position="top" data-delay="50" data-tooltip="Ver miembros del hogar">' \
-                            '<b>{1}</b>' \
-                      '</a>' \
-                  '</div>'.format(row.id,row.get_cantidad_miembros())
-            return ret
-
-
-        elif column == 'codigo_vereda':
-            ret = ''
-            ret += '<a href="agregar_miembro/{0}" class="tooltipped edit-table" data-position="top" data-delay="50" data-tooltip="Agregar miembro al nucleo familiar">' \
-                        '<i class="material-icons">add_box</i>' \
-                  '</a>'.format(row.id)
-
-            return '<div class="center-align">' + ret + '</div>'
-
-
         else:
             return super(HogaresMisRutasListApi, self).render_column(row, column)
 
@@ -1276,17 +1163,13 @@ class HogaresMisActividadesListApi(BaseDatatableView):
         if column == 'id':
             ret = ''
 
-            if row.tipo in ['vinculacion','visita','encuentro','otros']:
-                url = 'hogares'
-            else:
-                url = 'instrumentos'
 
             if self.request.user.has_perms(self.permissions.get('ver')):
                 ret = '<div class="center-align">' \
-                           '<a href="{1}/{0}" class="tooltipped link-sec" data-position="top" data-delay="50" data-tooltip="Ver hogares y/o instrumentos">' \
+                           '<a href="instrumentos/{0}" class="tooltipped link-sec" data-position="top" data-delay="50" data-tooltip="Ver instrumentos">' \
                                 '<i class="material-icons">remove_red_eye</i>' \
                            '</a>' \
-                       '</div>'.format(row.id,url)
+                       '</div>'.format(row.id)
 
             else:
                 ret = '<div class="center-align">' \
@@ -1298,36 +1181,10 @@ class HogaresMisActividadesListApi(BaseDatatableView):
         elif column == 'consecutivo':
             return '<div class="center-align"><b>{0}</b></div>'.format(row.consecutivo)
 
+
         elif column == 'tipo':
-            nombre = ''
-            color = ''
-            icono = ''
+            return '<div class="center-align">{0}</div>'.format(row.get_cantidad_momento(self.ruta))
 
-            if row.tipo == 'vinculacion':
-                nombre = 'Vinculación'
-                color = '#558b2f'
-                icono = 'accessibility'
-
-            elif row.tipo == 'visita':
-                nombre = 'Visita'
-                color = '#e65100'
-                icono = 'account_balance'
-
-            elif row.tipo == 'encuentro':
-                nombre = 'Encuentro'
-                color = '#5d4037'
-                icono = 'camera'
-
-            else:
-                nombre = 'Otros'
-                color = '#37474f'
-                icono = 'dashboard'
-
-            return '<div class="center-align">' \
-                   '<a class="tooltipped" data-position="top" data-delay="50" data-tooltip="{0}">' \
-                   '<i style = "color:{1};" class="material-icons">{2}</i>' \
-                   '</a>' \
-                   '</div>'.format(nombre, color,icono)
 
 
         elif column == 'valor_maximo':
@@ -1335,6 +1192,7 @@ class HogaresMisActividadesListApi(BaseDatatableView):
 
         elif column == 'novedades':
             novedades = row.get_novedades_mis_rutas_actividades(self.ruta)
+
             if novedades > 0:
                 return '<span class="new badge" data-badge-caption="">{0}</span>'.format(novedades)
             else:
@@ -1578,7 +1436,6 @@ class MisInstrumentosHogaresRutasListApi(BaseDatatableView):
     def get_initial_queryset(self):
         self.ruta = models.Rutas.objects.get(id = self.kwargs['pk_ruta'])
         self.momento = models.Momentos.objects.get(id=self.kwargs['pk_momento'])
-        self.hogar = models.Hogares.objects.get(id=self.kwargs['pk_hogar'])
         self.permissions = {
             "ver": [
                 "usuarios.fest_2019.ver",
@@ -1587,7 +1444,7 @@ class MisInstrumentosHogaresRutasListApi(BaseDatatableView):
             ]
         }
 
-        return self.model.objects.filter(ruta=self.ruta,momento=self.momento,hogar=self.hogar)
+        return self.model.objects.filter(ruta=self.ruta,momento=self.momento)
 
 
 
@@ -1608,22 +1465,22 @@ class MisInstrumentosHogaresRutasListApi(BaseDatatableView):
                 if row.estado in ['cargado','rechazado']:
 
                     ret = '<div class="center-align">' \
-                          '<a href="agregar/{0}" class="tooltipped edit-table" data-position="top" data-delay="50" data-tooltip="Actualizar el soporte">' \
+                          '<a href="editar/{0}" class="tooltipped edit-table" data-position="top" data-delay="50" data-tooltip="Actualizar el soporte">' \
                           '<i class="material-icons">cloud_upload</i>' \
                           '</a>' \
-                          '</div>'.format(row.instrumento.id)
+                          '</div>'.format(row.id)
 
 
                 else:
 
                     ret = '<div class="center-align">' \
                                '<i class="material-icons">cloud_upload</i>' \
-                           '</div>'.format(row.instrumento.id)
+                           '</div>'.format(row.id)
 
             else:
                 ret = '<div class="center-align">' \
                            '<i class="material-icons">cloud_upload</i>' \
-                       '</div>'.format(row.instrumento.id)
+                       '</div>'.format(row.id)
 
             return ret
 
@@ -1644,7 +1501,7 @@ class MisInstrumentosHogaresRutasListApi(BaseDatatableView):
             return ret
 
         elif column == 'consecutivo':
-            return '<div class="center-align"><b>{0}</b></div>'.format(row.consecutivo)
+            return row.get_hogares_list()
 
 
         elif column == 'estado':
@@ -1695,8 +1552,8 @@ class MisInstrumentosHogaresRutasObservacionesListApi(BaseDatatableView):
     def get_initial_queryset(self):
         self.ruta = models.Rutas.objects.get(id = self.kwargs['pk_ruta'])
         self.momento = models.Momentos.objects.get(id=self.kwargs['pk_momento'])
-        self.hogar = models.Hogares.objects.get(id=self.kwargs['pk_hogar'])
-        self.instrumento = models.InstrumentosRutaObject.objects.get(id=self.kwargs['pk_instrumento'])
+        self.instrumento_object = models.InstrumentosRutaObject.objects.get(id=self.kwargs['pk_instrumento_object'])
+        self.instrumento = self.instrumento_object.instrumento
 
         self.permissions = {
             "ver": [
@@ -1706,7 +1563,7 @@ class MisInstrumentosHogaresRutasObservacionesListApi(BaseDatatableView):
             ]
         }
 
-        return self.model.objects.filter(instrumento = self.instrumento)
+        return self.model.objects.filter(instrumento = self.instrumento_object)
 
 
 

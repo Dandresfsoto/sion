@@ -91,7 +91,7 @@ class Fest2019OptionsView(LoginRequiredMixin,
                 'sican_url': 'rutas/',
                 'sican_name': 'Rutas',
                 'sican_icon': 'autorenew',
-                'sican_description': 'Asignación, cambio y trazabilidad de las rutas para los gestores.'
+                'sican_description': 'Asignación, cambio y trazabilidad de las rutas para los profesionales en campo.'
             })
 
         if self.request.user.has_perm('usuarios.fest_2019.misrutas.ver'):
@@ -148,6 +148,19 @@ class Fest2019OptionsView(LoginRequiredMixin,
                 'sican_name': 'Ruteo',
                 'sican_icon': 'view_list',
                 'sican_description': 'Asignación de rutas a los hogares'
+            })
+
+
+
+        if self.request.user.has_perm('usuarios.fest_2019.mishogares.ver'):
+            items.append({
+                'sican_categoria': 'Mis hogares',
+                'sican_color': 'purple darken-4',
+                'sican_order': 10,
+                'sican_url': 'mis_hogares/',
+                'sican_name': 'Mis hogares',
+                'sican_icon': 'home',
+                'sican_description': 'Registro de hogares asignados a mis rutas'
             })
 
 
@@ -401,9 +414,6 @@ class RutasCreateView(LoginRequiredMixin,
     def form_valid(self, form):
         contrato = rh_models.Contratos.objects.get(id=form.cleaned_data['contrato'])
 
-        valor_actividades = float(contrato.valor.amount) - float(utils.autonumeric2float(form.cleaned_data['valor_transporte'])) - \
-                            float(utils.autonumeric2float(form.cleaned_data['valor_vinculacion'])) - \
-                            float(utils.autonumeric2float(form.cleaned_data['valor_transporte_vinculacion']))
 
         self.object = models.Rutas.objects.create(
             nombre=form.cleaned_data['nombre'],
@@ -413,14 +423,7 @@ class RutasCreateView(LoginRequiredMixin,
             valor_transporte=utils.autonumeric2float(form.cleaned_data['valor_transporte']),
             usuario_creacion=self.request.user,
             usuario_actualizacion=self.request.user,
-            meta_vinculacion = form.cleaned_data['meta_vinculacion'],
-            valor_vinculacion = utils.autonumeric2float(form.cleaned_data['valor_vinculacion']),
-            valor_transporte_vinculacion = utils.autonumeric2float(form.cleaned_data['valor_transporte_vinculacion']),
-            valor_actividades = valor_actividades,
-            meta_hogares = form.cleaned_data['meta_hogares'],
-            peso_visitas = form.cleaned_data['peso_visitas'],
-            peso_encuentros = form.cleaned_data['peso_encuentros'],
-            peso_otros = form.cleaned_data['peso_otros']
+            tipo_pago = form.cleaned_data['tipo_pago']
         )
         message = 'Se creó la ruta: {0}'.format(form.cleaned_data['nombre'])
         messages.add_message(self.request, messages.INFO, message)
@@ -455,9 +458,6 @@ class RutasUpdateView(LoginRequiredMixin,
 
         contrato = rh_models.Contratos.objects.get(id=form.cleaned_data['contrato'])
 
-        valor_actividades = float(contrato.valor.amount) - float(utils.autonumeric2float(form.cleaned_data['valor_transporte'])) - \
-                            float(utils.autonumeric2float(form.cleaned_data['valor_vinculacion'])) - \
-                            float(utils.autonumeric2float(form.cleaned_data['valor_transporte_vinculacion']))
 
         models.Rutas.objects.filter(id = self.kwargs['pk_ruta']).update(
             nombre=form.cleaned_data['nombre'],
@@ -466,14 +466,7 @@ class RutasUpdateView(LoginRequiredMixin,
             valor=contrato.valor.amount,
             valor_transporte=utils.autonumeric2float(form.cleaned_data['valor_transporte']),
             usuario_actualizacion=self.request.user,
-            meta_vinculacion = form.cleaned_data['meta_vinculacion'],
-            valor_vinculacion=utils.autonumeric2float(form.cleaned_data['valor_vinculacion']),
-            valor_transporte_vinculacion=utils.autonumeric2float(form.cleaned_data['valor_transporte_vinculacion']),
-            valor_actividades = valor_actividades,
-            meta_hogares = form.cleaned_data['meta_hogares'],
-            peso_visitas=form.cleaned_data['peso_visitas'],
-            peso_encuentros=form.cleaned_data['peso_encuentros'],
-            peso_otros=form.cleaned_data['peso_otros'],
+            tipo_pago=form.cleaned_data['tipo_pago']
         )
         message = 'Se actualizo la ruta: {0}'.format(form.cleaned_data['nombre'])
         messages.add_message(self.request, messages.INFO, message)
@@ -555,6 +548,48 @@ class RutasHogaresListView(TemplateView):
         for message in storage:
             kwargs['success'] = message
         return super(RutasHogaresListView,self).get_context_data(**kwargs)
+
+
+
+
+
+class RutaCrearHogarView(LoginRequiredMixin,
+                        MultiplePermissionsRequiredMixin,
+                        CreateView):
+
+    login_url = settings.LOGIN_URL
+    template_name = 'fest_2019/rutas/hogares/crear.html'
+    form_class = forms.HogarCreateForm
+    success_url = "../"
+    models = models.Hogares
+
+    def get_permission_required(self, request=None):
+        self.ruta = models.Rutas.objects.get(id=self.kwargs['pk_ruta'])
+        permissions = {
+            "all": [
+                "usuarios.fest_2019.ver",
+                "usuarios.fest_2019.rutas.ver",
+                "usuarios.fest_2019.rutas.hogares.ver",
+                "usuarios.fest_2019.rutas.hogares.crear",
+            ]
+        }
+        return permissions
+
+    def form_valid(self, form):
+        self.object = form.save()
+        self.object.rutas.add(self.ruta)
+        message = 'Se creó el hogar: {0}'.format(form.cleaned_data['documento'])
+        messages.add_message(self.request, messages.INFO, message)
+        self.ruta.update_hogares_inscritos()
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_context_data(self, **kwargs):
+        kwargs['title'] = "NUEVO HOGAR"
+        kwargs['breadcrum_active'] = self.ruta.nombre
+        return super(RutaCrearHogarView,self).get_context_data(**kwargs)
+
+
+
 
 
 class RutasHogaresCreateView(LoginRequiredMixin,
@@ -813,15 +848,24 @@ class RutasActividadesObjeroCeroView(View):
 
 
 
-class RutasActividadesValoresView(View):
 
+
+
+
+
+
+class RutasActividadesValoresView(MultiplePermissionsRequiredMixin,FormView):
+
+    template_name = 'fest_2019/rutas/actividades/valores.html'
     login_url = settings.LOGIN_URL
+    form_class = forms.ValoresActividadesForm
+    success_url = '../'
 
     def dispatch(self, request, *args, **kwargs):
 
         self.ruta = models.Rutas.objects.get(id=self.kwargs['pk_ruta'])
         self.permissions = {
-            "valores": [
+            "all": [
                 "usuarios.fest_2019.ver",
                 "usuarios.fest_2019.rutas.ver",
                 "usuarios.fest_2019.rutas.actividades.ver",
@@ -829,16 +873,38 @@ class RutasActividadesValoresView(View):
             ]
         }
 
-        if not request.user.is_authenticated:
-            return HttpResponseRedirect(self.login_url)
-        else:
-            if request.user.has_perms(self.permissions['valores']):
+        return super(RutasActividadesValoresView,self).dispatch(request, *args, **kwargs)
 
-                self.ruta.actualizar_objetos()
 
-                return HttpResponseRedirect('../')
-            else:
-                return HttpResponseRedirect('../')
+
+    def get_ids_momentos(self):
+        data = []
+
+        for momento in models.Momentos.objects.filter(componente=self.ruta.componente):
+            data.append('id_valor_' + str(momento.id))
+
+        return json.dumps(data)
+
+
+    def form_valid(self, form):
+        json_data = json.dumps(form.cleaned_data)
+        models.Rutas.objects.filter(id = self.ruta.id).update(valores_actividades = json_data)
+        return super(RutasActividadesValoresView, self).form_valid(form)
+
+
+
+    def get_context_data(self, **kwargs):
+        kwargs['title'] = "Valor actividades"
+        kwargs['breadcrum_active'] = self.ruta.nombre
+        kwargs['ids_momentos'] = self.get_ids_momentos()
+
+        return super(RutasActividadesValoresView, self).get_context_data(**kwargs)
+
+
+
+
+    def get_initial(self):
+        return {'pk_ruta':self.kwargs['pk_ruta']}
 
 
 class RutasActividadesHogaresListView(TemplateView):
@@ -911,7 +977,6 @@ class RutasInstrumentosHogaresListView(TemplateView):
 
         self.ruta = models.Rutas.objects.get(id=self.kwargs['pk_ruta'])
         self.momento = models.Momentos.objects.get(id=self.kwargs['pk_momento'])
-        self.hogar = models.Hogares.objects.get(id=kwargs['pk_hogar'])
 
         try:
             self.permiso = models.PermisosCuentasRutas.objects.get(user=request.user)
@@ -972,14 +1037,12 @@ class RutasInstrumentosHogaresListView(TemplateView):
 
     def get_context_data(self, **kwargs):
         kwargs['title'] = "Rutas"
-        kwargs['url_datatable'] = '/rest/v1.0/fest_2019/rutas/actividades/{0}/hogares/{1}/instrumentos/{2}/'.format(
+        kwargs['url_datatable'] = '/rest/v1.0/fest_2019/rutas/actividades/{0}/instrumentos/{1}/'.format(
             kwargs['pk_ruta'],
             kwargs['pk_momento'],
-            kwargs['pk_hogar']
         )
         kwargs['breadcrum_1'] = self.ruta.nombre
-        kwargs['breadcrum_2'] = self.momento.nombre
-        kwargs['breadcrum_active'] = self.hogar.documento
+        kwargs['breadcrum_active'] = self.momento.nombre
         kwargs['permiso_aprobar'] = self.get_permiso_ruta(self.ruta)
         storage = get_messages(self.request)
         for message in storage:
@@ -997,7 +1060,6 @@ class RutasInstrumentosVerHogaresView(TemplateView):
 
         self.ruta = models.Rutas.objects.get(id=self.kwargs['pk_ruta'])
         self.momento = models.Momentos.objects.get(id=self.kwargs['pk_momento'])
-        self.hogar = models.Hogares.objects.get(id=self.kwargs['pk_hogar'])
         self.instrumento_object = models.InstrumentosRutaObject.objects.get(id=self.kwargs['pk_instrumento_object'])
         self.instrumento = self.instrumento_object.instrumento
         self.modelos = modelos_instrumentos.get_modelo(self.instrumento.modelo)
@@ -1048,11 +1110,10 @@ class RutasInstrumentosVerHogaresView(TemplateView):
         kwargs['title'] = "Rutas"
         kwargs['breadcrum_1'] = self.ruta.nombre
         kwargs['breadcrum_2'] = self.momento.nombre
-        kwargs['breadcrum_3'] = self.hogar.documento
         kwargs['breadcrum_active'] = self.instrumento.short_name
         kwargs['objeto'] = self.objeto
         kwargs['ruta_breadcrum'] = 'Rutas'
-        kwargs['url_ruta_breadcrum'] = '/fest_2019/rutas/'
+        kwargs['url_ruta_breadcrum'] = '/iraca/rutas/'
         storage = get_messages(self.request)
         for message in storage:
             kwargs['success'] = message
@@ -1564,7 +1625,6 @@ class RutasInstrumentosTrazabilidadHogaresView(TemplateView):
 
         self.ruta = models.Rutas.objects.get(id=self.kwargs['pk_ruta'])
         self.momento = models.Momentos.objects.get(id=self.kwargs['pk_momento'])
-        self.hogar = models.Hogares.objects.get(id=self.kwargs['pk_hogar'])
         self.instrumento_object = models.InstrumentosRutaObject.objects.get(id=self.kwargs['pk_instrumento_object'])
         self.instrumento = self.instrumento_object.instrumento
         self.modelos = modelos_instrumentos.get_modelo(self.instrumento.modelo)
@@ -1612,12 +1672,10 @@ class RutasInstrumentosTrazabilidadHogaresView(TemplateView):
         kwargs['title'] = "Rutas"
         kwargs['breadcrum_1'] = self.ruta.nombre
         kwargs['breadcrum_2'] = self.momento.nombre
-        kwargs['breadcrum_3'] = self.hogar.documento
         kwargs['breadcrum_active'] = self.instrumento.short_name
-        kwargs['url_datatable'] = '/rest/v1.0/fest_2019/rutas/actividades/{0}/hogares/{1}/instrumentos/{2}/trazabilidad/{3}/'.format(
+        kwargs['url_datatable'] = '/rest/v1.0/fest_2019/rutas/actividades/{0}/instrumentos/{1}/trazabilidad/{2}/'.format(
             kwargs['pk_ruta'],
             kwargs['pk_momento'],
-            kwargs['pk_hogar'],
             kwargs['pk_instrumento_object']
         )
 
@@ -1927,6 +1985,43 @@ class MisRutasHogaresListView(TemplateView):
         return super(MisRutasHogaresListView,self).get_context_data(**kwargs)
 
 
+
+class RutaCrearMisHogaresView(LoginRequiredMixin,
+                        MultiplePermissionsRequiredMixin,
+                        CreateView):
+
+    login_url = settings.LOGIN_URL
+    template_name = 'fest_2019/misrutas/hogares/crear.html'
+    form_class = forms.HogarCreateForm
+    success_url = "../"
+    models = models.Hogares
+
+    def get_permission_required(self, request=None):
+        self.ruta = models.Rutas.objects.get(id=self.kwargs['pk_ruta'])
+        permissions = {
+            "all": [
+                "usuarios.fest_2019.ver",
+                "usuarios.fest_2019.misrutas.ver",
+                "usuarios.fest_2019.misrutas.hogares.ver",
+            ]
+        }
+        return permissions
+
+    def form_valid(self, form):
+        self.object = form.save()
+        self.object.rutas.add(self.ruta)
+        message = 'Se creó el hogar: {0}'.format(form.cleaned_data['documento'])
+        messages.add_message(self.request, messages.INFO, message)
+        self.ruta.update_hogares_inscritos()
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_context_data(self, **kwargs):
+        kwargs['title'] = "NUEVO HOGAR"
+        kwargs['breadcrum_active'] = self.ruta.nombre
+        return super(RutaCrearMisHogaresView,self).get_context_data(**kwargs)
+
+
+
 class MisRutasHogaresMiembrosListView(TemplateView):
 
     login_url = settings.LOGIN_URL
@@ -2140,14 +2235,13 @@ class MisRutasActividadesHogaresListView(TemplateView):
 class MisRutasInstrumentosHogaresListView(TemplateView):
 
     login_url = settings.LOGIN_URL
-    template_name = 'fest_2019/misrutas/actividades/hogares/instrumentos/lista.html'
+    template_name = 'fest_2019/misrutas/actividades/instrumentos/lista.html'
 
 
     def dispatch(self, request, *args, **kwargs):
 
         self.ruta = models.Rutas.objects.get(id=self.kwargs['pk_ruta'])
         self.momento = models.Momentos.objects.get(id=self.kwargs['pk_momento'])
-        self.hogar = models.Hogares.objects.get(id=self.kwargs['pk_hogar'])
 
         self.permissions = {
             "all": [
@@ -2178,16 +2272,14 @@ class MisRutasInstrumentosHogaresListView(TemplateView):
 
     def get_context_data(self, **kwargs):
         kwargs['title'] = "Rutas"
-        kwargs['url_datatable'] = '/rest/v1.0/fest_2019/misrutas/actividades/{0}/hogares/{1}/instrumentos/{2}/'.format(
+        kwargs['url_datatable'] = '/rest/v1.0/fest_2019/misrutas/actividades/{0}/instrumentos/{1}/'.format(
             kwargs['pk_ruta'],
-            kwargs['pk_momento'],
-            kwargs['pk_hogar']
+            kwargs['pk_momento']
         )
         kwargs['breadcrum_1'] = self.ruta.nombre
-        kwargs['breadcrum_2'] = self.momento.nombre
-        kwargs['breadcrum_active'] = self.hogar.documento
+        kwargs['breadcrum_active'] = self.momento.nombre
         kwargs['permiso_crear'] = self.request.user.has_perms(self.permissions['crear_instrumentos'])
-        kwargs['instrumentos'] = self.ruta.get_instrumentos_list(self.momento,self.hogar)
+        kwargs['instrumentos'] = self.ruta.get_instrumentos_list(self.momento)
         storage = get_messages(self.request)
         for message in storage:
             kwargs['success'] = message
@@ -2199,15 +2291,15 @@ class MisRutasInstrumentosHogaresListView(TemplateView):
 class MisRutasInstrumentosHogaresObservacionesListView(TemplateView):
 
     login_url = settings.LOGIN_URL
-    template_name = 'fest_2019/misrutas/actividades/hogares/instrumentos/observaciones/lista.html'
+    template_name = 'fest_2019/misrutas/actividades/instrumentos/observaciones/lista.html'
 
 
     def dispatch(self, request, *args, **kwargs):
 
         self.ruta = models.Rutas.objects.get(id=self.kwargs['pk_ruta'])
         self.momento = models.Momentos.objects.get(id=self.kwargs['pk_momento'])
-        self.hogar = models.Hogares.objects.get(id=self.kwargs['pk_hogar'])
-        self.instrumento = models.InstrumentosRutaObject.objects.get(id=self.kwargs['pk_instrumento'])
+        self.instrumento_object = models.InstrumentosRutaObject.objects.get(id=self.kwargs['pk_instrumento_object'])
+        self.instrumento = self.instrumento_object.instrumento
 
         self.permissions = {
             "all": [
@@ -2232,16 +2324,14 @@ class MisRutasInstrumentosHogaresObservacionesListView(TemplateView):
 
     def get_context_data(self, **kwargs):
         kwargs['title'] = "Rutas"
-        kwargs['url_datatable'] = '/rest/v1.0/fest_2019/misrutas/actividades/{0}/hogares/{1}/instrumentos/{2}/observaciones/{3}/'.format(
+        kwargs['url_datatable'] = '/rest/v1.0/fest_2019/misrutas/actividades/{0}/instrumentos/{1}/observaciones/{2}/'.format(
             kwargs['pk_ruta'],
             kwargs['pk_momento'],
-            kwargs['pk_hogar'],
-            kwargs['pk_instrumento']
+            kwargs['pk_instrumento_object']
         )
         kwargs['breadcrum_1'] = self.ruta.nombre
         kwargs['breadcrum_2'] = self.momento.nombre
-        kwargs['breadcrum_3'] = self.hogar.documento
-        kwargs['breadcrum_active'] = self.instrumento.instrumento.nombre
+        kwargs['breadcrum_active'] = self.instrumento.nombre
         storage = get_messages(self.request)
         for message in storage:
             kwargs['success'] = message
@@ -2250,7 +2340,7 @@ class MisRutasInstrumentosHogaresObservacionesListView(TemplateView):
 
 
 
-class MisRutasInstrumentosFormHogaresListView(FormView):
+class MisRutasInstrumentosFormHogaresListView(CreateView):
 
     login_url = settings.LOGIN_URL
     success_url = '../../'
@@ -2260,7 +2350,6 @@ class MisRutasInstrumentosFormHogaresListView(FormView):
 
         self.ruta = models.Rutas.objects.get(id=self.kwargs['pk_ruta'])
         self.momento = models.Momentos.objects.get(id=self.kwargs['pk_momento'])
-        self.hogar = models.Hogares.objects.get(id=self.kwargs['pk_hogar'])
         self.instrumento = models.Instrumentos.objects.get(id=self.kwargs['pk_instrumento'])
 
         try:
@@ -2296,6 +2385,7 @@ class MisRutasInstrumentosFormHogaresListView(FormView):
 
 
     def get_form_class(self):
+        self.model = self.modelos.get('model')
         return self.modelos.get('form')
 
 
@@ -2339,221 +2429,32 @@ class MisRutasInstrumentosFormHogaresListView(FormView):
 
     def form_valid(self, form):
 
-        objeto, creacion = models.InstrumentosRutaObject.objects.get_or_create(ruta=self.ruta, momento=self.momento, hogar=self.hogar, instrumento=self.instrumento)
+        self.object = form.save(commit=False)
+        self.object.ruta = self.ruta
+        self.object.instrumento = self.instrumento
+        self.object.nombre = self.instrumento.short_name
+        self.object.save()
 
-        if self.instrumento.modelo == 'documento_1':
+        self.object.hogares.clear()
 
-            modelo, creacion_modelo = self.modelos.get('model').objects.get_or_create(hogar=self.hogar,instrumento=self.instrumento)
-            modelo.file = form.cleaned_data['file']
-            modelo.nombre = self.instrumento.short_name
-            modelo.save()
+        if self.instrumento.nivel == 'individual':
+            self.object.hogares.add(form.cleaned_data['hogares'])
 
-            self.update_objeto_instrumento(objeto.id,modelo,creacion)
+        elif self.instrumento.nivel == 'ruta':
+            pass
 
-        elif self.instrumento.modelo == 'documento_excel':
-
-            modelo, creacion_modelo = self.modelos.get('model').objects.get_or_create(hogar=self.hogar,instrumento=self.instrumento)
-            modelo.file = form.cleaned_data['file']
-            modelo.nombre = self.instrumento.short_name
-            modelo.save()
-
-            self.update_objeto_instrumento(objeto.id,modelo,creacion)
-
-        elif self.instrumento.modelo == 'fotos_4':
-
-            modelo, creacion_modelo = self.modelos.get('model').objects.get_or_create(hogar=self.hogar,instrumento=self.instrumento)
-            modelo.foto1 = form.cleaned_data['foto1']
-            modelo.foto2 = form.cleaned_data['foto2']
-            modelo.foto3 = form.cleaned_data['foto3']
-            modelo.foto4 = form.cleaned_data['foto4']
-            modelo.nombre = self.instrumento.short_name
-            modelo.save()
-
-            self.update_objeto_instrumento(objeto.id,modelo,creacion)
-
-        elif self.instrumento.modelo == 'fotos_2':
-
-            modelo, creacion_modelo = self.modelos.get('model').objects.get_or_create(hogar=self.hogar,instrumento=self.instrumento)
-            modelo.foto1 = form.cleaned_data['foto1']
-            modelo.foto2 = form.cleaned_data['foto2']
-            modelo.nombre = self.instrumento.short_name
-            modelo.save()
-
-            self.update_objeto_instrumento(objeto.id,modelo,creacion)
-
-        elif self.instrumento.modelo == 'fotos_5':
-
-            modelo, creacion_modelo = self.modelos.get('model').objects.get_or_create(hogar=self.hogar,instrumento=self.instrumento)
-            modelo.foto1 = form.cleaned_data['foto1']
-            modelo.foto2 = form.cleaned_data['foto2']
-            modelo.foto3 = form.cleaned_data['foto3']
-            modelo.foto4 = form.cleaned_data['foto4']
-            modelo.foto5 = form.cleaned_data['foto5']
-            modelo.nombre = self.instrumento.short_name
-            modelo.save()
-
-            self.update_objeto_instrumento(objeto.id,modelo,creacion)
-
-        elif self.instrumento.modelo == 'fotos_6':
-
-            modelo, creacion_modelo = self.modelos.get('model').objects.get_or_create(hogar=self.hogar,instrumento=self.instrumento)
-            modelo.foto1 = form.cleaned_data['foto1']
-            modelo.foto2 = form.cleaned_data['foto2']
-            modelo.foto3 = form.cleaned_data['foto3']
-            modelo.foto4 = form.cleaned_data['foto4']
-            modelo.foto5 = form.cleaned_data['foto5']
-            modelo.foto6 = form.cleaned_data['foto6']
-            modelo.nombre = self.instrumento.short_name
-            modelo.save()
-
-            self.update_objeto_instrumento(objeto.id,modelo,creacion)
-
-        elif self.instrumento.modelo == 'fotos_1':
-
-            modelo, creacion_modelo = self.modelos.get('model').objects.get_or_create(hogar=self.hogar,instrumento=self.instrumento)
-            modelo.foto1 = form.cleaned_data['foto1']
-            modelo.nombre = self.instrumento.short_name
-            modelo.save()
-
-            self.update_objeto_instrumento(objeto.id,modelo,creacion)
-
-        elif self.instrumento.modelo == 'archivo_rar_zip':
-
-            modelo, creacion_modelo = self.modelos.get('model').objects.get_or_create(hogar=self.hogar,instrumento=self.instrumento)
-            modelo.file = form.cleaned_data['rar_zip']
-            modelo.nombre = self.instrumento.short_name
-            modelo.save()
-
-            self.update_objeto_instrumento(objeto.id,modelo,creacion)
-
-        elif self.instrumento.modelo == 'caracterizacion_inicial':
-
-            modelo, creacion_modelo = self.modelos.get('model').objects.get_or_create(hogar=self.hogar,instrumento=self.instrumento)
+        else:
+            self.object.hogares.add(*form.cleaned_data['hogares'])
 
 
-            try:
-                municipio_atencion = Municipios.objects.get(id = form.cleaned_data['municipio_atencion'])
-            except:
-                municipio_atencion = None
+        objeto = models.InstrumentosRutaObject.objects.create(ruta=self.ruta, momento=self.momento, instrumento=self.instrumento)
+        ids = self.object.hogares.all().values_list('id',flat = True)
+        objeto.hogares.add(*ids)
+        models.ObservacionesInstrumentoRutaObject.objects.create(instrumento = objeto,usuario_creacion = self.request.user,observacion = "Creación del instrumento")
 
+        self.update_objeto_instrumento(objeto.id, self.object, True)
+        objeto.clean_similares()
 
-            try:
-                municipio_residencia = Municipios.objects.get(id=form.cleaned_data['municipio_residencia'])
-            except:
-                municipio_residencia = None
-
-
-            try:
-                corregimiento = Corregimientos.objects.get(id=form.cleaned_data['corregimiento'])
-            except:
-                corregimiento = None
-
-            try:
-                vereda = Veredas.objects.get(id=form.cleaned_data['vereda'])
-            except:
-                vereda = None
-
-            try:
-                municipio_nacimiento = Municipios.objects.get(id = form.cleaned_data['municipio_nacimiento'])
-            except:
-                municipio_nacimiento = None
-
-
-            try:
-                municipio_expedicion = Municipios.objects.get(id=form.cleaned_data['municipio_expedicion'])
-            except:
-                municipio_expedicion = None
-
-            modelo.departamento_atencion = form.cleaned_data['departamento_atencion']
-            modelo.municipio_atencion = municipio_atencion
-            modelo.departamento_residencia = form.cleaned_data['departamento_residencia']
-            modelo.municipio_residencia = municipio_residencia
-            modelo.zona_residencia = form.cleaned_data['zona_residencia']
-            modelo.localidad = form.cleaned_data['localidad']
-            modelo.barrio = form.cleaned_data['barrio']
-            modelo.direccion_predio = form.cleaned_data['direccion_predio']
-            modelo.corregimiento = corregimiento
-            modelo.vereda = vereda
-            modelo.ubicacion_predio = form.cleaned_data['ubicacion_predio']
-            modelo.telefono_fijo = form.cleaned_data['telefono_fijo']
-            modelo.tipo_vivienda =form.cleaned_data['tipo_vivienda']
-            modelo.otro_tipo_vivienda = form.cleaned_data['otro_tipo_vivienda']
-            modelo.propiedad_vivienda = form.cleaned_data['propiedad_vivienda']
-            modelo.estrato_vivienda = form.cleaned_data['estrato_vivienda']
-            modelo.otro_telefono = form.cleaned_data['otro_telefono']
-            modelo.descripcion_direccion = form.cleaned_data['descripcion_direccion']
-            modelo.numero_personas_familia = form.cleaned_data['numero_personas_familia']
-            modelo.menores_5_anios = form.cleaned_data['menores_5_anios']
-            modelo.mayores_60_anios = form.cleaned_data['mayores_60_anios']
-            modelo.mujeres_gestantes_lactantes = form.cleaned_data['mujeres_gestantes_lactantes']
-            modelo.discapacitados_familia = form.cleaned_data['discapacitados_familia']
-            modelo.tipo_documento = form.cleaned_data['tipo_documento']
-            modelo.numero_documento = form.cleaned_data['numero_documento']
-            modelo.primer_apellido = form.cleaned_data['primer_apellido']
-            modelo.segundo_apellido = form.cleaned_data['segundo_apellido']
-            modelo.primer_nombre = form.cleaned_data['primer_nombre']
-            modelo.segundo_nombre =form.cleaned_data['segundo_nombre']
-            modelo.celular_1 = form.cleaned_data['celular_1']
-            modelo.celular_2 = form.cleaned_data['celular_2']
-            modelo.correo_electronico = form.cleaned_data['correo_electronico']
-            modelo.departamento_nacimiento = form.cleaned_data['departamento_nacimiento']
-            modelo.municipio_nacimiento = municipio_nacimiento
-            modelo.fecha_nacimiento = form.cleaned_data['fecha_nacimiento']
-            modelo.departamento_expedicion = form.cleaned_data['departamento_expedicion']
-            modelo.municipio_expedicion = municipio_expedicion
-            modelo.fecha_expedicion = form.cleaned_data['fecha_expedicion']
-            modelo.longitud = form.cleaned_data['longitud']
-            modelo.latitud = form.cleaned_data['latitud']
-            modelo.precision = form.cleaned_data['precision']
-            modelo.altitud = form.cleaned_data['altitud']
-            modelo.sexo = form.cleaned_data['sexo']
-            modelo.tiene_libreta = form.cleaned_data['tiene_libreta']
-            modelo.numero_libreta = form.cleaned_data['numero_libreta']
-            modelo.identidad_genero = form.cleaned_data['identidad_genero']
-            modelo.condicion_sexual = form.cleaned_data['condicion_sexual']
-            modelo.estado_civil = form.cleaned_data['estado_civil']
-            modelo.etnia = form.cleaned_data['etnia']
-            modelo.pueblo_indigena = form.cleaned_data['pueblo_indigena']
-            modelo.resguardo_indigena = form.cleaned_data['resguardo_indigena']
-            modelo.comunidad_indigena = form.cleaned_data['comunidad_indigena']
-            modelo.lengua_nativa_indigena = form.cleaned_data['lengua_nativa_indigena']
-            modelo.cual_lengua_indigena = form.cleaned_data['cual_lengua_indigena']
-            modelo.consejo_afro = form.cleaned_data['consejo_afro']
-            modelo.comunidad_afro = form.cleaned_data['comunidad_afro']
-            modelo.lengua_nativa_afro = form.cleaned_data['lengua_nativa_afro']
-            modelo.cual_lengua_afro = form.cleaned_data['cual_lengua_afro']
-            modelo.discapacidad = form.cleaned_data['discapacidad']
-            modelo.registro_discapacidad = form.cleaned_data['registro_discapacidad']
-            modelo.categoria_discapacidad.set(form.cleaned_data['categoria_discapacidad'])
-            modelo.dificultades_permanentes.set(form.cleaned_data['dificultades_permanentes'])
-            modelo.utiliza_actualmente.set(form.cleaned_data['utiliza_actualmente'])
-            modelo.rehabilitacion.set(form.cleaned_data['rehabilitacion'])
-            modelo.tiene_cuidador = form.cleaned_data['tiene_cuidador']
-            modelo.cuidador = form.cleaned_data['cuidador']
-            modelo.parentezco = form.cleaned_data['parentezco']
-            modelo.es_jefe = form.cleaned_data['es_jefe']
-            modelo.es_representante_hogar = form.cleaned_data['es_representante_hogar']
-            modelo.bancarizacion = form.cleaned_data['bancarizacion']
-            modelo.banco = form.cleaned_data['banco']
-            modelo.tipo_cuenta = form.cleaned_data['tipo_cuenta']
-            modelo.numero_cuenta = form.cleaned_data['numero_cuenta']
-            modelo.nivel_escolaridad = form.cleaned_data['nivel_escolaridad']
-            modelo.grado_titulo = form.cleaned_data['grado_titulo']
-            modelo.sabe_leer = form.cleaned_data['sabe_leer']
-            modelo.sabe_sumar_restar = form.cleaned_data['sabe_sumar_restar']
-            modelo.actualmente_estudia = form.cleaned_data['actualmente_estudia']
-            modelo.recibe_alimentos = form.cleaned_data['recibe_alimentos']
-            modelo.razon_no_estudia = form.cleaned_data['razon_no_estudia']
-            modelo.razon_no_estudia_otra = form.cleaned_data['razon_no_estudia_otra']
-            modelo.regimen_seguridad_social = form.cleaned_data['regimen_seguridad_social']
-
-
-
-
-            modelo.nombre = self.instrumento.short_name
-            modelo.save()
-
-            self.update_objeto_instrumento(objeto.id,modelo,creacion)
 
         return HttpResponseRedirect(self.get_success_url())
 
@@ -2562,7 +2463,6 @@ class MisRutasInstrumentosFormHogaresListView(FormView):
         kwargs['title'] = "Rutas"
         kwargs['breadcrum_1'] = self.ruta.nombre
         kwargs['breadcrum_2'] = self.momento.nombre
-        kwargs['breadcrum_3'] = self.hogar.documento
         kwargs['breadcrum_active'] = self.instrumento.short_name
         kwargs['ruta_breadcrum'] = 'Mis rutas'
         kwargs['url_ruta_breadcrum'] = '/fest_2019/misrutas/'
@@ -2571,12 +2471,148 @@ class MisRutasInstrumentosFormHogaresListView(FormView):
             kwargs['success'] = message
         return super(MisRutasInstrumentosFormHogaresListView,self).get_context_data(**kwargs)
 
+    def get_initial(self):
+        return {'pk_ruta': self.ruta.id, 'short_name': self.instrumento.short_name, 'pk_instrumento': self.instrumento.pk}
+
+
+class MisRutasInstrumentosUpdateHogaresListView(UpdateView):
+    login_url = settings.LOGIN_URL
+    success_url = '../../'
+    
+    
+    
+    
+    def get_object(self, queryset=None):
+        self.model = self.modelos.get('model')
+        return self.model.objects.get(id = self.instrumento_object.soporte)
+    
+
+    def dispatch(self, request, *args, **kwargs):
+
+        self.ruta = models.Rutas.objects.get(id=self.kwargs['pk_ruta'])
+        self.momento = models.Momentos.objects.get(id=self.kwargs['pk_momento'])
+        self.instrumento_object = models.InstrumentosRutaObject.objects.get(id=self.kwargs['pk_instrumento_object'])
+        self.instrumento = self.instrumento_object.instrumento
+
+        try:
+            self.modelos = modelos_instrumentos.get_modelo(self.instrumento.modelo)
+        except:
+            return HttpResponseRedirect('../../')
+
+        self.permissions = {
+            "all": [
+                "usuarios.fest_2019.ver",
+                "usuarios.fest_2019.misrutas.ver",
+                "usuarios.fest_2019.misrutas.actividades.ver",
+                "usuarios.fest_2019.misrutas.actividades.crear",
+            ]
+        }
+
+        if not request.user.is_authenticated:
+            return HttpResponseRedirect(self.login_url)
+        else:
+            if request.user.has_perms(
+                    self.permissions.get('all')) and request.user == self.ruta.contrato.contratista.usuario_asociado:
+
+                if request.method.lower() in self.http_method_names:
+                    handler = getattr(self, request.method.lower(), self.http_method_not_allowed)
+                else:
+                    handler = self.http_method_not_allowed
+                return handler(request, *args, **kwargs)
+            else:
+                return HttpResponseRedirect('../../')
+
+    def get_template_names(self):
+        return self.modelos.get('template')
+
+    def get_form_class(self):
+        self.model = self.modelos.get('model')
+        return self.modelos.get('form')
+
+    def update_objeto_instrumento(self, id, modelo, creacion):
+
+        instrumento = models.InstrumentosRutaObject.objects.get(id=id)
+
+        if creacion:
+            models.InstrumentosRutaObject.objects.filter(id=id).update(
+                usuario_creacion=self.request.user
+            )
+
+            models.InstrumentosTrazabilidadRutaObject.objects.create(
+                instrumento=instrumento,
+                user=self.request.user,
+                observacion='Creación del soporte'
+            )
+
+        else:
+            models.InstrumentosTrazabilidadRutaObject.objects.create(
+                instrumento=instrumento,
+                user=self.request.user,
+                observacion='Actualización del soporte'
+            )
+
+        models.InstrumentosRutaObject.objects.filter(id=id).update(
+            modelo=self.instrumento.nombre,
+            soporte=modelo.id,
+            fecha_actualizacion=timezone.now(),
+            usuario_actualizacion=self.request.user,
+            consecutivo=self.instrumento.consecutivo,
+            nombre=self.instrumento.short_name,
+            estado='cargado'
+        )
+
+        self.ruta.update_novedades()
+
+        return 'Ok'
+
+    def form_valid(self, form):
+
+        self.object = form.save(commit=False)
+        self.object.ruta = self.ruta
+        self.object.instrumento = self.instrumento
+        self.object.nombre = self.instrumento.short_name
+        self.object.save()
+
+        self.object.hogares.clear()
+        if self.instrumento.nivel == 'individual':
+            self.object.hogares.add(form.cleaned_data['hogares'])
+
+        elif self.instrumento.nivel == 'ruta':
+            pass
+
+        else:
+            self.object.hogares.add(*form.cleaned_data['hogares'])
+
+        objeto = self.instrumento_object
+
+        ids = self.object.hogares.all().values_list('id', flat=True)
+        objeto.hogares.clear()
+        objeto.hogares.add(*ids)
+
+        models.ObservacionesInstrumentoRutaObject.objects.create(instrumento=objeto, usuario_creacion=self.request.user,observacion="Actualización del instrumento")
+
+        self.update_objeto_instrumento(objeto.id, self.object, False)
+        objeto.clean_similares()
+
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_context_data(self, **kwargs):
+        kwargs['title'] = "Rutas"
+        kwargs['breadcrum_1'] = self.ruta.nombre
+        kwargs['breadcrum_2'] = self.momento.nombre
+        kwargs['breadcrum_active'] = self.instrumento.short_name
+        kwargs['ruta_breadcrum'] = 'Mis rutas'
+        kwargs['url_ruta_breadcrum'] = '/fest_2019/misrutas/'
+        storage = get_messages(self.request)
+        for message in storage:
+            kwargs['success'] = message
+        return super(MisRutasInstrumentosUpdateHogaresListView, self).get_context_data(**kwargs)
 
     def get_initial(self):
-        if self.instrumento.modelo == 'caracterizacion_inicial':
-            return {'pk_hogar': self.hogar.pk}
-        else:
-            return {'short_name':self.instrumento.short_name}
+        return {'pk_ruta': self.ruta.id, 'short_name': self.instrumento.short_name, 'pk_instrumento': self.instrumento.pk, 'pk_instrumento_object': self.instrumento_object.pk}
+
+
+
 
 
 class MisRutasInstrumentosVerHogaresView(TemplateView):
@@ -2589,7 +2625,6 @@ class MisRutasInstrumentosVerHogaresView(TemplateView):
 
         self.ruta = models.Rutas.objects.get(id=self.kwargs['pk_ruta'])
         self.momento = models.Momentos.objects.get(id=self.kwargs['pk_momento'])
-        self.hogar = models.Hogares.objects.get(id=self.kwargs['pk_hogar'])
         self.instrumento_object = models.InstrumentosRutaObject.objects.get(id=self.kwargs['pk_instrumento_object'])
         self.instrumento = self.instrumento_object.instrumento
         self.modelos = modelos_instrumentos.get_modelo(self.instrumento.modelo)
@@ -2625,11 +2660,10 @@ class MisRutasInstrumentosVerHogaresView(TemplateView):
         kwargs['title'] = "Rutas"
         kwargs['breadcrum_1'] = self.ruta.nombre
         kwargs['breadcrum_2'] = self.momento.nombre
-        kwargs['breadcrum_3'] = self.hogar.documento
         kwargs['breadcrum_active'] = self.instrumento.short_name
         kwargs['objeto'] = self.objeto
         kwargs['ruta_breadcrum'] = 'Mis rutas'
-        kwargs['url_ruta_breadcrum'] = '/fest_2019/misrutas/'
+        kwargs['url_ruta_breadcrum'] = '/iraca/misrutas/'
         storage = get_messages(self.request)
         for message in storage:
             kwargs['success'] = message
@@ -2661,7 +2695,8 @@ class MisRutasInstrumentosHogaresDeleteView(View):
             if request.user.has_perms(self.permissions['eliminar']):
                 if self.instrumento_object.estado == 'cargado':
                     self.modelos.get('model').objects.get(id = self.instrumento_object.soporte).delete()
-                    models.InstrumentosTrazabilidadRutaObject.objects.filter(instrumento=self.instrumento_object).delete()
+                    models.InstrumentosTrazabilidadRutaObject.objects.filter(instrumento = self.instrumento_object).delete()
+                    models.ObservacionesInstrumentoRutaObject.objects.filter(instrumento = self.instrumento_object).delete()
                     self.instrumento_object.delete()
                     self.ruta.update_novedades()
                     return HttpResponseRedirect('../../')
