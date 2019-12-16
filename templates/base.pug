@@ -26,8 +26,8 @@ html(lang="es")
       link(rel="stylesheet",href="//use.fontawesome.com/releases/v5.0.12/css/all.css",integrity="sha384-G0fIWCsCzJIMAVNQPfjH08cyYaUtMwjJwqiRKxxE/rx96Uroj1BtIQ6MLJuheaO9",crossorigin="anonymous")
       link(rel="stylesheet",href="//cdn.jsdelivr.net/npm/materialize-social@1.0.3/materialize-social.min.css")
       link(rel="stylesheet",href="//cdn.jsdelivr.net/npm/jquery-background-video@1.0.0/jquery.background-video.min.css")
-      link(rel="stylesheet",href="//cdn.quilljs.com/1.3.6/quill.snow.css")
       link(rel="stylesheet",href="{% static 'css/base.css'%}")
+      link(rel="stylesheet",href="{% static 'css/quilljs.css'%}")
 
       block head_content
 
@@ -65,7 +65,7 @@ html(lang="es")
 
       script(src="//cdnjs.cloudflare.com/ajax/libs/chosen/1.8.3/chosen.jquery.min.js")
       script(src="//cdnjs.cloudflare.com/ajax/libs/autonumeric/4.1.0/autoNumeric.min.js")
-      script(src="//cdn.quilljs.com/1.3.6/quill.js")
+      script(src="{% static 'js/quill.js'%}")
       script(src="//www.google.com/recaptcha/api.js")
 
       script.
