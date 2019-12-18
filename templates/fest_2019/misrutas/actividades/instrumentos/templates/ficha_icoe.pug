@@ -104,7 +104,7 @@ block body_script_auth
             });
 
 
-            $('#id_fecha_firma').pickadate({
+            $('#id_fecha_entrada').pickadate({
                 format: 'dd/mm/yyyy',
                 selectMonths: true,
                 selectYears: 150,
@@ -117,29 +117,17 @@ block body_script_auth
                 closeOnSelect: false
             });
 
-            $('#id_foto1').dropify({
-                error: {
-                    'fileSize': 'El archivo es demasiado grande.',
-                },
-                messages: {
-                    'default': 'Haz clic y selecciona la foto, tambien puedes arrastrarla y soltarlo aqui',
-                    'replace': 'Haz clic y selecciona la foto, tambien puedes arrastrarla y soltarlo aqui',
-                    'remove': 'Eliminar',
-                    'error': 'Ooops, algo malo paso.'
-                }
+            $('#id_fecha_salida').pickadate({
+                format: 'dd/mm/yyyy',
+                selectMonths: true,
+                selectYears: 150,
+                monthsFull: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre',
+                    'Octubre', 'Noviembre', 'Diciembre'],
+                weekdaysShort: ['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'],
+                today: 'Hoy',
+                clear: 'Borrar',
+                close: 'Ok',
+                closeOnSelect: false
             });
-
-            $('#id_foto2').dropify({
-                error: {
-                    'fileSize': 'El archivo es demasiado grande.',
-                },
-                messages: {
-                    'default': 'Haz clic y selecciona la foto, tambien puedes arrastrarla y soltarlo aqui',
-                    'replace': 'Haz clic y selecciona la foto, tambien puedes arrastrarla y soltarlo aqui',
-                    'remove': 'Eliminar',
-                    'error': 'Ooops, algo malo paso.'
-                }
-            });
-
 
         });

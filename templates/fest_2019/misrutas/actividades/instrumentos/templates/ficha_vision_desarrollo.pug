@@ -104,7 +104,7 @@ block body_script_auth
             });
 
 
-            $('#id_fecha_firma').pickadate({
+            $('#id_fecha').pickadate({
                 format: 'dd/mm/yyyy',
                 selectMonths: true,
                 selectYears: 150,
@@ -116,6 +116,7 @@ block body_script_auth
                 close: 'Ok',
                 closeOnSelect: false
             });
+
 
             $('#id_foto1').dropify({
                 error: {
@@ -140,6 +141,7 @@ block body_script_auth
                     'error': 'Ooops, algo malo paso.'
                 }
             });
+
 
 
         });

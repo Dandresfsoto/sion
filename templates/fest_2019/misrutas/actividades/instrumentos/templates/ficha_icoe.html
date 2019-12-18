@@ -87,7 +87,7 @@ var socket = new ReconnectingWebSocket(ws_scheme + '://' + window.location.host 
     });
 
 
-    $('#id_fecha_diligenciamiento').pickadate({
+    $('#id_fecha_entrada').pickadate({
         format: 'dd/mm/yyyy',
         selectMonths: true,
         selectYears: 150,
@@ -100,6 +100,17 @@ var socket = new ReconnectingWebSocket(ws_scheme + '://' + window.location.host 
         closeOnSelect: false
     });
 
-
+    $('#id_fecha_salida').pickadate({
+        format: 'dd/mm/yyyy',
+        selectMonths: true,
+        selectYears: 150,
+        monthsFull: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre',
+            'Octubre', 'Noviembre', 'Diciembre'],
+        weekdaysShort: ['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'],
+        today: 'Hoy',
+        clear: 'Borrar',
+        close: 'Ok',
+        closeOnSelect: false
+    });
 
 });</script></body></html>

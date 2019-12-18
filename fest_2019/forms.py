@@ -948,6 +948,1491 @@ class DocumentoForm(forms.ModelForm):
 
 
 
+class FormularioCaracterizacionForm(forms.ModelForm):
+
+    def clean(self):
+        cleaned_data = super().clean()
+        file = cleaned_data.get("file")
+        file2 = cleaned_data.get("file2")
+
+        if file.name.split('.')[-1] == 'pdf':
+            pass
+        else:
+            self.add_error('file', 'El archivo cargado no tiene un formato valido')
+
+
+
+        if file2.name.split('.')[-1] == 'pdf':
+            pass
+        else:
+            self.add_error('file2', 'El archivo cargado no tiene un formato valido')
+
+
+    def __init__(self, *args, **kwargs):
+        super(FormularioCaracterizacionForm, self).__init__(*args, **kwargs)
+
+
+        instrumento = models.Instrumentos.objects.get(id = kwargs['initial']['pk_instrumento'])
+
+
+
+        if instrumento.nivel == 'ruta':
+
+
+            self.helper = FormHelper(self)
+            self.helper.layout = Layout(
+
+                Row(
+                    Fieldset(
+                        kwargs['initial'].get('short_name'),
+                    )
+                ),
+                Row(
+                    Column(
+                        'file',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Documento de identidad',
+                    )
+                ),
+                Row(
+                    Column(
+                        'file2',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        Div(
+                            Submit(
+                                'submit',
+                                'Guardar',
+                                css_class='button-submit'
+                            ),
+                            css_class="right-align"
+                        ),
+                        css_class="s12"
+                    ),
+                )
+            )
+
+        elif instrumento.nivel == 'individual':
+            self.fields['hogares'] = forms.ModelChoiceField(label = "Hogar",queryset = models.Hogares.objects.filter(rutas=kwargs['initial']['pk_ruta']))
+
+            if 'pk_instrumento_object' in kwargs['initial']:
+
+                instrumento_object = models.InstrumentosRutaObject.objects.get(id = kwargs['initial']['pk_instrumento_object'])
+
+                try:
+                    self.fields['hogares'].initial = instrumento_object.hogares.all()[0]
+                except:
+                    pass
+
+            self.helper = FormHelper(self)
+            self.helper.layout = Layout(
+
+                Row(
+                    Fieldset(
+                        kwargs['initial'].get('short_name'),
+                    )
+                ),
+                Row(
+                    Column(
+                        'file',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Documento de identidad',
+                    )
+                ),
+                Row(
+                    Column(
+                        'file2',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        'hogares',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        Div(
+                            Submit(
+                                'submit',
+                                'Guardar',
+                                css_class='button-submit'
+                            ),
+                            css_class="right-align"
+                        ),
+                        css_class="s12"
+                    ),
+                )
+            )
+
+        else:
+            self.fields['hogares'] = forms.ModelMultipleChoiceField(queryset=models.Hogares.objects.filter(rutas=kwargs['initial']['pk_ruta']))
+
+            if 'pk_instrumento_object' in kwargs['initial']:
+                instrumento_object = models.InstrumentosRutaObject.objects.get(id=kwargs['initial']['pk_instrumento_object'])
+
+                self.fields['hogares'].initial = instrumento_object.hogares.all()
+
+            self.helper = FormHelper(self)
+            self.helper.layout = Layout(
+
+                Row(
+                    Fieldset(
+                        kwargs['initial'].get('short_name'),
+                    )
+                ),
+                Row(
+                    Column(
+                        'file',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Documento de identidad',
+                    )
+                ),
+                Row(
+                    Column(
+                        'file2',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        'hogares',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        Div(
+                            Submit(
+                                'submit',
+                                'Guardar',
+                                css_class='button-submit'
+                            ),
+                            css_class="right-align"
+                        ),
+                        css_class="s12"
+                    ),
+                )
+            )
+
+
+    class Meta:
+        model = models.FormularioCaracterizacion
+        fields = ['file','file2']
+        widgets = {
+            'file': forms.ClearableFileInput(attrs={
+                'data-max-file-size': "10M",
+                'accept': 'application/pdf,application/x-pdf'}
+            ),
+            'file2': forms.ClearableFileInput(attrs={
+                'data-max-file-size': "10M",
+                'accept': 'application/pdf,application/x-pdf'}
+            ),
+        }
+
+
+
+
+
+class FichaIcoeForm(forms.ModelForm):
+
+    def clean(self):
+        cleaned_data = super().clean()
+        file = cleaned_data.get("file")
+        file2 = cleaned_data.get("file2")
+
+        if file.name.split('.')[-1] == 'pdf':
+            pass
+        else:
+            self.add_error('file', 'El archivo cargado no tiene un formato valido')
+
+
+
+        if file2.name.split('.')[-1] == 'pdf':
+            pass
+        else:
+            self.add_error('file2', 'El archivo cargado no tiene un formato valido')
+
+
+    def __init__(self, *args, **kwargs):
+        super(FichaIcoeForm, self).__init__(*args, **kwargs)
+
+
+        instrumento = models.Instrumentos.objects.get(id = kwargs['initial']['pk_instrumento'])
+
+
+
+        if instrumento.nivel == 'ruta':
+
+
+            self.helper = FormHelper(self)
+            self.helper.layout = Layout(
+
+                Row(
+                    Fieldset(
+                        kwargs['initial'].get('short_name'),
+                    )
+                ),
+                Row(
+                    Column(
+                        'municipio',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        'nombre_comunidad',
+                        css_class='s12 m6'
+                    ),
+                    Column(
+                        'resguado_indigena_consejo_comunitario',
+                        css_class='s12 m6'
+                    )
+                ),
+                Row(
+                    Column(
+                        'fecha_entrada',
+                        css_class='s12 m6'
+                    ),
+                    Column(
+                        'fecha_salida',
+                        css_class='s12 m6'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'ESTRUCTURA DE LA ORGANIZACIÓN SOCIOPOLÍTICA',
+                    )
+                ),
+
+                Row(
+                    Column(
+                        'aspecto_1_entrada',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_1_salida',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_1_variacion',
+                        css_class='s12 m6 l4'
+                    )
+                ),
+
+                Row(
+                    Fieldset(
+                        'GOBERNABILIDAD INTERNA',
+                    )
+                ),
+
+                Row(
+                    Column(
+                        'aspecto_2_entrada',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_2_salida',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_2_variacion',
+                        css_class='s12 m6 l4'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'IDENTIDAD Y COHESIÓN COMUNITARIAS',
+                    )
+                ),
+
+                Row(
+                    Column(
+                        'aspecto_3_entrada',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_3_salida',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_3_variacion',
+                        css_class='s12 m6 l4'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'DESARROLLO COMUNITARIO Y MEDIOS DE VIDA',
+                    )
+                ),
+
+                Row(
+                    Column(
+                        'aspecto_4_entrada',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_4_salida',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_4_variacion',
+                        css_class='s12 m6 l4'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'SUB INDICE - PERCEPCION',
+                    )
+                ),
+
+                Row(
+                    Column(
+                        'subindice_1_entrada',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'subindice_1_salida',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'subindice_1_variacion',
+                        css_class='s12 m6 l4'
+                    )
+                ),
+
+                Row(
+                    Fieldset(
+                        'ESTRUCTURA DE LA ORGANIZACIÓN SOCIOPOLÍTICA',
+                    )
+                ),
+
+                Row(
+                    Column(
+                        'aspecto_5_entrada',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_5_salida',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_5_variacion',
+                        css_class='s12 m6 l4'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'GOBERNABILIDAD INTERNA',
+                    )
+                ),
+
+                Row(
+                    Column(
+                        'aspecto_6_entrada',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_6_salida',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_6_variacion',
+                        css_class='s12 m6 l4'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'IDENTIDAD Y COHESIÓN COMUNITARIAS',
+                    )
+                ),
+
+                Row(
+                    Column(
+                        'aspecto_7_entrada',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_7_salida',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_7_variacion',
+                        css_class='s12 m6 l4'
+                    )
+                ),
+
+                Row(
+                    Fieldset(
+                        'DESARROLLO COMUNITARIO Y MEDIOS DE VIDA',
+                    )
+                ),
+
+                Row(
+                    Column(
+                        'aspecto_8_entrada',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_8_salida',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_8_variacion',
+                        css_class='s12 m6 l4'
+                    )
+                ),
+
+                Row(
+                    Fieldset(
+                        'SUB INDICE DE CONDICIONES Y ATRIBUTOS',
+                    )
+                ),
+
+                Row(
+                    Column(
+                        'subindice_2_entrada',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'subindice_2_salida',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'subindice_2_variacion',
+                        css_class='s12 m6 l4'
+                    )
+                ),
+
+                Row(
+                    Fieldset(
+                        'COMPLEJIDAD DEL CONTEXTO',
+                    )
+                ),
+
+                Row(
+                    Column(
+                        'aspecto_9_entrada',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_9_salida',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_9_variacion',
+                        css_class='s12 m6 l4'
+                    )
+                ),
+
+                Row(
+                    Fieldset(
+                        'ACTORES Y FACTORES EXTERNOS',
+                    )
+                ),
+
+                Row(
+                    Column(
+                        'aspecto_10_entrada',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_10_salida',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_10_variacion',
+                        css_class='s12 m6 l4'
+                    )
+                ),
+
+                Row(
+                    Fieldset(
+                        'ATRIBUTOS VERIFICABLES DEL CONTEXTO',
+                    )
+                ),
+
+                Row(
+                    Column(
+                        'aspecto_11_entrada',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_11_salida',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_11_variacion',
+                        css_class='s12 m6 l4'
+                    )
+                ),
+
+                Row(
+                    Fieldset(
+                        'SUBÍNDICE DE OPORTUNIDADES DEL CONTEXTO',
+                    )
+                ),
+
+                Row(
+                    Column(
+                        'subindice_3_entrada',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'subindice_3_salida',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'subindice_3_variacion',
+                        css_class='s12 m6 l4'
+                    )
+                ),
+
+                Row(
+                    Fieldset(
+                        'INDICE DEL ICOE',
+                    )
+                ),
+
+                Row(
+                    Column(
+                        'total_entrada',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'total_salida',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'total_variacion',
+                        css_class='s12 m6 l4'
+                    )
+                ),
+
+                Row(
+                    Fieldset(
+                        'Acta escaneada',
+                    )
+                ),
+
+                Row(
+                    Column(
+                        'file',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Listado de asistencia',
+                    )
+                ),
+                Row(
+                    Column(
+                        'file2',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        Div(
+                            Submit(
+                                'submit',
+                                'Guardar',
+                                css_class='button-submit'
+                            ),
+                            css_class="right-align"
+                        ),
+                        css_class="s12"
+                    ),
+                )
+            )
+
+        elif instrumento.nivel == 'individual':
+            self.fields['hogares'] = forms.ModelChoiceField(label = "Hogar",queryset = models.Hogares.objects.filter(rutas=kwargs['initial']['pk_ruta']))
+
+            if 'pk_instrumento_object' in kwargs['initial']:
+
+                instrumento_object = models.InstrumentosRutaObject.objects.get(id = kwargs['initial']['pk_instrumento_object'])
+
+                try:
+                    self.fields['hogares'].initial = instrumento_object.hogares.all()[0]
+                except:
+                    pass
+
+            self.helper = FormHelper(self)
+            self.helper.layout = Layout(
+
+                Row(
+                    Fieldset(
+                        kwargs['initial'].get('short_name'),
+                    )
+                ),
+                Row(
+                    Column(
+                        'municipio',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        'nombre_comunidad',
+                        css_class='s12 m6'
+                    ),
+                    Column(
+                        'resguado_indigena_consejo_comunitario',
+                        css_class='s12 m6'
+                    )
+                ),
+                Row(
+                    Column(
+                        'fecha_entrada',
+                        css_class='s12 m6'
+                    ),
+                    Column(
+                        'fecha_salida',
+                        css_class='s12 m6'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'ESTRUCTURA DE LA ORGANIZACIÓN SOCIOPOLÍTICA',
+                    )
+                ),
+
+                Row(
+                    Column(
+                        'aspecto_1_entrada',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_1_salida',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_1_variacion',
+                        css_class='s12 m6 l4'
+                    )
+                ),
+
+                Row(
+                    Fieldset(
+                        'GOBERNABILIDAD INTERNA',
+                    )
+                ),
+
+                Row(
+                    Column(
+                        'aspecto_2_entrada',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_2_salida',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_2_variacion',
+                        css_class='s12 m6 l4'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'IDENTIDAD Y COHESIÓN COMUNITARIAS',
+                    )
+                ),
+
+                Row(
+                    Column(
+                        'aspecto_3_entrada',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_3_salida',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_3_variacion',
+                        css_class='s12 m6 l4'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'DESARROLLO COMUNITARIO Y MEDIOS DE VIDA',
+                    )
+                ),
+
+                Row(
+                    Column(
+                        'aspecto_4_entrada',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_4_salida',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_4_variacion',
+                        css_class='s12 m6 l4'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'SUB INDICE - PERCEPCION',
+                    )
+                ),
+
+                Row(
+                    Column(
+                        'subindice_1_entrada',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'subindice_1_salida',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'subindice_1_variacion',
+                        css_class='s12 m6 l4'
+                    )
+                ),
+
+                Row(
+                    Fieldset(
+                        'ESTRUCTURA DE LA ORGANIZACIÓN SOCIOPOLÍTICA',
+                    )
+                ),
+
+                Row(
+                    Column(
+                        'aspecto_5_entrada',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_5_salida',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_5_variacion',
+                        css_class='s12 m6 l4'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'GOBERNABILIDAD INTERNA',
+                    )
+                ),
+
+                Row(
+                    Column(
+                        'aspecto_6_entrada',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_6_salida',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_6_variacion',
+                        css_class='s12 m6 l4'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'IDENTIDAD Y COHESIÓN COMUNITARIAS',
+                    )
+                ),
+
+                Row(
+                    Column(
+                        'aspecto_7_entrada',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_7_salida',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_7_variacion',
+                        css_class='s12 m6 l4'
+                    )
+                ),
+
+                Row(
+                    Fieldset(
+                        'DESARROLLO COMUNITARIO Y MEDIOS DE VIDA',
+                    )
+                ),
+
+                Row(
+                    Column(
+                        'aspecto_8_entrada',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_8_salida',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_8_variacion',
+                        css_class='s12 m6 l4'
+                    )
+                ),
+
+                Row(
+                    Fieldset(
+                        'SUB INDICE DE CONDICIONES Y ATRIBUTOS',
+                    )
+                ),
+
+                Row(
+                    Column(
+                        'subindice_2_entrada',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'subindice_2_salida',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'subindice_2_variacion',
+                        css_class='s12 m6 l4'
+                    )
+                ),
+
+                Row(
+                    Fieldset(
+                        'COMPLEJIDAD DEL CONTEXTO',
+                    )
+                ),
+
+                Row(
+                    Column(
+                        'aspecto_9_entrada',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_9_salida',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_9_variacion',
+                        css_class='s12 m6 l4'
+                    )
+                ),
+
+                Row(
+                    Fieldset(
+                        'ACTORES Y FACTORES EXTERNOS',
+                    )
+                ),
+
+                Row(
+                    Column(
+                        'aspecto_10_entrada',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_10_salida',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_10_variacion',
+                        css_class='s12 m6 l4'
+                    )
+                ),
+
+                Row(
+                    Fieldset(
+                        'ATRIBUTOS VERIFICABLES DEL CONTEXTO',
+                    )
+                ),
+
+                Row(
+                    Column(
+                        'aspecto_11_entrada',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_11_salida',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_11_variacion',
+                        css_class='s12 m6 l4'
+                    )
+                ),
+
+                Row(
+                    Fieldset(
+                        'SUBÍNDICE DE OPORTUNIDADES DEL CONTEXTO',
+                    )
+                ),
+
+                Row(
+                    Column(
+                        'subindice_3_entrada',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'subindice_3_salida',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'subindice_3_variacion',
+                        css_class='s12 m6 l4'
+                    )
+                ),
+
+                Row(
+                    Fieldset(
+                        'INDICE DEL ICOE',
+                    )
+                ),
+
+                Row(
+                    Column(
+                        'total_entrada',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'total_salida',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'total_variacion',
+                        css_class='s12 m6 l4'
+                    )
+                ),
+
+                Row(
+                    Fieldset(
+                        'Acta escaneada',
+                    )
+                ),
+
+                Row(
+                    Column(
+                        'file',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Listado de asistencia',
+                    )
+                ),
+                Row(
+                    Column(
+                        'file2',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        'hogares',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        Div(
+                            Submit(
+                                'submit',
+                                'Guardar',
+                                css_class='button-submit'
+                            ),
+                            css_class="right-align"
+                        ),
+                        css_class="s12"
+                    ),
+                )
+            )
+
+        else:
+            self.fields['hogares'] = forms.ModelMultipleChoiceField(queryset=models.Hogares.objects.filter(rutas=kwargs['initial']['pk_ruta']))
+
+            if 'pk_instrumento_object' in kwargs['initial']:
+                instrumento_object = models.InstrumentosRutaObject.objects.get(id=kwargs['initial']['pk_instrumento_object'])
+
+                self.fields['hogares'].initial = instrumento_object.hogares.all()
+
+            self.helper = FormHelper(self)
+            self.helper.layout = Layout(
+
+                Row(
+                    Fieldset(
+                        kwargs['initial'].get('short_name'),
+                    )
+                ),
+                Row(
+                    Column(
+                        'municipio',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        'nombre_comunidad',
+                        css_class='s12 m6'
+                    ),
+                    Column(
+                        'resguado_indigena_consejo_comunitario',
+                        css_class='s12 m6'
+                    )
+                ),
+                Row(
+                    Column(
+                        'fecha_entrada',
+                        css_class='s12 m6'
+                    ),
+                    Column(
+                        'fecha_salida',
+                        css_class='s12 m6'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'ESTRUCTURA DE LA ORGANIZACIÓN SOCIOPOLÍTICA',
+                    )
+                ),
+
+                Row(
+                    Column(
+                        'aspecto_1_entrada',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_1_salida',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_1_variacion',
+                        css_class='s12 m6 l4'
+                    )
+                ),
+
+                Row(
+                    Fieldset(
+                        'GOBERNABILIDAD INTERNA',
+                    )
+                ),
+
+                Row(
+                    Column(
+                        'aspecto_2_entrada',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_2_salida',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_2_variacion',
+                        css_class='s12 m6 l4'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'IDENTIDAD Y COHESIÓN COMUNITARIAS',
+                    )
+                ),
+
+                Row(
+                    Column(
+                        'aspecto_3_entrada',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_3_salida',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_3_variacion',
+                        css_class='s12 m6 l4'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'DESARROLLO COMUNITARIO Y MEDIOS DE VIDA',
+                    )
+                ),
+
+                Row(
+                    Column(
+                        'aspecto_4_entrada',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_4_salida',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_4_variacion',
+                        css_class='s12 m6 l4'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'SUB INDICE - PERCEPCION',
+                    )
+                ),
+
+                Row(
+                    Column(
+                        'subindice_1_entrada',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'subindice_1_salida',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'subindice_1_variacion',
+                        css_class='s12 m6 l4'
+                    )
+                ),
+
+                Row(
+                    Fieldset(
+                        'ESTRUCTURA DE LA ORGANIZACIÓN SOCIOPOLÍTICA',
+                    )
+                ),
+
+                Row(
+                    Column(
+                        'aspecto_5_entrada',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_5_salida',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_5_variacion',
+                        css_class='s12 m6 l4'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'GOBERNABILIDAD INTERNA',
+                    )
+                ),
+
+                Row(
+                    Column(
+                        'aspecto_6_entrada',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_6_salida',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_6_variacion',
+                        css_class='s12 m6 l4'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'IDENTIDAD Y COHESIÓN COMUNITARIAS',
+                    )
+                ),
+
+                Row(
+                    Column(
+                        'aspecto_7_entrada',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_7_salida',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_7_variacion',
+                        css_class='s12 m6 l4'
+                    )
+                ),
+
+                Row(
+                    Fieldset(
+                        'DESARROLLO COMUNITARIO Y MEDIOS DE VIDA',
+                    )
+                ),
+
+                Row(
+                    Column(
+                        'aspecto_8_entrada',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_8_salida',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_8_variacion',
+                        css_class='s12 m6 l4'
+                    )
+                ),
+
+                Row(
+                    Fieldset(
+                        'SUB INDICE DE CONDICIONES Y ATRIBUTOS',
+                    )
+                ),
+
+                Row(
+                    Column(
+                        'subindice_2_entrada',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'subindice_2_salida',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'subindice_2_variacion',
+                        css_class='s12 m6 l4'
+                    )
+                ),
+
+                Row(
+                    Fieldset(
+                        'COMPLEJIDAD DEL CONTEXTO',
+                    )
+                ),
+
+                Row(
+                    Column(
+                        'aspecto_9_entrada',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_9_salida',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_9_variacion',
+                        css_class='s12 m6 l4'
+                    )
+                ),
+
+                Row(
+                    Fieldset(
+                        'ACTORES Y FACTORES EXTERNOS',
+                    )
+                ),
+
+                Row(
+                    Column(
+                        'aspecto_10_entrada',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_10_salida',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_10_variacion',
+                        css_class='s12 m6 l4'
+                    )
+                ),
+
+                Row(
+                    Fieldset(
+                        'ATRIBUTOS VERIFICABLES DEL CONTEXTO',
+                    )
+                ),
+
+                Row(
+                    Column(
+                        'aspecto_11_entrada',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_11_salida',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'aspecto_11_variacion',
+                        css_class='s12 m6 l4'
+                    )
+                ),
+
+                Row(
+                    Fieldset(
+                        'SUBÍNDICE DE OPORTUNIDADES DEL CONTEXTO',
+                    )
+                ),
+
+                Row(
+                    Column(
+                        'subindice_3_entrada',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'subindice_3_salida',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'subindice_3_variacion',
+                        css_class='s12 m6 l4'
+                    )
+                ),
+
+                Row(
+                    Fieldset(
+                        'INDICE DEL ICOE',
+                    )
+                ),
+
+                Row(
+                    Column(
+                        'total_entrada',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'total_salida',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'total_variacion',
+                        css_class='s12 m6 l4'
+                    )
+                ),
+
+                Row(
+                    Fieldset(
+                        'Acta escaneada',
+                    )
+                ),
+
+                Row(
+                    Column(
+                        'file',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Listado de asistencia',
+                    )
+                ),
+                Row(
+                    Column(
+                        'file2',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        'hogares',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        Div(
+                            Submit(
+                                'submit',
+                                'Guardar',
+                                css_class='button-submit'
+                            ),
+                            css_class="right-align"
+                        ),
+                        css_class="s12"
+                    ),
+                )
+            )
+
+
+    class Meta:
+        model = models.FichaIcoe
+        fields = ['file','file2','municipio','nombre_comunidad','resguado_indigena_consejo_comunitario','fecha_entrada',
+                  'fecha_salida','aspecto_1_entrada','aspecto_1_salida','aspecto_1_variacion','aspecto_2_entrada','aspecto_2_salida',
+                  'aspecto_2_variacion','aspecto_3_entrada','aspecto_3_salida','aspecto_3_variacion','aspecto_4_entrada',
+                  'aspecto_4_salida','aspecto_4_variacion','subindice_1_entrada','subindice_1_salida','subindice_1_variacion',
+                  'aspecto_5_entrada','aspecto_5_salida','aspecto_5_variacion','aspecto_6_entrada','aspecto_6_salida','aspecto_6_variacion',
+                  'aspecto_7_entrada','aspecto_7_salida','aspecto_7_variacion','aspecto_8_entrada','aspecto_8_salida','aspecto_8_variacion',
+                  'subindice_2_entrada','subindice_2_salida','subindice_2_variacion','aspecto_9_entrada','aspecto_9_salida','aspecto_9_variacion',
+                  'aspecto_10_entrada','aspecto_10_salida','aspecto_10_variacion','aspecto_11_entrada','aspecto_11_salida',
+                  'aspecto_11_variacion','subindice_3_entrada','subindice_3_salida','subindice_3_variacion','total_entrada','total_salida','total_variacion']
+        widgets = {
+            'file': forms.ClearableFileInput(attrs={
+                'data-max-file-size': "10M",
+                'accept': 'application/pdf,application/x-pdf'}
+            ),
+            'file2': forms.ClearableFileInput(attrs={
+                'data-max-file-size': "10M",
+                'accept': 'application/pdf,application/x-pdf'}
+            ),
+        }
+
+        labels = {
+            'nombre_comunidad':'Nombre de la comunidad',
+            'resguado_indigena_consejo_comunitario':'Resguardo / Consejo',
+            'aspecto_1_entrada':'Entrada',
+            'aspecto_1_salida':'Salida',
+            'aspecto_1_variacion':'Variación %',
+            'aspecto_2_entrada':'Entrada',
+            'aspecto_2_salida':'Salida',
+            'aspecto_2_variacion':'Variación %',
+            'aspecto_3_entrada':'Entrada',
+            'aspecto_3_salida':'Salida',
+            'aspecto_3_variacion':'Variación %',
+            'aspecto_4_entrada':'Entrada',
+            'aspecto_4_salida':'Salida',
+            'aspecto_4_variacion':'Variación %',
+            'subindice_1_entrada':'Entrada',
+            'subindice_1_salida':'Salida',
+            'subindice_1_variacion':'Variación %',
+            'aspecto_5_entrada':'Entrada',
+            'aspecto_5_salida':'Salida',
+            'aspecto_5_variacion':'Variación %',
+            'aspecto_6_entrada':'Entrada',
+            'aspecto_6_salida':'Salida',
+            'aspecto_6_variacion':'Variación %',
+            'aspecto_7_entrada':'Entrada',
+            'aspecto_7_salida':'Salida',
+            'aspecto_7_variacion':'Variación %',
+            'aspecto_8_entrada':'Entrada',
+            'aspecto_8_salida':'Salida',
+            'aspecto_8_variacion':'Variación %',
+            'subindice_2_entrada':'Entrada',
+            'subindice_2_salida':'Salida',
+            'subindice_2_variacion':'Variación %',
+            'aspecto_9_entrada':'Entrada',
+            'aspecto_9_salida':'Salida',
+            'aspecto_9_variacion':'Variación %',
+            'aspecto_10_entrada':'Entrada',
+            'aspecto_10_salida':'Salida',
+            'aspecto_10_variacion':'Variación %',
+            'aspecto_11_entrada':'Entrada',
+            'aspecto_11_salida':'Salida',
+            'aspecto_11_variacion':'Variación %',
+            'subindice_3_entrada':'Entrada',
+            'subindice_3_salida':'Salida',
+            'subindice_3_variacion':'Variación %',
+            'total_entrada':'Entrada',
+            'total_salida':'Salida',
+            'total_variacion':'Variación %'
+        }
+
+
 
 
 
@@ -956,11 +2441,17 @@ class ActaSocializacionComunidadesForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
         file = cleaned_data.get("file")
+        file2 = cleaned_data.get("file2")
 
         if file.name.split('.')[-1] == 'pdf':
             pass
         else:
             self.add_error('file', 'El archivo cargado no tiene un formato valido')
+
+        if file2.name.split('.')[-1] == 'pdf':
+            pass
+        else:
+            self.add_error('file2', 'El archivo cargado no tiene un formato valido')
 
 
     def __init__(self, *args, **kwargs):
@@ -1019,8 +2510,41 @@ class ActaSocializacionComunidadesForm(forms.ModelForm):
                     )
                 ),
                 Row(
+                    Fieldset(
+                        'Acta escaneada',
+                    )
+                ),
+                Row(
                     Column(
                         'file',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Listado de asistencia:',
+                    )
+                ),
+                Row(
+                    Column(
+                        'file2',
+                        css_class='s12'
+                    )
+                ),
+                                Row(
+                    Fieldset(
+                        'Registro fotografico:',
+                    )
+                ),
+                Row(
+                    Column(
+                        'foto1',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        'foto2',
                         css_class='s12'
                     )
                 ),
@@ -1096,8 +2620,41 @@ class ActaSocializacionComunidadesForm(forms.ModelForm):
                     )
                 ),
                 Row(
+                    Fieldset(
+                        'Acta escaneada',
+                    )
+                ),
+                Row(
                     Column(
                         'file',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Listado de asistencia:',
+                    )
+                ),
+                Row(
+                    Column(
+                        'file2',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Registro fotografico:',
+                    )
+                ),
+                Row(
+                    Column(
+                        'foto1',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        'foto2',
                         css_class='s12'
                     )
                 ),
@@ -1175,8 +2732,41 @@ class ActaSocializacionComunidadesForm(forms.ModelForm):
                     )
                 ),
                 Row(
+                    Fieldset(
+                        'Acta escaneada',
+                    )
+                ),
+                Row(
                     Column(
                         'file',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Listado de asistencia:',
+                    )
+                ),
+                Row(
+                    Column(
+                        'file2',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Registro fotografico:',
+                    )
+                ),
+                Row(
+                    Column(
+                        'foto1',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        'foto2',
                         css_class='s12'
                     )
                 ),
@@ -1204,13 +2794,15 @@ class ActaSocializacionComunidadesForm(forms.ModelForm):
 
     class Meta:
         model = models.ActaSocializacionComunidades
-        fields = ['file','nombre_comunidad','resguado_indigena_consejo_comunitario','municipio','nombre_representante',
-                  'documento_representante','cargo_representante','fecha_firma']
+        fields = ['file','file2','nombre_comunidad','resguado_indigena_consejo_comunitario','municipio','nombre_representante',
+                  'documento_representante','cargo_representante','fecha_firma','foto1','foto2']
         widgets = {
             'file': forms.ClearableFileInput(attrs={
                 'data-max-file-size': "10M",
                 'accept': 'application/pdf,application/x-pdf'}
             ),
+            'foto1': forms.ClearableFileInput(attrs={'accept': 'image/jpg,image/jpeg,image/png'}),
+            'foto2': forms.ClearableFileInput(attrs={'accept': 'image/jpg,image/jpeg,image/png'})
         }
 
         labels = {
@@ -1222,16 +2814,1178 @@ class ActaSocializacionComunidadesForm(forms.ModelForm):
 
 
 
-class ActaVinculacionHogarForm(forms.ModelForm):
+
+
+class FichaVisionDesarrolloForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
         file = cleaned_data.get("file")
+        file2 = cleaned_data.get("file2")
 
         if file.name.split('.')[-1] == 'pdf':
             pass
         else:
             self.add_error('file', 'El archivo cargado no tiene un formato valido')
+
+        if file2.name.split('.')[-1] == 'pdf':
+            pass
+        else:
+            self.add_error('file2', 'El archivo cargado no tiene un formato valido')
+
+
+    def __init__(self, *args, **kwargs):
+        super(FichaVisionDesarrolloForm, self).__init__(*args, **kwargs)
+
+
+        instrumento = models.Instrumentos.objects.get(id = kwargs['initial']['pk_instrumento'])
+
+
+
+        if instrumento.nivel == 'ruta':
+
+
+            self.helper = FormHelper(self)
+            self.helper.layout = Layout(
+
+                Row(
+                    Fieldset(
+                        kwargs['initial'].get('short_name'),
+                    )
+                ),
+                Row(
+                    Column(
+                        'municipio',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        'fecha',
+                        css_class='s12 m6'
+                    ),
+                    Column(
+                        'lugar',
+                        css_class='s12 m6'
+                    )
+                ),
+
+                Row(
+                    Column(
+                        'dependencia',
+                        css_class='s12 m6'
+                    ),
+                    Column(
+                        'asistentes',
+                        css_class='s12 m6'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Acta escaneada',
+                    )
+                ),
+                Row(
+                    Column(
+                        'file',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Listado de asistencia:',
+                    )
+                ),
+                Row(
+                    Column(
+                        'file2',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Registro fotografico:',
+                    )
+                ),
+                Row(
+                    Column(
+                        'foto1',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        'foto2',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        Div(
+                            Submit(
+                                'submit',
+                                'Guardar',
+                                css_class='button-submit'
+                            ),
+                            css_class="right-align"
+                        ),
+                        css_class="s12"
+                    ),
+                )
+            )
+
+        elif instrumento.nivel == 'individual':
+            self.fields['hogares'] = forms.ModelChoiceField(label = "Hogar",queryset = models.Hogares.objects.filter(rutas=kwargs['initial']['pk_ruta']))
+
+            if 'pk_instrumento_object' in kwargs['initial']:
+
+                instrumento_object = models.InstrumentosRutaObject.objects.get(id = kwargs['initial']['pk_instrumento_object'])
+
+                try:
+                    self.fields['hogares'].initial = instrumento_object.hogares.all()[0]
+                except:
+                    pass
+
+            self.helper = FormHelper(self)
+            self.helper.layout = Layout(
+
+                Row(
+                    Fieldset(
+                        kwargs['initial'].get('short_name'),
+                    )
+                ),
+                Row(
+                    Column(
+                        'municipio',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        'fecha',
+                        css_class='s12 m6'
+                    ),
+                    Column(
+                        'lugar',
+                        css_class='s12 m6'
+                    )
+                ),
+
+                Row(
+                    Column(
+                        'dependencia',
+                        css_class='s12 m6'
+                    ),
+                    Column(
+                        'asistentes',
+                        css_class='s12 m6'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Acta escaneada',
+                    )
+                ),
+                Row(
+                    Column(
+                        'file',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Listado de asistencia:',
+                    )
+                ),
+                Row(
+                    Column(
+                        'file2',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Registro fotografico:',
+                    )
+                ),
+                Row(
+                    Column(
+                        'foto1',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        'foto2',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        'hogares',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        Div(
+                            Submit(
+                                'submit',
+                                'Guardar',
+                                css_class='button-submit'
+                            ),
+                            css_class="right-align"
+                        ),
+                        css_class="s12"
+                    ),
+                )
+            )
+
+        else:
+            self.fields['hogares'] = forms.ModelMultipleChoiceField(queryset=models.Hogares.objects.filter(rutas=kwargs['initial']['pk_ruta']))
+
+            if 'pk_instrumento_object' in kwargs['initial']:
+                instrumento_object = models.InstrumentosRutaObject.objects.get(id=kwargs['initial']['pk_instrumento_object'])
+
+                self.fields['hogares'].initial = instrumento_object.hogares.all()
+
+            self.helper = FormHelper(self)
+            self.helper.layout = Layout(
+
+                Row(
+                    Fieldset(
+                        kwargs['initial'].get('short_name'),
+                    )
+                ),
+                Row(
+                    Column(
+                        'municipio',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        'fecha',
+                        css_class='s12 m6'
+                    ),
+                    Column(
+                        'lugar',
+                        css_class='s12 m6'
+                    )
+                ),
+
+                Row(
+                    Column(
+                        'dependencia',
+                        css_class='s12 m6'
+                    ),
+                    Column(
+                        'asistentes',
+                        css_class='s12 m6'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Acta escaneada',
+                    )
+                ),
+                Row(
+                    Column(
+                        'file',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Listado de asistencia:',
+                    )
+                ),
+                Row(
+                    Column(
+                        'file2',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Registro fotografico:',
+                    )
+                ),
+                Row(
+                    Column(
+                        'foto1',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        'foto2',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        'hogares',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        Div(
+                            Submit(
+                                'submit',
+                                'Guardar',
+                                css_class='button-submit'
+                            ),
+                            css_class="right-align"
+                        ),
+                        css_class="s12"
+                    ),
+                )
+            )
+
+
+    class Meta:
+        model = models.FichaVisionDesarrollo
+        fields = ['file','file2','foto1','foto2','municipio','fecha','lugar','dependencia','asistentes']
+        widgets = {
+            'file': forms.ClearableFileInput(attrs={
+                'data-max-file-size': "10M",
+                'accept': 'application/pdf,application/x-pdf'}
+            ),
+            'file2': forms.ClearableFileInput(attrs={
+                'data-max-file-size': "10M",
+                'accept': 'application/pdf,application/x-pdf'}
+            ),
+                        'foto1': forms.ClearableFileInput(attrs={'accept': 'image/jpg,image/jpeg,image/png'}),
+            'foto2': forms.ClearableFileInput(attrs={'accept': 'image/jpg,image/jpeg,image/png'})
+        }
+
+        labels = {
+            'dependencia':'Dependencia a cargo',
+        }
+
+
+
+
+
+class DiagnosticoComunitarioForm(forms.ModelForm):
+
+    def clean(self):
+        cleaned_data = super().clean()
+        file = cleaned_data.get("file")
+        file2 = cleaned_data.get("file2")
+        file3 = cleaned_data.get("file3")
+
+        if file.name.split('.')[-1] == 'pdf':
+            pass
+        else:
+            self.add_error('file', 'El archivo cargado no tiene un formato valido')
+
+        if file2.name.split('.')[-1] == 'pdf':
+            pass
+        else:
+            self.add_error('file2', 'El archivo cargado no tiene un formato valido')
+
+        if file3.name.split('.')[-1] == 'pdf':
+            pass
+        else:
+            self.add_error('file3', 'El archivo cargado no tiene un formato valido')
+
+
+    def __init__(self, *args, **kwargs):
+        super(DiagnosticoComunitarioForm, self).__init__(*args, **kwargs)
+
+
+        instrumento = models.Instrumentos.objects.get(id = kwargs['initial']['pk_instrumento'])
+
+
+
+        if instrumento.nivel == 'ruta':
+
+
+            self.helper = FormHelper(self)
+            self.helper.layout = Layout(
+
+                Row(
+                    Fieldset(
+                        kwargs['initial'].get('short_name'),
+                    )
+                ),
+                Row(
+                    Column(
+                        'municipio',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        'fecha',
+                        css_class='s12 m6'
+                    ),
+                    Column(
+                        'lugar',
+                        css_class='s12 m6'
+                    )
+                ),
+
+                Row(
+                    Column(
+                        'dependencia',
+                        css_class='s12 m6'
+                    ),
+                    Column(
+                        'asistentes',
+                        css_class='s12 m6'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Acta escaneada',
+                    )
+                ),
+                Row(
+                    Column(
+                        'file',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Listado de asistencia:',
+                    )
+                ),
+                Row(
+                    Column(
+                        'file2',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Informe de diagnostico:',
+                    )
+                ),
+                Row(
+                    Column(
+                        'file3',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Registro fotografico:',
+                    )
+                ),
+                Row(
+                    Column(
+                        'foto1',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        'foto2',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        Div(
+                            Submit(
+                                'submit',
+                                'Guardar',
+                                css_class='button-submit'
+                            ),
+                            css_class="right-align"
+                        ),
+                        css_class="s12"
+                    ),
+                )
+            )
+
+        elif instrumento.nivel == 'individual':
+            self.fields['hogares'] = forms.ModelChoiceField(label = "Hogar",queryset = models.Hogares.objects.filter(rutas=kwargs['initial']['pk_ruta']))
+
+            if 'pk_instrumento_object' in kwargs['initial']:
+
+                instrumento_object = models.InstrumentosRutaObject.objects.get(id = kwargs['initial']['pk_instrumento_object'])
+
+                try:
+                    self.fields['hogares'].initial = instrumento_object.hogares.all()[0]
+                except:
+                    pass
+
+            self.helper = FormHelper(self)
+            self.helper.layout = Layout(
+
+                Row(
+                    Fieldset(
+                        kwargs['initial'].get('short_name'),
+                    )
+                ),
+                Row(
+                    Column(
+                        'municipio',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        'fecha',
+                        css_class='s12 m6'
+                    ),
+                    Column(
+                        'lugar',
+                        css_class='s12 m6'
+                    )
+                ),
+
+                Row(
+                    Column(
+                        'dependencia',
+                        css_class='s12 m6'
+                    ),
+                    Column(
+                        'asistentes',
+                        css_class='s12 m6'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Acta escaneada',
+                    )
+                ),
+                Row(
+                    Column(
+                        'file',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Listado de asistencia:',
+                    )
+                ),
+                Row(
+                    Column(
+                        'file2',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Informe de diagnostico:',
+                    )
+                ),
+                Row(
+                    Column(
+                        'file3',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Registro fotografico:',
+                    )
+                ),
+                Row(
+                    Column(
+                        'foto1',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        'foto2',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        'hogares',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        Div(
+                            Submit(
+                                'submit',
+                                'Guardar',
+                                css_class='button-submit'
+                            ),
+                            css_class="right-align"
+                        ),
+                        css_class="s12"
+                    ),
+                )
+            )
+
+        else:
+            self.fields['hogares'] = forms.ModelMultipleChoiceField(queryset=models.Hogares.objects.filter(rutas=kwargs['initial']['pk_ruta']))
+
+            if 'pk_instrumento_object' in kwargs['initial']:
+                instrumento_object = models.InstrumentosRutaObject.objects.get(id=kwargs['initial']['pk_instrumento_object'])
+
+                self.fields['hogares'].initial = instrumento_object.hogares.all()
+
+            self.helper = FormHelper(self)
+            self.helper.layout = Layout(
+
+                Row(
+                    Fieldset(
+                        kwargs['initial'].get('short_name'),
+                    )
+                ),
+                Row(
+                    Column(
+                        'municipio',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        'fecha',
+                        css_class='s12 m6'
+                    ),
+                    Column(
+                        'lugar',
+                        css_class='s12 m6'
+                    )
+                ),
+
+                Row(
+                    Column(
+                        'dependencia',
+                        css_class='s12 m6'
+                    ),
+                    Column(
+                        'asistentes',
+                        css_class='s12 m6'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Acta escaneada',
+                    )
+                ),
+                Row(
+                    Column(
+                        'file',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Listado de asistencia:',
+                    )
+                ),
+                Row(
+                    Column(
+                        'file2',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Informe de diagnostico:',
+                    )
+                ),
+                Row(
+                    Column(
+                        'file3',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Registro fotografico:',
+                    )
+                ),
+                Row(
+                    Column(
+                        'foto1',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        'foto2',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        'hogares',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        Div(
+                            Submit(
+                                'submit',
+                                'Guardar',
+                                css_class='button-submit'
+                            ),
+                            css_class="right-align"
+                        ),
+                        css_class="s12"
+                    ),
+                )
+            )
+
+
+    class Meta:
+        model = models.DiagnosticoComunitario
+        fields = ['file','file2', 'file3','foto1','foto2','municipio','fecha','lugar','dependencia','asistentes']
+        widgets = {
+            'file': forms.ClearableFileInput(attrs={
+                'data-max-file-size': "10M",
+                'accept': 'application/pdf,application/x-pdf'}
+            ),
+            'file2': forms.ClearableFileInput(attrs={
+                'data-max-file-size': "10M",
+                'accept': 'application/pdf,application/x-pdf'}
+            ),
+            'file3': forms.ClearableFileInput(attrs={
+                'data-max-file-size': "10M",
+                'accept': 'application/pdf,application/x-pdf'}
+            ),
+            'foto1': forms.ClearableFileInput(attrs={'accept': 'image/jpg,image/jpeg,image/png'}),
+            'foto2': forms.ClearableFileInput(attrs={'accept': 'image/jpg,image/jpeg,image/png'})
+        }
+
+        labels = {
+            'dependencia':'Dependencia a cargo',
+        }
+
+
+
+
+
+class ActaSocializacionConcertacionForm(forms.ModelForm):
+
+    def clean(self):
+        cleaned_data = super().clean()
+        file = cleaned_data.get("file")
+        file2 = cleaned_data.get("file2")
+
+        if file.name.split('.')[-1] == 'pdf':
+            pass
+        else:
+            self.add_error('file', 'El archivo cargado no tiene un formato valido')
+
+
+        if file2.name.split('.')[-1] == 'pdf':
+            pass
+        else:
+            self.add_error('file2', 'El archivo cargado no tiene un formato valido')
+
+
+    def __init__(self, *args, **kwargs):
+        super(ActaSocializacionConcertacionForm, self).__init__(*args, **kwargs)
+
+
+        instrumento = models.Instrumentos.objects.get(id = kwargs['initial']['pk_instrumento'])
+
+
+
+        if instrumento.nivel == 'ruta':
+
+
+            self.helper = FormHelper(self)
+            self.helper.layout = Layout(
+
+                Row(
+                    Fieldset(
+                        kwargs['initial'].get('short_name'),
+                    )
+                ),
+                Row(
+                    Column(
+                        'fecha_diligenciamiento',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'lugar',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'hora',
+                        css_class='s12 m6 l4'
+                    )
+                ),
+                Row(
+                    Column(
+                        'municipio',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        'resguado_indigena_consejo_comunitario',
+                        css_class='s12 m6'
+                    ),
+                    Column(
+                        'nombre_comunidad',
+                        css_class='s12 m6'
+                    )
+                ),
+                Row(
+                    Column(
+                        'nombre_representante',
+                        css_class='s12 m6'
+                    ),
+                    Column(
+                        'datos_contacto_representante',
+                        css_class='s12 m6'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Acta escaneada:',
+                    )
+                ),
+                Row(
+                    Column(
+                        'file',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Lista de asistencia:',
+                    )
+                ),
+                Row(
+                    Column(
+                        'file2',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Registro fotografico:',
+                    )
+                ),
+                Row(
+                    Column(
+                        'foto1',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        'foto2',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        Div(
+                            Submit(
+                                'submit',
+                                'Guardar',
+                                css_class='button-submit'
+                            ),
+                            css_class="right-align"
+                        ),
+                        css_class="s12"
+                    ),
+                )
+            )
+
+        elif instrumento.nivel == 'individual':
+            self.fields['hogares'] = forms.ModelChoiceField(label = "Hogar",queryset = models.Hogares.objects.filter(rutas=kwargs['initial']['pk_ruta']))
+
+            if 'pk_instrumento_object' in kwargs['initial']:
+
+                instrumento_object = models.InstrumentosRutaObject.objects.get(id = kwargs['initial']['pk_instrumento_object'])
+
+                try:
+                    self.fields['hogares'].initial = instrumento_object.hogares.all()[0]
+                except:
+                    pass
+
+            self.helper = FormHelper(self)
+            self.helper.layout = Layout(
+
+                Row(
+                    Fieldset(
+                        kwargs['initial'].get('short_name'),
+                    )
+                ),
+                Row(
+                    Column(
+                        'fecha_diligenciamiento',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'lugar',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'hora',
+                        css_class='s12 m6 l4'
+                    )
+                ),
+                Row(
+                    Column(
+                        'municipio',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        'resguado_indigena_consejo_comunitario',
+                        css_class='s12 m6'
+                    ),
+                    Column(
+                        'nombre_comunidad',
+                        css_class='s12 m6'
+                    )
+                ),
+                Row(
+                    Column(
+                        'nombre_representante',
+                        css_class='s12 m6'
+                    ),
+                    Column(
+                        'datos_contacto_representante',
+                        css_class='s12 m6'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Acta escaneada:',
+                    )
+                ),
+                Row(
+                    Column(
+                        'file',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Lista de asistencia:',
+                    )
+                ),
+                Row(
+                    Column(
+                        'file2',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Registro fotografico:',
+                    )
+                ),
+                Row(
+                    Column(
+                        'foto1',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        'foto2',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        'hogares',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        Div(
+                            Submit(
+                                'submit',
+                                'Guardar',
+                                css_class='button-submit'
+                            ),
+                            css_class="right-align"
+                        ),
+                        css_class="s12"
+                    ),
+                )
+            )
+
+        else:
+            self.fields['hogares'] = forms.ModelMultipleChoiceField(queryset=models.Hogares.objects.filter(rutas=kwargs['initial']['pk_ruta']))
+
+            if 'pk_instrumento_object' in kwargs['initial']:
+                instrumento_object = models.InstrumentosRutaObject.objects.get(id=kwargs['initial']['pk_instrumento_object'])
+
+                self.fields['hogares'].initial = instrumento_object.hogares.all()
+
+            self.helper = FormHelper(self)
+            self.helper.layout = Layout(
+
+                Row(
+                    Fieldset(
+                        kwargs['initial'].get('short_name'),
+                    )
+                ),
+                Row(
+                    Column(
+                        'fecha_diligenciamiento',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'lugar',
+                        css_class='s12 m6 l4'
+                    ),
+                    Column(
+                        'hora',
+                        css_class='s12 m6 l4'
+                    )
+                ),
+                Row(
+                    Column(
+                        'municipio',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        'resguado_indigena_consejo_comunitario',
+                        css_class='s12 m6'
+                    ),
+                    Column(
+                        'nombre_comunidad',
+                        css_class='s12 m6'
+                    )
+                ),
+                Row(
+                    Column(
+                        'nombre_representante',
+                        css_class='s12 m6'
+                    ),
+                    Column(
+                        'datos_contacto_representante',
+                        css_class='s12 m6'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Acta escaneada:',
+                    )
+                ),
+                Row(
+                    Column(
+                        'file',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Lista de asistencia:',
+                    )
+                ),
+                Row(
+                    Column(
+                        'file2',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Registro fotografico:',
+                    )
+                ),
+                Row(
+                    Column(
+                        'foto1',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        'foto2',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        'hogares',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        Div(
+                            Submit(
+                                'submit',
+                                'Guardar',
+                                css_class='button-submit'
+                            ),
+                            css_class="right-align"
+                        ),
+                        css_class="s12"
+                    ),
+                )
+            )
+
+
+    class Meta:
+        model = models.ActaSocializacionConcertacion
+        fields = ['fecha_diligenciamiento','lugar','hora','municipio','resguado_indigena_consejo_comunitario','nombre_comunidad',
+                  'nombre_representante','datos_contacto_representante','file','file2','foto1','foto2']
+        widgets = {
+            'file': forms.ClearableFileInput(attrs={
+                'data-max-file-size': "10M",
+                'accept': 'application/pdf,application/x-pdf'}
+            ),
+            'file2': forms.ClearableFileInput(attrs={
+                'data-max-file-size': "10M",
+                'accept': 'application/pdf,application/x-pdf'}
+            ),
+            'foto1': forms.ClearableFileInput(attrs={'accept': 'image/jpg,image/jpeg,image/png'}),
+            'foto2': forms.ClearableFileInput(attrs={'accept': 'image/jpg,image/jpeg,image/png'})
+        }
+
+        labels = {
+            'fecha_diligenciamiento': 'Fecha de diligenciamiento',
+            'lugar': 'Lugar',
+            'hora': 'Hora',
+            'municipio': 'Municipio',
+            'resguado_indigena_consejo_comunitario': 'Resguardo / Consejo',
+            'nombre_comunidad': 'Nombre de la comunidad',
+            'nombre_representante': 'Nombre interlocutor de la comunidad',
+            'datos_contacto_representante': 'Datos de contacto',
+            'file': 'Acta',
+            'file2': 'Listado de asistencia',
+            'foto1': 'Foto 1',
+            'foto2': 'Foto 2'
+        }
+
+
+
+
+
+class ActaVinculacionHogarForm(forms.ModelForm):
+
+    def clean(self):
+        cleaned_data = super().clean()
+        file = cleaned_data.get("file")
+        file2 = cleaned_data.get("file2")
+
+        if file.name.split('.')[-1] == 'pdf':
+            pass
+        else:
+            self.add_error('file', 'El archivo cargado no tiene un formato valido')
+
+        if file2.name.split('.')[-1] == 'pdf':
+            pass
+        else:
+            self.add_error('file2', 'El archivo cargado no tiene un formato valido')
 
 
     def __init__(self, *args, **kwargs):
@@ -1294,8 +4048,24 @@ class ActaVinculacionHogarForm(forms.ModelForm):
                     )
                 ),
                 Row(
+                    Fieldset(
+                        'Acta escaneada',
+                    )
+                ),
+                Row(
                     Column(
                         'file',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Documento de identidad',
+                    )
+                ),
+                Row(
+                    Column(
+                        'file2',
                         css_class='s12'
                     )
                 ),
@@ -1375,8 +4145,24 @@ class ActaVinculacionHogarForm(forms.ModelForm):
                     )
                 ),
                 Row(
+                    Fieldset(
+                        'Acta escaneada',
+                    )
+                ),
+                Row(
                     Column(
                         'file',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Documento de identidad',
+                    )
+                ),
+                Row(
+                    Column(
+                        'file2',
                         css_class='s12'
                     )
                 ),
@@ -1458,8 +4244,24 @@ class ActaVinculacionHogarForm(forms.ModelForm):
                     )
                 ),
                 Row(
+                    Fieldset(
+                        'Acta escaneada',
+                    )
+                ),
+                Row(
                     Column(
                         'file',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Documento de identidad',
+                    )
+                ),
+                Row(
+                    Column(
+                        'file2',
                         css_class='s12'
                     )
                 ),
@@ -1487,10 +4289,14 @@ class ActaVinculacionHogarForm(forms.ModelForm):
 
     class Meta:
         model = models.ActaVinculacionHogar
-        fields = ['file','fecha_diligenciamiento','municipio','resguado_indigena_consejo_comunitario','nombre_comunidad',
+        fields = ['file','file2','fecha_diligenciamiento','municipio','resguado_indigena_consejo_comunitario','nombre_comunidad',
                   'tipo_identificacion','documento_representante','nombre_representante','telefono_celular']
         widgets = {
             'file': forms.ClearableFileInput(attrs={
+                'data-max-file-size': "10M",
+                'accept': 'application/pdf,application/x-pdf'}
+            ),
+            'file2': forms.ClearableFileInput(attrs={
                 'data-max-file-size': "10M",
                 'accept': 'application/pdf,application/x-pdf'}
             ),

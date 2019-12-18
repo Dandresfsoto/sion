@@ -74,6 +74,18 @@ var socket = new ReconnectingWebSocket(ws_scheme + '://' + window.location.host 
         }
     });
 
+    $('#id_file2').dropify({
+        error: {
+            'fileSize': 'El archivo es demasiado grande.',
+        },
+        messages: {
+            'default': 'Haz clic y selecciona el archivo, tambien puedes arrastrarlo y soltarlo aqui',
+            'replace': 'Haz clic y selecciona el archivo, tambien puedes arrastrarlo y soltarlo aqui',
+            'remove': 'Eliminar',
+            'error': 'Ooops, algo malo paso.'
+        }
+    });
+
 
     $('#id_fecha_firma').pickadate({
         format: 'dd/mm/yyyy',
@@ -88,6 +100,29 @@ var socket = new ReconnectingWebSocket(ws_scheme + '://' + window.location.host 
         closeOnSelect: false
     });
 
+    $('#id_foto1').dropify({
+        error: {
+            'fileSize': 'El archivo es demasiado grande.',
+        },
+        messages: {
+            'default': 'Haz clic y selecciona la foto, tambien puedes arrastrarla y soltarlo aqui',
+            'replace': 'Haz clic y selecciona la foto, tambien puedes arrastrarla y soltarlo aqui',
+            'remove': 'Eliminar',
+            'error': 'Ooops, algo malo paso.'
+        }
+    });
+
+    $('#id_foto2').dropify({
+        error: {
+            'fileSize': 'El archivo es demasiado grande.',
+        },
+        messages: {
+            'default': 'Haz clic y selecciona la foto, tambien puedes arrastrarla y soltarlo aqui',
+            'replace': 'Haz clic y selecciona la foto, tambien puedes arrastrarla y soltarlo aqui',
+            'remove': 'Eliminar',
+            'error': 'Ooops, algo malo paso.'
+        }
+    });
 
 
 });</script></body></html>

@@ -1267,6 +1267,192 @@ class Documento(models.Model):
 
 
 
+def upload_dinamic_formulario_caracterizacion(instance, filename):
+    return '/'.join(['FEST 2019', str(instance.ruta.id), instance.nombre, filename])
+
+class FormularioCaracterizacion(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, unique=True, editable=False)
+    hogares = models.ManyToManyField(Hogares,related_name='hogares_formulario_caracterizacion',blank=True)
+    instrumento = models.ForeignKey(Instrumentos,on_delete=models.DO_NOTHING,related_name='instrumento_formulario_caracterizacion',blank=True,null=True)
+    ruta = models.ForeignKey(Rutas,on_delete=models.DO_NOTHING,related_name='ruta_formulario_caracterizacion',blank=True,null=True)
+    nombre = models.CharField(max_length=100)
+
+    file = ContentTypeRestrictedFileField(
+        upload_to=upload_dinamic_formulario_caracterizacion,
+        content_types=[
+            'application/pdf',
+        ],
+        max_upload_size=10485760,
+        max_length=255
+    )
+
+    file2 = ContentTypeRestrictedFileField(
+        upload_to=upload_dinamic_formulario_caracterizacion,
+        content_types=[
+            'application/pdf',
+        ],
+        max_upload_size=10485760,
+        max_length=255
+    )
+
+
+
+    def url_file(self):
+        url = None
+        try:
+            url = self.file.url
+        except:
+            pass
+        return url
+
+
+    def url_file2(self):
+        url = None
+        try:
+            url = self.file2.url
+        except:
+            pass
+        return url
+
+
+    def get_extension(self):
+        return self.file.name.split('.')[-1]
+
+
+
+
+
+
+
+def upload_dinamic_ficha_icoe(instance, filename):
+    return '/'.join(['FEST 2019', str(instance.ruta.id), instance.nombre, filename])
+
+class FichaIcoe(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, unique=True, editable=False)
+    hogares = models.ManyToManyField(Hogares,related_name='hogares_ficha_icoe',blank=True)
+    instrumento = models.ForeignKey(Instrumentos,on_delete=models.DO_NOTHING,related_name='instrumento_ficha_icoe',blank=True,null=True)
+    ruta = models.ForeignKey(Rutas,on_delete=models.DO_NOTHING,related_name='ruta_ficha_icoe',blank=True,null=True)
+    nombre = models.CharField(max_length=100)
+
+    municipio = models.ForeignKey(Municipios, on_delete=models.DO_NOTHING,related_name='municipio_ficha_icoe')
+    nombre_comunidad = models.CharField(max_length=100)
+    resguado_indigena_consejo_comunitario = models.CharField(max_length=100)
+
+    fecha_entrada = models.DateField()
+    fecha_salida = models.DateField()
+
+
+    aspecto_1_entrada = models.DecimalField(max_digits=10, decimal_places=2)
+    aspecto_1_salida = models.DecimalField(max_digits=10, decimal_places=2)
+    aspecto_1_variacion = models.DecimalField(max_digits=10, decimal_places=2)
+
+    aspecto_2_entrada = models.DecimalField(max_digits=10, decimal_places=2)
+    aspecto_2_salida = models.DecimalField(max_digits=10, decimal_places=2)
+    aspecto_2_variacion = models.DecimalField(max_digits=10, decimal_places=2)
+
+    aspecto_3_entrada = models.DecimalField(max_digits=10, decimal_places=2)
+    aspecto_3_salida = models.DecimalField(max_digits=10, decimal_places=2)
+    aspecto_3_variacion = models.DecimalField(max_digits=10, decimal_places=2)
+
+    aspecto_4_entrada = models.DecimalField(max_digits=10, decimal_places=2)
+    aspecto_4_salida = models.DecimalField(max_digits=10, decimal_places=2)
+    aspecto_4_variacion = models.DecimalField(max_digits=10, decimal_places=2)
+
+    subindice_1_entrada = models.DecimalField(max_digits=10, decimal_places=2)
+    subindice_1_salida = models.DecimalField(max_digits=10, decimal_places=2)
+    subindice_1_variacion = models.DecimalField(max_digits=10, decimal_places=2)
+
+    aspecto_5_entrada = models.DecimalField(max_digits=10, decimal_places=2)
+    aspecto_5_salida = models.DecimalField(max_digits=10, decimal_places=2)
+    aspecto_5_variacion = models.DecimalField(max_digits=10, decimal_places=2)
+
+    aspecto_6_entrada = models.DecimalField(max_digits=10, decimal_places=2)
+    aspecto_6_salida = models.DecimalField(max_digits=10, decimal_places=2)
+    aspecto_6_variacion = models.DecimalField(max_digits=10, decimal_places=2)
+
+    aspecto_7_entrada = models.DecimalField(max_digits=10, decimal_places=2)
+    aspecto_7_salida = models.DecimalField(max_digits=10, decimal_places=2)
+    aspecto_7_variacion = models.DecimalField(max_digits=10, decimal_places=2)
+
+    aspecto_8_entrada = models.DecimalField(max_digits=10, decimal_places=2)
+    aspecto_8_salida = models.DecimalField(max_digits=10, decimal_places=2)
+    aspecto_8_variacion = models.DecimalField(max_digits=10, decimal_places=2)
+
+    subindice_2_entrada = models.DecimalField(max_digits=10, decimal_places=2)
+    subindice_2_salida = models.DecimalField(max_digits=10, decimal_places=2)
+    subindice_2_variacion = models.DecimalField(max_digits=10, decimal_places=2)
+
+    aspecto_9_entrada = models.DecimalField(max_digits=10, decimal_places=2)
+    aspecto_9_salida = models.DecimalField(max_digits=10, decimal_places=2)
+    aspecto_9_variacion = models.DecimalField(max_digits=10, decimal_places=2)
+
+    aspecto_10_entrada = models.DecimalField(max_digits=10, decimal_places=2)
+    aspecto_10_salida = models.DecimalField(max_digits=10, decimal_places=2)
+    aspecto_10_variacion = models.DecimalField(max_digits=10, decimal_places=2)
+
+    aspecto_11_entrada = models.DecimalField(max_digits=10, decimal_places=2)
+    aspecto_11_salida = models.DecimalField(max_digits=10, decimal_places=2)
+    aspecto_11_variacion = models.DecimalField(max_digits=10, decimal_places=2)
+
+    subindice_3_entrada = models.DecimalField(max_digits=10, decimal_places=2)
+    subindice_3_salida = models.DecimalField(max_digits=10, decimal_places=2)
+    subindice_3_variacion = models.DecimalField(max_digits=10, decimal_places=2)
+
+    total_entrada = models.DecimalField(max_digits=10, decimal_places=2)
+    total_salida = models.DecimalField(max_digits=10, decimal_places=2)
+    total_variacion = models.DecimalField(max_digits=10, decimal_places=2)
+
+
+    file = ContentTypeRestrictedFileField(
+        upload_to=upload_dinamic_ficha_icoe,
+        content_types=[
+            'application/pdf',
+        ],
+        max_upload_size=10485760,
+        max_length=255
+    )
+
+    file2 = ContentTypeRestrictedFileField(
+        upload_to=upload_dinamic_ficha_icoe,
+        content_types=[
+            'application/pdf',
+        ],
+        max_upload_size=10485760,
+        max_length=255
+    )
+
+
+
+
+
+    def url_file(self):
+        url = None
+        try:
+            url = self.file.url
+        except:
+            pass
+        return url
+
+
+    def url_file2(self):
+        url = None
+        try:
+            url = self.file2.url
+        except:
+            pass
+        return url
+
+
+
+
+
+    def get_extension(self):
+        return self.file.name.split('.')[-1]
+
+
+
+
+
 
 def upload_dinamic_acta_socializacion_comunidades(instance, filename):
     return '/'.join(['FEST 2019', str(instance.ruta.id), instance.nombre, filename])
@@ -1296,6 +1482,384 @@ class ActaSocializacionComunidades(models.Model):
         max_length=255
     )
 
+    file2 = ContentTypeRestrictedFileField(
+        upload_to=upload_dinamic_acta_socializacion_comunidades,
+        content_types=[
+            'application/pdf',
+        ],
+        max_upload_size=10485760,
+        max_length=255
+    )
+
+    foto1 = ContentTypeRestrictedFileField(
+        upload_to=upload_dinamic_acta_socializacion_comunidades,
+        content_types=[
+            'image/jpg',
+            'image/jpeg',
+            'image/png'
+        ],
+        max_upload_size=10485760,
+        max_length=255,
+        blank=True,
+        null=True
+    )
+    foto2 = ContentTypeRestrictedFileField(
+        upload_to=upload_dinamic_acta_socializacion_comunidades,
+        content_types=[
+            'image/jpg',
+            'image/jpeg',
+            'image/png'
+        ],
+        max_upload_size=10485760,
+        max_length=255,
+        blank=True,
+        null=True
+    )
+
+
+
+    def url_file(self):
+        url = None
+        try:
+            url = self.file.url
+        except:
+            pass
+        return url
+
+    def url_file2(self):
+        url = None
+        try:
+            url = self.file2.url
+        except:
+            pass
+        return url
+
+
+    def url_foto1(self):
+        url = None
+        try:
+            url = self.foto1.url
+        except:
+            pass
+        return url
+
+    def url_foto2(self):
+        url = None
+        try:
+            url = self.foto2.url
+        except:
+            pass
+        return url
+
+
+    def get_extension(self):
+        return self.file.name.split('.')[-1]
+
+
+
+
+
+
+
+
+def upload_dinamic_ficha_vision_desarrollo(instance, filename):
+    return '/'.join(['FEST 2019', str(instance.ruta.id), instance.nombre, filename])
+
+class FichaVisionDesarrollo(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, unique=True, editable=False)
+    hogares = models.ManyToManyField(Hogares,related_name='hogares_ficha_vision_desarrollo',blank=True)
+    instrumento = models.ForeignKey(Instrumentos,on_delete=models.DO_NOTHING,related_name='instrumento_ficha_vision_desarrollo',blank=True,null=True)
+    ruta = models.ForeignKey(Rutas,on_delete=models.DO_NOTHING,related_name='ruta_ficha_vision_desarrollo',blank=True,null=True)
+    nombre = models.CharField(max_length=100)
+
+    municipio = models.ForeignKey(Municipios, on_delete=models.DO_NOTHING,related_name='municipio_ficha_vision_desarrollo')
+    fecha = models.DateField()
+    lugar = models.CharField(max_length=100)
+    dependencia = models.CharField(max_length=100)
+
+    asistentes = models.IntegerField()
+
+
+    file = ContentTypeRestrictedFileField(
+        upload_to=upload_dinamic_ficha_vision_desarrollo,
+        content_types=[
+            'application/pdf',
+        ],
+        max_upload_size=10485760,
+        max_length=255
+    )
+
+    file2 = ContentTypeRestrictedFileField(
+        upload_to=upload_dinamic_ficha_vision_desarrollo,
+        content_types=[
+            'application/pdf',
+        ],
+        max_upload_size=10485760,
+        max_length=255
+    )
+
+    foto1 = ContentTypeRestrictedFileField(
+        upload_to=upload_dinamic_ficha_vision_desarrollo,
+        content_types=[
+            'image/jpg',
+            'image/jpeg',
+            'image/png'
+        ],
+        max_upload_size=10485760,
+        max_length=255,
+        blank=True,
+        null=True
+    )
+    foto2 = ContentTypeRestrictedFileField(
+        upload_to=upload_dinamic_ficha_vision_desarrollo,
+        content_types=[
+            'image/jpg',
+            'image/jpeg',
+            'image/png'
+        ],
+        max_upload_size=10485760,
+        max_length=255,
+        blank=True,
+        null=True
+    )
+
+
+
+    def url_file(self):
+        url = None
+        try:
+            url = self.file.url
+        except:
+            pass
+        return url
+
+    def url_file2(self):
+        url = None
+        try:
+            url = self.file2.url
+        except:
+            pass
+        return url
+
+
+    def url_foto1(self):
+        url = None
+        try:
+            url = self.foto1.url
+        except:
+            pass
+        return url
+
+    def url_foto2(self):
+        url = None
+        try:
+            url = self.foto2.url
+        except:
+            pass
+        return url
+
+
+    def get_extension(self):
+        return self.file.name.split('.')[-1]
+
+
+
+
+
+
+
+
+def upload_dinamic_diagnostico_comunitario(instance, filename):
+    return '/'.join(['FEST 2019', str(instance.ruta.id), instance.nombre, filename])
+
+class DiagnosticoComunitario(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, unique=True, editable=False)
+    hogares = models.ManyToManyField(Hogares,related_name='hogares_diagnostico_comunitario',blank=True)
+    instrumento = models.ForeignKey(Instrumentos,on_delete=models.DO_NOTHING,related_name='instrumento_diagnostico_comunitario',blank=True,null=True)
+    ruta = models.ForeignKey(Rutas,on_delete=models.DO_NOTHING,related_name='ruta_diagnostico_comunitario',blank=True,null=True)
+    nombre = models.CharField(max_length=100)
+
+    municipio = models.ForeignKey(Municipios, on_delete=models.DO_NOTHING,related_name='municipio_diagnostico_comunitario')
+    fecha = models.DateField()
+    lugar = models.CharField(max_length=100)
+    dependencia = models.CharField(max_length=100)
+
+    asistentes = models.IntegerField()
+
+
+    file = ContentTypeRestrictedFileField(
+        upload_to=upload_dinamic_diagnostico_comunitario,
+        content_types=[
+            'application/pdf',
+        ],
+        max_upload_size=10485760,
+        max_length=255
+    )
+
+    file2 = ContentTypeRestrictedFileField(
+        upload_to=upload_dinamic_diagnostico_comunitario,
+        content_types=[
+            'application/pdf',
+        ],
+        max_upload_size=10485760,
+        max_length=255
+    )
+
+    file3 = ContentTypeRestrictedFileField(
+        upload_to=upload_dinamic_diagnostico_comunitario,
+        content_types=[
+            'application/pdf',
+        ],
+        max_upload_size=10485760,
+        max_length=255
+    )
+
+    foto1 = ContentTypeRestrictedFileField(
+        upload_to=upload_dinamic_diagnostico_comunitario,
+        content_types=[
+            'image/jpg',
+            'image/jpeg',
+            'image/png'
+        ],
+        max_upload_size=10485760,
+        max_length=255,
+        blank=True,
+        null=True
+    )
+    foto2 = ContentTypeRestrictedFileField(
+        upload_to=upload_dinamic_diagnostico_comunitario,
+        content_types=[
+            'image/jpg',
+            'image/jpeg',
+            'image/png'
+        ],
+        max_upload_size=10485760,
+        max_length=255,
+        blank=True,
+        null=True
+    )
+
+
+
+    def url_file(self):
+        url = None
+        try:
+            url = self.file.url
+        except:
+            pass
+        return url
+
+    def url_file2(self):
+        url = None
+        try:
+            url = self.file2.url
+        except:
+            pass
+        return url
+
+    def url_file3(self):
+        url = None
+        try:
+            url = self.file3.url
+        except:
+            pass
+        return url
+
+
+    def url_foto1(self):
+        url = None
+        try:
+            url = self.foto1.url
+        except:
+            pass
+        return url
+
+    def url_foto2(self):
+        url = None
+        try:
+            url = self.foto2.url
+        except:
+            pass
+        return url
+
+
+    def get_extension(self):
+        return self.file.name.split('.')[-1]
+
+
+
+
+
+
+
+
+def upload_dinamic_acta_socializacion_concertacion(instance, filename):
+    return '/'.join(['FEST 2019', str(instance.ruta.id), instance.nombre, filename])
+
+class ActaSocializacionConcertacion(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, unique=True, editable=False)
+    hogares = models.ManyToManyField(Hogares,related_name='hogares_acta_socializacion_concertacion',blank=True)
+    instrumento = models.ForeignKey(Instrumentos,on_delete=models.DO_NOTHING,related_name='instrumento_acta_socializacion_concertacion',blank=True,null=True)
+    ruta = models.ForeignKey(Rutas,on_delete=models.DO_NOTHING,related_name='ruta_acta_socializacion_concertacion',blank=True,null=True)
+    nombre = models.CharField(max_length=100)
+
+
+    fecha_diligenciamiento = models.DateField()
+    lugar = models.CharField(max_length=100)
+    hora = models.CharField(max_length=100)
+    municipio = models.ForeignKey(Municipios, on_delete=models.DO_NOTHING,related_name='municipio_acta_socializacion_concertacion')
+    resguado_indigena_consejo_comunitario = models.CharField(max_length=100)
+    nombre_comunidad = models.CharField(max_length=100)
+
+
+    nombre_representante = models.CharField(max_length=200)
+    datos_contacto_representante = models.CharField(max_length=200)
+
+
+
+    file = ContentTypeRestrictedFileField(
+        upload_to=upload_dinamic_acta_socializacion_concertacion,
+        content_types=[
+            'application/pdf',
+        ],
+        max_upload_size=10485760,
+        max_length=255
+    )
+
+    file2 = ContentTypeRestrictedFileField(
+        upload_to=upload_dinamic_acta_socializacion_concertacion,
+        content_types=[
+            'application/pdf',
+        ],
+        max_upload_size=10485760,
+        max_length=255
+    )
+
+    foto1 = ContentTypeRestrictedFileField(
+        upload_to=upload_dinamic_acta_socializacion_concertacion,
+        content_types=[
+            'image/jpg',
+            'image/jpeg',
+            'image/png'
+        ],
+        max_upload_size=10485760,
+        max_length=255,
+        blank=True,
+        null=True
+    )
+    foto2 = ContentTypeRestrictedFileField(
+        upload_to=upload_dinamic_acta_socializacion_concertacion,
+        content_types=[
+            'image/jpg',
+            'image/jpeg',
+            'image/png'
+        ],
+        max_upload_size=10485760,
+        max_length=255,
+        blank=True,
+        null=True
+    )
+
 
 
     def url_file(self):
@@ -1307,9 +1871,34 @@ class ActaSocializacionComunidades(models.Model):
         return url
 
 
+    def url_file2(self):
+        url = None
+        try:
+            url = self.file2.url
+        except:
+            pass
+        return url
+
+
+    def url_foto1(self):
+        url = None
+        try:
+            url = self.foto1.url
+        except:
+            pass
+        return url
+
+    def url_foto2(self):
+        url = None
+        try:
+            url = self.foto2.url
+        except:
+            pass
+        return url
+
+
     def get_extension(self):
         return self.file.name.split('.')[-1]
-
 
 
 
@@ -1347,12 +1936,30 @@ class ActaVinculacionHogar(models.Model):
         max_length=255
     )
 
+    file2 = ContentTypeRestrictedFileField(
+        upload_to=upload_dinamic_acta_vinculacion_hogar,
+        content_types=[
+            'application/pdf',
+        ],
+        max_upload_size=10485760,
+        max_length=255
+    )
+
 
 
     def url_file(self):
         url = None
         try:
             url = self.file.url
+        except:
+            pass
+        return url
+
+
+    def url_file2(self):
+        url = None
+        try:
+            url = self.file2.url
         except:
             pass
         return url
