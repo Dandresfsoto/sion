@@ -323,9 +323,11 @@ class RutasListApi(BaseDatatableView):
         elif column == 'valor':
 
             tooltip = '<p>Ruta: {0}</p>' \
-                      '<p>Transporte ruta: {1}</p>'.format(
-                utils.col2str(row.valor - row.valor_transporte),
-                utils.col2str(row.valor_transporte)
+                      '<p>Transporte ruta: {1}</p>' \
+                      '<p>Transporte ruta: {2}</p>'.format(
+                utils.col2str(row.valor - row.valor_transporte -row.valor_otros),
+                utils.col2str(row.valor_transporte),
+                utils.col2str(row.valor_otros)
             )
 
             return '<div class="center-align">' \
@@ -1020,9 +1022,11 @@ class MisRutasListApi(BaseDatatableView):
         elif column == 'valor':
 
             tooltip = '<p>Ruta: {0}</p>' \
-                      '<p>Transporte ruta: {1}</p>'.format(
-                utils.col2str(row.valor - row.valor_transporte),
-                utils.col2str(row.valor_transporte)
+                      '<p>Transporte ruta: {1}</p>' \
+                      '<p>Transporte ruta: {2}</p>'.format(
+                utils.col2str(row.valor - row.valor_transporte -row.valor_otros),
+                utils.col2str(row.valor_transporte),
+                utils.col2str(row.valor_otros),
             )
 
             return '<div class="center-align">' \

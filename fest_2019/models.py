@@ -196,6 +196,7 @@ class Rutas(models.Model):
                                  related_name='contrato_ruta_fest_2019')
     valor = MoneyField(max_digits=10, decimal_places=2, default_currency='COP',default=0)
     valor_transporte = MoneyField(max_digits=10, decimal_places=2, default_currency='COP', default=0)
+    valor_otros = MoneyField(max_digits=10, decimal_places=2, default_currency='COP', default=0)
 
     novedades = models.IntegerField(default=0)
     progreso = models.DecimalField(max_digits=10, decimal_places=2,default=0.0)

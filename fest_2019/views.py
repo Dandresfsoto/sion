@@ -421,6 +421,7 @@ class RutasCreateView(LoginRequiredMixin,
             contrato=contrato,
             valor=contrato.valor.amount,
             valor_transporte=utils.autonumeric2float(form.cleaned_data['valor_transporte']),
+            valor_otros=utils.autonumeric2float(form.cleaned_data['valor_otros']),
             usuario_creacion=self.request.user,
             usuario_actualizacion=self.request.user,
             tipo_pago = form.cleaned_data['tipo_pago']
@@ -465,6 +466,7 @@ class RutasUpdateView(LoginRequiredMixin,
             contrato=contrato,
             valor=contrato.valor.amount,
             valor_transporte=utils.autonumeric2float(form.cleaned_data['valor_transporte']),
+            valor_otros=utils.autonumeric2float(form.cleaned_data['valor_otros']),
             usuario_actualizacion=self.request.user,
             tipo_pago=form.cleaned_data['tipo_pago']
         )

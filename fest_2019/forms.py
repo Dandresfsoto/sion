@@ -167,6 +167,7 @@ class RutasCreateForm(forms.Form):
     nombre = forms.CharField(label='Código ruta', max_length=100)
     componente = forms.ModelChoiceField(label='Componente', queryset=models.Componentes.objects.all())
     valor_transporte = forms.CharField(label='Valor transporte del contrato',max_length=100)
+    valor_otros = forms.CharField(label='Valor otros conceptos del contrato',max_length=100)
     tipo_pago = forms.CharField(label="Tipo de pago",widget=forms.Select(choices=[('completo','Al completar todas las actividades'),('actividad','Por actividad')]))
 
 
@@ -216,6 +217,7 @@ class RutasCreateForm(forms.Form):
             self.fields['contrato'].queryset = rh_models.Contratos.objects.filter(id = ruta.contrato.id)
             self.fields['contrato'].initial = ruta.contrato
             self.fields['valor_transporte'].initial = str(ruta.valor_transporte.amount)
+            self.fields['valor_otros'].initial = str(ruta.valor_otros.amount)
             self.fields['componente'].initial = ruta.componente
             self.fields['tipo_pago'].initial = ruta.tipo_pago
 
@@ -250,6 +252,10 @@ class RutasCreateForm(forms.Form):
                 ),
                 Column(
                     'valor_transporte',
+                    css_class='s12 m6 l3'
+                ),
+                Column(
+                    'valor_otros',
                     css_class='s12 m6 l3'
                 ),
                 Column(
@@ -311,8 +317,8 @@ class ValoresActividadesForm(forms.Form):
 
 
 
-        if valor_total != float(ruta.valor.amount) - float(ruta.valor_transporte.amount):
-            self.add_error(None,"El valor total de las actividades debe ser $ {:20,.2f}".format(float(ruta.valor.amount) - float(ruta.valor_transporte.amount)))
+        if valor_total != float(ruta.valor.amount) - float(ruta.valor_transporte.amount) - float(ruta.valor_otros.amount):
+            self.add_error(None,"El valor total de las actividades debe ser $ {:20,.2f}".format(float(ruta.valor.amount) - float(ruta.valor_transporte.amount) - float(ruta.valor_otros.amount)))
 
 
     def __init__(self, *args, **kwargs):

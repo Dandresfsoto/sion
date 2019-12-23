@@ -75,6 +75,7 @@ var socket = new ReconnectingWebSocket(ws_scheme + '://' + window.location.host 
     });
 
     new AutoNumeric(document.getElementById('id_valor_transporte'), {currencySymbol: '$ '});
+    new AutoNumeric(document.getElementById('id_valor_otros'), {currencySymbol: '$ '});
     new AutoNumeric(document.getElementById('id_valor_vinculacion'), {currencySymbol: '$ '});
     new AutoNumeric(document.getElementById('id_valor_transporte_vinculacion'), {currencySymbol: '$ '});
 
