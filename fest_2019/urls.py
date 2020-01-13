@@ -42,6 +42,11 @@ urlpatterns = [
     path('rutas/actividades/<uuid:pk_ruta>/instrumentos/<uuid:pk_momento>/trazabilidad/<uuid:pk_instrumento_object>/', views.RutasInstrumentosTrazabilidadHogaresView.as_view()),   #Permisos revisados
 
 
+
+    path('rutas/actividades/<uuid:pk_ruta>/instrumentos/<uuid:pk_momento>/aprobar/<uuid:pk_instrumento_object>/', views.AprobarInstrumentoHogaresView.as_view()),   #Permisos revisados
+    path('rutas/actividades/<uuid:pk_ruta>/instrumentos/<uuid:pk_momento>/rechazar/<uuid:pk_instrumento_object>/', views.RutasInstrumentosRechazarHogaresView.as_view()),   #Permisos revisados
+
+
     #------------------------------------- CUENTAS DE COBRO -------------------------------------
     path('rutas/cuentas_cobro/<uuid:pk_ruta>/', views.RutasCuentasCobroListView.as_view()),
     path('rutas/cuentas_cobro/<uuid:pk_ruta>/detalle/<uuid:pk_cuenta_cobro>/', views.RutasCuentasCobroDetalleListView.as_view()),
@@ -88,7 +93,7 @@ urlpatterns = [
 
 
 
-    path('rutas/actividades/<uuid:pk_ruta>/hogares/<uuid:pk_momento>/instrumentos/<uuid:pk_hogar>/preaprobar/<uuid:pk_instrumento_object>/', views.RutasInstrumentosPreaprobarHogaresView.as_view()),   #Permisos revisados
+    #path('rutas/actividades/<uuid:pk_ruta>/hogares/<uuid:pk_momento>/instrumentos/<uuid:pk_hogar>/preaprobar/<uuid:pk_instrumento_object>/', views.RutasInstrumentosPreaprobarHogaresView.as_view()),   #Permisos revisados
     path('rutas/actividades/<uuid:pk_ruta>/hogares/<uuid:pk_momento>/instrumentos/<uuid:pk_hogar>/rechazar/<uuid:pk_instrumento_object>/', views.RutasInstrumentosRechazarHogaresView.as_view()),   #Permisos revisados
 
     #----------------------------------- MIS RUTAS ------------------------------------

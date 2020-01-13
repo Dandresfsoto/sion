@@ -1,4 +1,4 @@
-extends ../../../../base_auth
+extends ../../../../../base_auth
 
 block title
     |{{title | upper}}
@@ -62,6 +62,7 @@ block container_principal
                     th Hogares
                     th Nombre
                     th Estado
+                    th Valor
                     th Eliminar
                     th Observaciones
             tbody
@@ -71,6 +72,7 @@ block container_principal
                     td Hogares
                     td Nombre
                     td Estado
+                    td Valor
                     td Eliminar
                     td Observaciones
 
@@ -101,8 +103,8 @@ block body_script_auth
                 searching: true,
                 processing: true,
                 serverSide: true,
-                order: [[ 2, "asc" ]],
-                columnDefs: [{"orderable": false, "targets": [0,1,4,5]}],
+                order: [[ 4, "asc" ]],
+                columnDefs: [{"orderable": false, "targets": [0,1,4,5,6]}],
                 ajax: "{{ url_datatable }}",
                 language: {
                     url: "//cdn.datatables.net/plug-ins/1.10.8/i18n/Spanish.json"

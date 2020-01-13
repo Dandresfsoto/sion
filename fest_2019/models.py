@@ -219,6 +219,57 @@ class Rutas(models.Model):
         return self.nombre
 
 
+
+
+    def get_aprobable_valor(self, momento):
+
+        dict = {'aprobable': 'no','valor': 0}
+
+        if self.tipo_pago == 'actividad':
+
+            valores_actividades = json.loads(self.valores_actividades)
+
+            try:
+                cantidad = int(valores_actividades['cantidad_' + str(momento.id)])
+            except:
+                cantidad = 0
+
+            try:
+                valor = float(valores_actividades['valor_' + str(momento.id)].replace("$ ",'').replace(',',''))
+            except:
+                valor = float(0)
+
+
+            objetos_aprobados = CuposRutaObject.objects.filter(ruta = self, momento = momento, estado__in = ["aprobado","Reportado","Pagado"])
+            valor_aprobados = objetos_aprobados.aggregate(Sum('valor'))['valor__sum']
+
+            if valor_aprobados == None:
+                valor_aprobados = float(0)
+            else:
+                valor_aprobados = float(valor_aprobados)
+
+            if objetos_aprobados.count() < cantidad:
+
+                try:
+                    valor_actividad = (valor - valor_aprobados) / (cantidad - objetos_aprobados.count())
+                except:
+                    valor_actividad = 0
+
+
+                dict['aprobable']= 'si'
+                dict['valor']= valor_actividad
+
+
+
+        else:
+            pass
+
+        return dict
+
+
+
+
+
     def translado(self, hogar, componente):
 
         update = False
@@ -355,12 +406,20 @@ class Rutas(models.Model):
         return '{0} - {1}'.format(self.meta_vinculacion,objetos.count())
 
     def update_progreso(self):
+
+        dict = json.loads(self.valores_actividades)
+        cantidad = 0
         progreso = 0
+
+        for momento in Momentos.objects.filter(componente = self.componente):
+            cantidad += dict['cantidad_' + str(momento.id)]
+
+
         cupos = CuposRutaObject.objects.filter(ruta = self)
         revisados = cupos.filter(estado__in = ['Reportado','Pagado'])
 
         try:
-            progreso = (revisados.count()/cupos.count())*100.0
+            progreso = (revisados.count()/cantidad)*100.0
         except:
             pass
 
@@ -995,81 +1054,6 @@ class PermisosCuentasRutas(models.Model):
 
 
 
-class InstrumentosRutaObject(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, unique=True, editable=False)
-    creacion = models.DateTimeField(auto_now_add=True)
-    usuario_creacion = models.ForeignKey(User, on_delete=models.DO_NOTHING,related_name='instrumento_usuario_creacion',blank=True,null=True)
-
-    ruta = models.ForeignKey(Rutas, on_delete=models.DO_NOTHING, related_name='instrumento_ruta')
-    momento = models.ForeignKey(Momentos, on_delete=models.DO_NOTHING, related_name='instrumento_momento')
-    hogares = models.ManyToManyField(Hogares, related_name='instrumento_hogar', blank=True)
-    instrumento = models.ForeignKey(Instrumentos, on_delete=models.DO_NOTHING, related_name='instrumento_instrumento',blank=True,null=True)
-
-    modelo = models.CharField(max_length=100)
-    soporte = models.UUIDField(blank=True,null=True)
-    observacion = models.TextField(blank=True,null=True)
-    fecha_actualizacion = models.DateTimeField(blank=True,null=True)
-    usuario_actualizacion = models.ForeignKey(User, on_delete=models.DO_NOTHING,related_name='instrumento_usuario_actualizacion',blank=True,null=True)
-    estado = models.CharField(max_length=100,blank=True,null=True)
-    nombre = models.CharField(max_length=100,blank=True,null=True)
-    consecutivo = models.IntegerField(blank=True,null=True)
-
-
-
-    def clean_similares(self):
-
-        from fest_2019 import modelos_instrumentos
-
-        self.modelos = modelos_instrumentos.get_modelo(self.instrumento.modelo)
-
-        if self.instrumento.nivel != 'ruta':
-
-            for instrumento_object in InstrumentosRutaObject.objects.filter(ruta = self.ruta, momento = self.momento, instrumento = self.instrumento).exclude(id = self.id):
-
-                for hogar in self.hogares.all():
-
-                    if hogar in instrumento_object.hogares.all():
-                        instrumento_object.hogares.remove(hogar)
-
-                if instrumento_object.hogares.all().count() == 0:
-                    self.modelos.get('model').objects.get(id = instrumento_object.soporte).delete()
-                    InstrumentosTrazabilidadRutaObject.objects.filter(instrumento = instrumento_object).delete()
-                    ObservacionesInstrumentoRutaObject.objects.filter(instrumento = instrumento_object).delete()
-                    instrumento_object.delete()
-                    self.ruta.update_novedades()
-
-
-
-    def get_hogares_list(self):
-        hogares = ''
-
-        for hogar in self.hogares.all():
-            hogares += '<p>{0} - {1} {2}</p>'.format(hogar.documento,hogar.get_nombres(),hogar.get_apellidos())
-
-        return hogares
-
-
-class ObservacionesInstrumentoRutaObject(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, unique=True, editable=False)
-    instrumento = models.ForeignKey(InstrumentosRutaObject, on_delete=models.DO_NOTHING)
-    creacion = models.DateTimeField(auto_now_add=True)
-    usuario_creacion = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name='instrumento_observacion_usuario_creacion',blank=True, null=True)
-    observacion = models.TextField(blank=True,null=True)
-
-
-    def pretty_creation_datetime(self):
-        return self.creacion.astimezone(settings_time_zone).strftime('%d/%m/%Y - %I:%M:%S %p')
-
-
-
-class InstrumentosTrazabilidadRutaObject(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, unique=True, editable=False)
-    instrumento = models.ForeignKey(InstrumentosRutaObject,on_delete=models.DO_NOTHING,related_name="trazabilidad_instrumento")
-    creacion = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name='trazabilidad_instrumento_usuario')
-    observacion = models.TextField()
-
-
 
 class Cortes(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, unique=True, editable=False)
@@ -1130,6 +1114,101 @@ class Cortes(models.Model):
 
 
         return None
+
+
+class CuposRutaObject(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, unique=True, editable=False)
+
+    ruta = models.ForeignKey(Rutas,on_delete=models.DO_NOTHING,related_name='cupo_ruta')
+    momento = models.ForeignKey(Momentos,on_delete=models.DO_NOTHING,related_name='cupo_momento')
+    tipo = models.CharField(max_length=100)
+    estado = models.CharField(max_length=100)
+    valor = MoneyField(max_digits=10, decimal_places=2, default_currency='COP', default=0)
+    hogares = models.ManyToManyField(Hogares,related_name='cupo_hogares',blank=True)
+    corte = models.ForeignKey(Cortes, on_delete=models.DO_NOTHING, blank=True, null=True)
+    translado = models.BooleanField(default=False)
+
+
+
+
+class InstrumentosRutaObject(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, unique=True, editable=False)
+    creacion = models.DateTimeField(auto_now_add=True)
+    usuario_creacion = models.ForeignKey(User, on_delete=models.DO_NOTHING,related_name='instrumento_usuario_creacion',blank=True,null=True)
+
+    ruta = models.ForeignKey(Rutas, on_delete=models.DO_NOTHING, related_name='instrumento_ruta')
+    momento = models.ForeignKey(Momentos, on_delete=models.DO_NOTHING, related_name='instrumento_momento')
+    hogares = models.ManyToManyField(Hogares, related_name='instrumento_hogar', blank=True)
+    instrumento = models.ForeignKey(Instrumentos, on_delete=models.DO_NOTHING, related_name='instrumento_instrumento',blank=True,null=True)
+
+    modelo = models.CharField(max_length=100)
+    soporte = models.UUIDField(blank=True,null=True)
+    observacion = models.TextField(blank=True,null=True)
+    fecha_actualizacion = models.DateTimeField(blank=True,null=True)
+    usuario_actualizacion = models.ForeignKey(User, on_delete=models.DO_NOTHING,related_name='instrumento_usuario_actualizacion',blank=True,null=True)
+    estado = models.CharField(max_length=100,blank=True,null=True)
+    nombre = models.CharField(max_length=100,blank=True,null=True)
+    consecutivo = models.IntegerField(blank=True,null=True)
+    cupo_object = models.ForeignKey(CuposRutaObject,on_delete=models.DO_NOTHING,blank=True,null=True)
+
+
+
+    def clean_similares(self):
+
+        from fest_2019 import modelos_instrumentos
+
+        self.modelos = modelos_instrumentos.get_modelo(self.instrumento.modelo)
+
+        if self.instrumento.nivel != 'ruta':
+
+            for instrumento_object in InstrumentosRutaObject.objects.filter(ruta = self.ruta, momento = self.momento, instrumento = self.instrumento).exclude(id = self.id):
+
+                for hogar in self.hogares.all():
+
+                    if hogar in instrumento_object.hogares.all():
+                        instrumento_object.hogares.remove(hogar)
+
+                if instrumento_object.hogares.all().count() == 0:
+                    self.modelos.get('model').objects.get(id = instrumento_object.soporte).delete()
+                    InstrumentosTrazabilidadRutaObject.objects.filter(instrumento = instrumento_object).delete()
+                    ObservacionesInstrumentoRutaObject.objects.filter(instrumento = instrumento_object).delete()
+                    instrumento_object.delete()
+                    self.ruta.update_novedades()
+
+
+
+    def get_hogares_list(self):
+        hogares = ''
+
+        for hogar in self.hogares.all():
+            hogares += '<p>{0} - {1} {2}</p>'.format(hogar.documento,hogar.get_nombres(),hogar.get_apellidos())
+
+        return hogares
+
+
+class ObservacionesInstrumentoRutaObject(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, unique=True, editable=False)
+    instrumento = models.ForeignKey(InstrumentosRutaObject, on_delete=models.DO_NOTHING)
+    creacion = models.DateTimeField(auto_now_add=True)
+    usuario_creacion = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name='instrumento_observacion_usuario_creacion',blank=True, null=True)
+    observacion = models.TextField(blank=True,null=True)
+
+
+    def pretty_creation_datetime(self):
+        return self.creacion.astimezone(settings_time_zone).strftime('%d/%m/%Y - %I:%M:%S %p')
+
+
+
+class InstrumentosTrazabilidadRutaObject(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, unique=True, editable=False)
+    instrumento = models.ForeignKey(InstrumentosRutaObject,on_delete=models.DO_NOTHING,related_name="trazabilidad_instrumento")
+    creacion = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name='trazabilidad_instrumento_usuario')
+    observacion = models.TextField()
+
+
+
+
 
 
 
@@ -1213,17 +1292,7 @@ class CuentasCobro(models.Model):
 
 
 
-class CuposRutaObject(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, unique=True, editable=False)
 
-    ruta = models.ForeignKey(Rutas,on_delete=models.DO_NOTHING,related_name='cupo_ruta')
-    momento = models.ForeignKey(Momentos,on_delete=models.DO_NOTHING,related_name='cupo_momento')
-    tipo = models.CharField(max_length=100)
-    estado = models.CharField(max_length=100)
-    valor = MoneyField(max_digits=10, decimal_places=2, default_currency='COP', default=0)
-    hogares = models.ManyToManyField(Hogares,related_name='cupo_hogares',blank=True)
-    corte = models.ForeignKey(Cortes, on_delete=models.DO_NOTHING, blank=True, null=True)
-    translado = models.BooleanField(default=False)
 
 
 

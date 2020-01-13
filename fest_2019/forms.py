@@ -452,7 +452,7 @@ class RutasHogaresForm(forms.Form):
 
 class RutasInstrumentosRechazarForm(forms.Form):
 
-    observacion = forms.CharField(widget=forms.Textarea())
+    observacion = forms.CharField(widget=forms.Textarea(attrs={'class':'materialize-textarea'}))
 
 
 
@@ -803,7 +803,7 @@ class DocumentoForm(forms.ModelForm):
         cleaned_data = super().clean()
         file = cleaned_data.get("file")
 
-        if file.name.split('.')[-1] == 'pdf':
+        if file.name.split('.')[-1] == 'pdf' or file.name.split('.')[-1] == 'PDF':
             pass
         else:
             self.add_error('file', 'El archivo cargado no tiene un formato valido')
@@ -961,14 +961,14 @@ class FormularioCaracterizacionForm(forms.ModelForm):
         file = cleaned_data.get("file")
         file2 = cleaned_data.get("file2")
 
-        if file.name.split('.')[-1] == 'pdf':
+        if file.name.split('.')[-1] == 'pdf' or file.name.split('.')[-1] == 'PDF':
             pass
         else:
             self.add_error('file', 'El archivo cargado no tiene un formato valido')
 
 
 
-        if file2.name.split('.')[-1] == 'pdf':
+        if file2.name.split('.')[-1] == 'pdf' or file2.name.split('.')[-1] == 'PDF':
             pass
         else:
             self.add_error('file2', 'El archivo cargado no tiene un formato valido')
@@ -1163,14 +1163,14 @@ class FichaIcoeForm(forms.ModelForm):
         file = cleaned_data.get("file")
         file2 = cleaned_data.get("file2")
 
-        if file.name.split('.')[-1] == 'pdf':
+        if file.name.split('.')[-1] == 'pdf' or file.name.split('.')[-1] == 'PDF':
             pass
         else:
             self.add_error('file', 'El archivo cargado no tiene un formato valido')
 
 
 
-        if file2.name.split('.')[-1] == 'pdf':
+        if file2.name.split('.')[-1] == 'pdf' or file2.name.split('.')[-1] == 'PDF':
             pass
         else:
             self.add_error('file2', 'El archivo cargado no tiene un formato valido')
@@ -2449,12 +2449,12 @@ class ActaSocializacionComunidadesForm(forms.ModelForm):
         file = cleaned_data.get("file")
         file2 = cleaned_data.get("file2")
 
-        if file.name.split('.')[-1] == 'pdf':
+        if file.name.split('.')[-1] == 'pdf' or file.name.split('.')[-1] == 'PDF':
             pass
         else:
             self.add_error('file', 'El archivo cargado no tiene un formato valido')
 
-        if file2.name.split('.')[-1] == 'pdf':
+        if file2.name.split('.')[-1] == 'pdf' or file2.name.split('.')[-1] == 'PDF':
             pass
         else:
             self.add_error('file2', 'El archivo cargado no tiene un formato valido')
@@ -2829,12 +2829,12 @@ class FichaVisionDesarrolloForm(forms.ModelForm):
         file = cleaned_data.get("file")
         file2 = cleaned_data.get("file2")
 
-        if file.name.split('.')[-1] == 'pdf':
+        if file.name.split('.')[-1] == 'pdf' or file.name.split('.')[-1] == 'PDF':
             pass
         else:
             self.add_error('file', 'El archivo cargado no tiene un formato valido')
 
-        if file2.name.split('.')[-1] == 'pdf':
+        if file2.name.split('.')[-1] == 'pdf' or file2.name.split('.')[-1] == 'PDF':
             pass
         else:
             self.add_error('file2', 'El archivo cargado no tiene un formato valido')
@@ -3183,17 +3183,17 @@ class DiagnosticoComunitarioForm(forms.ModelForm):
         file2 = cleaned_data.get("file2")
         file3 = cleaned_data.get("file3")
 
-        if file.name.split('.')[-1] == 'pdf':
+        if file.name.split('.')[-1] == 'pdf' or file.name.split('.')[-1] == 'PDF':
             pass
         else:
             self.add_error('file', 'El archivo cargado no tiene un formato valido')
 
-        if file2.name.split('.')[-1] == 'pdf':
+        if file2.name.split('.')[-1] == 'pdf' or file2.name.split('.')[-1] == 'PDF':
             pass
         else:
             self.add_error('file2', 'El archivo cargado no tiene un formato valido')
 
-        if file3.name.split('.')[-1] == 'pdf':
+        if file3.name.split('.')[-1] == 'pdf' or file3.name.split('.')[-1] == 'PDF':
             pass
         else:
             self.add_error('file3', 'El archivo cargado no tiene un formato valido')
@@ -3578,13 +3578,13 @@ class ActaSocializacionConcertacionForm(forms.ModelForm):
         file = cleaned_data.get("file")
         file2 = cleaned_data.get("file2")
 
-        if file.name.split('.')[-1] == 'pdf':
+        if file.name.split('.')[-1] == 'pdf' or file.name.split('.')[-1] == 'PDF':
             pass
         else:
             self.add_error('file', 'El archivo cargado no tiene un formato valido')
 
 
-        if file2.name.split('.')[-1] == 'pdf':
+        if file2.name.split('.')[-1] == 'pdf' or file2.name.split('.')[-1] == 'PDF':
             pass
         else:
             self.add_error('file2', 'El archivo cargado no tiene un formato valido')
@@ -3983,12 +3983,12 @@ class ActaVinculacionHogarForm(forms.ModelForm):
         file = cleaned_data.get("file")
         file2 = cleaned_data.get("file2")
 
-        if file.name.split('.')[-1] == 'pdf':
+        if file.name.split('.')[-1] == 'pdf' or file.name.split('.')[-1] == 'PDF':
             pass
         else:
             self.add_error('file', 'El archivo cargado no tiene un formato valido')
 
-        if file2.name.split('.')[-1] == 'pdf':
+        if file2.name.split('.')[-1] == 'pdf' or file2.name.split('.')[-1] == 'PDF':
             pass
         else:
             self.add_error('file2', 'El archivo cargado no tiene un formato valido')

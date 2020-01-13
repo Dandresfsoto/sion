@@ -1052,6 +1052,106 @@ class RutasInstrumentosHogaresListView(TemplateView):
         return super(RutasInstrumentosHogaresListView,self).get_context_data(**kwargs)
 
 
+
+
+class AprobarInstrumentoHogaresView(View):
+
+    login_url = settings.LOGIN_URL
+
+    def dispatch(self, request, *args, **kwargs):
+
+        self.instrumento_object = models.InstrumentosRutaObject.objects.get(id=self.kwargs['pk_instrumento_object'])
+        self.momento = models.Momentos.objects.get(id=self.kwargs['pk_momento'])
+        self.ruta = models.Rutas.objects.get(id=self.kwargs['pk_ruta'])
+        self.modelos = modelos_instrumentos.get_modelo(self.instrumento_object.instrumento.modelo)
+
+        try:
+            self.permiso = models.PermisosCuentasRutas.objects.get(user=request.user)
+        except:
+            self.permiso = None
+
+        self.permissions = {
+            "all": [
+                "usuarios.fest_2019.ver",
+                "usuarios.fest_2019.rutas.ver",
+            ]
+        }
+
+        if not request.user.is_authenticated:
+            return HttpResponseRedirect(self.login_url)
+        else:
+            if request.user.has_perms(self.permissions.get('all')):
+                if request.user.is_superuser:
+                    self.instrumento_object.estado = 'aprobado'
+                    models.InstrumentosTrazabilidadRutaObject.objects.create(
+                        instrumento=self.instrumento_object,
+                        user=self.request.user,
+                        observacion='Aprobación del soporte'
+                    )
+                    models.ObservacionesInstrumentoRutaObject.objects.create(
+                        usuario_creacion=self.request.user,
+                        instrumento=self.instrumento_object,
+                        observacion="Soporte aprobado"
+                    )
+                    self.instrumento_object.save()
+
+                    aprobable = self.ruta.get_aprobable_valor(self.momento)
+
+
+                    if aprobable['aprobable'] == 'si':
+                        cupo = models.CuposRutaObject.objects.create(
+                            ruta = self.ruta,
+                            momento = self.momento,
+                            estado = "Reportado",
+                            valor = aprobable['valor']
+                        )
+
+                    self.ruta.update_novedades()
+                    self.ruta.update_progreso()
+                    models.InstrumentosRutaObject.objects.filter(id = self.instrumento_object.id).update(cupo_object = cupo)
+
+                    return HttpResponseRedirect('../../')
+                else:
+                    if self.permiso == None:
+                        return HttpResponseRedirect('../../')
+                    else:
+                        ids_ver = self.permiso.rutas_preaprobar.all()
+                        if self.ruta in ids_ver:
+                            self.instrumento_object.estado = 'aprobado'
+                            models.InstrumentosTrazabilidadRutaObject.objects.create(
+                                instrumento=self.instrumento_object,
+                                user=self.request.user,
+                                observacion='Aprobación del soporte'
+                            )
+                            models.ObservacionesInstrumentoRutaObject.objects.create(
+                                usuario_creacion = self.request.user,
+                                instrumento=self.instrumento_object,
+                                observacion = "Soporte aprobado"
+                            )
+                            self.instrumento_object.save()
+                            aprobable = self.ruta.get_aprobable_valor(self.momento)
+
+                            if aprobable['aprobable'] == 'si':
+                                cupo = models.CuposRutaObject.objects.create(
+                                    ruta=self.ruta,
+                                    momento=self.momento,
+                                    estado="Reportado",
+                                    valor=aprobable['valor']
+                                )
+
+                            self.ruta.update_novedades()
+                            self.ruta.update_progreso()
+                            models.InstrumentosRutaObject.objects.filter(id=self.instrumento_object.id).update(cupo_object=cupo)
+
+                            return HttpResponseRedirect('../../')
+                        else:
+                            return HttpResponseRedirect('../../')
+            else:
+                return HttpResponseRedirect('../../')
+
+
+
+
 class RutasInstrumentosVerHogaresView(TemplateView):
 
     login_url = settings.LOGIN_URL
@@ -1121,70 +1221,6 @@ class RutasInstrumentosVerHogaresView(TemplateView):
             kwargs['success'] = message
         return super(RutasInstrumentosVerHogaresView,self).get_context_data(**kwargs)
 
-
-class RutasInstrumentosPreaprobarHogaresView(View):
-
-    login_url = settings.LOGIN_URL
-
-    def dispatch(self, request, *args, **kwargs):
-
-        self.instrumento_object = models.InstrumentosRutaObject.objects.get(id=self.kwargs['pk_instrumento_object'])
-        self.ruta = models.Rutas.objects.get(id=self.kwargs['pk_ruta'])
-        self.modelos = modelos_instrumentos.get_modelo(self.instrumento_object.instrumento.modelo)
-
-        try:
-            self.permiso = models.PermisosCuentasRutas.objects.get(user=request.user)
-        except:
-            self.permiso = None
-
-        self.permissions = {
-            "all": [
-                "usuarios.fest_2019.ver",
-                "usuarios.fest_2019.rutas.ver",
-            ]
-        }
-
-        if not request.user.is_authenticated:
-            return HttpResponseRedirect(self.login_url)
-        else:
-            if request.user.has_perms(self.permissions.get('all')):
-                if request.user.is_superuser:
-                    self.instrumento_object.estado = 'preaprobado'
-                    models.InstrumentosTrazabilidadRutaObject.objects.create(
-                        instrumento=self.instrumento_object,
-                        user=self.request.user,
-                        observacion='Preaprobación del soporte'
-                    )
-                    models.ObservacionesInstrumentoRutaObject.objects.create(
-                        usuario_creacion=self.request.user,
-                        instrumento=self.instrumento_object,
-                        observacion="Soporte preaprobado"
-                    )
-                    self.instrumento_object.save()
-                    return HttpResponseRedirect('../../')
-                else:
-                    if self.permiso == None:
-                        return HttpResponseRedirect('../../')
-                    else:
-                        ids_ver = self.permiso.rutas_preaprobar.all()
-                        if self.ruta in ids_ver:
-                            self.instrumento_object.estado = 'preaprobado'
-                            models.InstrumentosTrazabilidadRutaObject.objects.create(
-                                instrumento=self.instrumento_object,
-                                user=self.request.user,
-                                observacion='Preaprobación del soporte'
-                            )
-                            models.ObservacionesInstrumentoRutaObject.objects.create(
-                                usuario_creacion = self.request.user,
-                                instrumento=self.instrumento_object,
-                                observacion = "Soporte preaprobado"
-                            )
-                            self.instrumento_object.save()
-                            return HttpResponseRedirect('../../')
-                        else:
-                            return HttpResponseRedirect('../../')
-            else:
-                return HttpResponseRedirect('../../')
 
 
 
@@ -1542,13 +1578,12 @@ class RutasInstrumentosRechazarHogaresView(FormView):
     login_url = settings.LOGIN_URL
     template_name = 'fest_2019/rutas/actividades/hogares/instrumentos/rechazar.html'
     form_class = forms.RutasInstrumentosRechazarForm
-    success_url = "../"
+    success_url = "../../"
 
     def dispatch(self, request, *args, **kwargs):
 
         self.ruta = models.Rutas.objects.get(id=self.kwargs['pk_ruta'])
         self.momento = models.Momentos.objects.get(id=self.kwargs['pk_momento'])
-        self.hogar = models.Hogares.objects.get(id=self.kwargs['pk_hogar'])
         self.instrumento = models.InstrumentosRutaObject.objects.get(id=self.kwargs['pk_instrumento_object'])
 
         try:
@@ -1590,25 +1625,35 @@ class RutasInstrumentosRechazarHogaresView(FormView):
                 return HttpResponseRedirect('../../')
 
     def form_valid(self, form):
-        self.instrumento.estado = 'rechazado'
-        models.InstrumentosTrazabilidadRutaObject.objects.create(
-            instrumento=self.instrumento,
-            user=self.request.user,
-            observacion=form.cleaned_data['observacion']
-        )
-        models.ObservacionesInstrumentoRutaObject.objects.create(
-            usuario_creacion=self.request.user,
-            instrumento=self.instrumento,
-            observacion=form.cleaned_data['observacion']
-        )
-        self.instrumento.save()
+
+        if self.instrumento != 'rechazado':
+            self.instrumento.estado = 'rechazado'
+            models.InstrumentosTrazabilidadRutaObject.objects.create(
+                instrumento=self.instrumento,
+                user=self.request.user,
+                observacion=form.cleaned_data['observacion']
+            )
+            models.ObservacionesInstrumentoRutaObject.objects.create(
+                usuario_creacion=self.request.user,
+                instrumento=self.instrumento,
+                observacion=form.cleaned_data['observacion']
+            )
+            self.instrumento.save()
+
+            if self.instrumento.cupo_object != None and self.instrumento.cupo_object != '':
+                if self.instrumento.cupo_object.estado == 'Reportado':
+                    if self.instrumento.cupo_object.corte == None or self.instrumento.cupo_object.corte == '':
+                        cupo_object = self.instrumento.cupo_object
+                        self.instrumento.cupo_object = None
+                        self.instrumento.save()
+                        cupo_object.delete()
+
         return super(RutasInstrumentosRechazarHogaresView, self).form_valid(form)
 
     def get_context_data(self, **kwargs):
         kwargs['title'] = "Rutas"
         kwargs['breadcrum_1'] = self.ruta.nombre
         kwargs['breadcrum_2'] = self.momento.nombre
-        kwargs['breadcrum_3'] = self.hogar.documento
         kwargs['breadcrum_active'] = self.instrumento.instrumento.short_name
 
         storage = get_messages(self.request)

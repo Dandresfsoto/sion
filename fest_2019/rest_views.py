@@ -798,8 +798,8 @@ class ActividadesHogaresRutasListApi(BaseDatatableView):
 
 class InstrumentosHogaresRutasListApi(BaseDatatableView):
     model = models.InstrumentosRutaObject
-    columns = ['creacion','id','consecutivo', 'nombre', 'estado', 'ruta']
-    order_columns = ['creacion','id', 'consecutivo', 'nombre', 'estado', 'ruta']
+    columns = ['creacion','id','consecutivo', 'nombre', 'estado', 'modelo','ruta']
+    order_columns = ['creacion','id', 'consecutivo', 'nombre', 'estado', 'modelo','ruta']
 
     def get_initial_queryset(self):
         self.ruta = models.Rutas.objects.get(id = self.kwargs['pk_ruta'])
@@ -876,6 +876,18 @@ class InstrumentosHogaresRutasListApi(BaseDatatableView):
             return row.get_hogares_list()
 
 
+
+        elif column == 'modelo':
+
+            valor = ''
+
+            if row.cupo_object != None and row.cupo_object != '':
+                valor = str(row.cupo_object.valor)
+
+            return valor
+
+
+
         elif column == 'nombre':
             return row.nombre
 
@@ -890,19 +902,33 @@ class InstrumentosHogaresRutasListApi(BaseDatatableView):
         elif column == 'ruta':
             ret = ''
 
-            """
-            if self.ruta.id in self.permiso.rutas_preaprobar.values_list('id',flat=True) or self.request.user.is_superuser:
+            if self.request.user.is_superuser:
 
-                if  row.estado != 'preaprobado' and row.estado != 'aprobado':
-                    ret += '<a style="color:green;" href="preaprobar/{0}" class="tooltipped" data-position="top" data-delay="50" data-tooltip="{1}">' \
-                                '<i class="material-icons">{2}</i>' \
-                           '</a>'.format(row.id,'Preaprobar','check_box')
+                if row.estado != 'aprobado':
 
-                if row.estado != 'rechazado' and row.estado != 'aprobado':
-                    ret += '<a style="color:red;margin-left:10px;" href="rechazar/{0}" class="tooltipped" data-position="top" data-delay="50" data-tooltip="{1}">' \
-                                '<i class="material-icons">{2}</i>' \
-                           '</a>'.format(row.id, 'Rechazar', 'highlight_off')
-            """
+                    if row.cupo_object != None and row.cupo_object != '':
+                        if row.cupo_object.estado not in ['Pagado']:
+                            ret += '<a style="color:green;" href="aprobar/{0}" class="tooltipped" data-position="top" data-delay="50" data-tooltip="{1}">' \
+                                   '<i class="material-icons">{2}</i>' \
+                                   '</a>'.format(row.id, 'Aprobar', 'check_box')
+
+                    else:
+                        ret += '<a style="color:green;" href="aprobar/{0}" class="tooltipped" data-position="top" data-delay="50" data-tooltip="{1}">' \
+                                    '<i class="material-icons">{2}</i>' \
+                               '</a>'.format(row.id,'Aprobar','check_box')
+
+                if row.estado != 'rechazado':
+                    if row.cupo_object != None and row.cupo_object != '':
+
+                        if row.cupo_object.estado not in ['Pagado']:
+                            ret += '<a style="color:red;margin-left:10px;" href="rechazar/{0}" class="tooltipped" data-position="top" data-delay="50" data-tooltip="{1}">' \
+                                   '<i class="material-icons">{2}</i>' \
+                                   '</a>'.format(row.id, 'Rechazar', 'highlight_off')
+
+                    else:
+                        ret += '<a style="color:red;margin-left:10px;" href="rechazar/{0}" class="tooltipped" data-position="top" data-delay="50" data-tooltip="{1}">' \
+                                    '<i class="material-icons">{2}</i>' \
+                               '</a>'.format(row.id, 'Rechazar', 'highlight_off')
 
             return '<div class="center-align">' + ret + '</div>'
 
@@ -1434,8 +1460,8 @@ class MisActividadesHogaresRutasListApi(BaseDatatableView):
 
 class MisInstrumentosHogaresRutasListApi(BaseDatatableView):
     model = models.InstrumentosRutaObject
-    columns = ['id', 'creacion', 'consecutivo' ,'nombre', 'estado', 'usuario_creacion', 'hogar']
-    order_columns = ['id', 'creacion', 'consecutivo', 'nombre', 'estado', 'usuario_creacion', 'hogar']
+    columns = ['id', 'creacion', 'consecutivo' ,'nombre', 'estado', 'modelo','usuario_creacion', 'hogar']
+    order_columns = ['id', 'creacion', 'consecutivo', 'nombre', 'estado', 'modelo', 'usuario_creacion', 'hogar']
 
     def get_initial_queryset(self):
         self.ruta = models.Rutas.objects.get(id = self.kwargs['pk_ruta'])
@@ -1506,6 +1532,19 @@ class MisInstrumentosHogaresRutasListApi(BaseDatatableView):
 
         elif column == 'consecutivo':
             return row.get_hogares_list()
+
+
+
+
+        elif column == 'modelo':
+
+            valor = ''
+
+            if row.cupo_object != None and row.cupo_object != '':
+                valor = str(row.cupo_object.valor)
+
+            return valor
+
 
 
         elif column == 'estado':
