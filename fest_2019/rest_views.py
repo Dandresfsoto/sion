@@ -830,7 +830,7 @@ class InstrumentosHogaresRutasListApi(BaseDatatableView):
     def filter_queryset(self, qs):
         search = self.request.GET.get(u'search[value]', None)
         if search:
-            q = Q(nombre__icontains=search)
+            q = Q(hogares__documento__icontains=search)
             qs = qs.filter(q)
         return qs
 
@@ -1482,7 +1482,7 @@ class MisInstrumentosHogaresRutasListApi(BaseDatatableView):
     def filter_queryset(self, qs):
         search = self.request.GET.get(u'search[value]', None)
         if search:
-            q = Q(nombre__icontains=search)
+            q = Q(hogares__documento__icontains=search)
             qs = qs.filter(q)
         return qs
 
