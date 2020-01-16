@@ -286,6 +286,39 @@ class EntregablesListView(LoginRequiredMixin,
         kwargs['url_datatable'] = '/rest/v1.0/fest_2019/entregables/'
         return super(EntregablesListView,self).get_context_data(**kwargs)
 
+
+
+class InformeActividadesListView(View):
+
+    login_url = settings.LOGIN_URL
+
+    def dispatch(self, request, *args, **kwargs):
+
+        self.permissions = {
+            "ver": [
+                "usuarios.fest_2019.ver",
+                "usuarios.fest_2019.entregables.ver",
+            ]
+        }
+
+        if not request.user.is_authenticated:
+            return HttpResponseRedirect(self.login_url)
+        else:
+
+            if request.user.has_perms(self.permissions['ver']):
+                reporte = Reportes.objects.create(
+                    usuario=self.request.user,
+                    nombre='Informe de actividades',
+                    consecutivo=Reportes.objects.filter(usuario=self.request.user).count() + 1
+                )
+
+                tasks.build_informe_actividades.delay(reporte.id)
+                return redirect('/reportes/')
+            else:
+                return HttpResponseRedirect('../../')
+
+
+
 class VisitasListView(LoginRequiredMixin,
                       MultiplePermissionsRequiredMixin,
                       TemplateView):

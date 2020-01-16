@@ -1185,6 +1185,14 @@ class InstrumentosRutaObject(models.Model):
 
         return hogares
 
+    def get_hogares_reporte(self):
+        hogares = ''
+
+        for hogar in self.hogares.all():
+            hogares += '{0} - {1} {2}\n'.format(hogar.documento,hogar.get_nombres(),hogar.get_apellidos())
+
+        return hogares
+
 
 class ObservacionesInstrumentoRutaObject(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, unique=True, editable=False)

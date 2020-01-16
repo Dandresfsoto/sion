@@ -35,7 +35,22 @@ block side_nav_container
 
                     div(class="divider divider-perfil")
 
+    ul(class="collapsible",data-collapsible="accordion")
+        li(class="bold waves-effect waves-light button-menu")
 
+            div(class="collapsible-header active")
+                i(class="material-icons") call_to_action
+                | Acciones
+
+            div(class="collapsible-body collapsible-body-blue")
+                ul
+                    div(class="divider divider-perfil")
+
+                    li(class="bold waves-effect waves-light")
+                        a(href="informe_actividades/") Generar informe de actividades
+                            i(class="material-icons icon-sican") map
+
+                    div(class="divider divider-perfil")
 
 block container_principal
     div(class="container-datatable")

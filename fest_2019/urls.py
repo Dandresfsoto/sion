@@ -9,6 +9,7 @@ urlpatterns = [
     path('bd/editar/<uuid:pk>/', views.HogaresUpdateView.as_view()),
 
     path('entregables/', views.EntregablesListView.as_view()),
+    path('entregables/informe_actividades/', views.InformeActividadesListView.as_view()),
     path('entregables/<uuid:pk_componente>/momentos/', views.VisitasListView.as_view()),
     path('entregables/<uuid:pk_componente>/momentos/<uuid:pk_momento>/instrumentos/', views.InstrumentosListView.as_view()),
     path('entregables/<uuid:pk_componente>/momentos/<uuid:pk_momento>/instrumentos/informe/<uuid:pk_instrumento>/', views.InstrumentosInformeListView.as_view()),

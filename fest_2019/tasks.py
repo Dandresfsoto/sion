@@ -269,3 +269,41 @@ def build_ruteo(id):
 
 
     return "Ruteo generado: " + filename
+
+@app.task
+def build_informe_actividades(id):
+    reporte = models_reportes.Reportes.objects.get(id = id)
+    proceso = "IRACA"
+
+    titulos = ['Consecutivo', 'Ruta', 'Contratista', 'Cedula','Actividad', 'Hogares', 'Estado', 'Valor']
+
+    formatos = ['0', 'General', 'General', '0', 'General', 'General', 'General', '"$"#,##0_);("$"#,##0)']
+
+    ancho_columnas = [20, 30, 50, 50, 50, 50, 50, 50]
+
+    contenidos = []
+
+    i = 0
+
+    for ins in models.InstrumentosRutaObject.objects.all():
+        i += 1
+        contenidos.append([
+            int(i),
+            ins.ruta.nombre,
+            ins.ruta.contrato.contratista.get_full_name(),
+            ins.ruta.contrato.contratista.cedula,
+            ins.instrumento.nombre,
+            ins.get_hogares_reporte(),
+            ins.estado,
+            '' if ins.cupo_object == None else ins.cupo_object.valor.amount
+        ])
+
+
+    output = construir_reporte(titulos, contenidos, formatos, ancho_columnas, reporte.nombre, reporte.creation, reporte.usuario, proceso)
+
+
+    filename = str(reporte.id) + '.xlsx'
+    reporte.file.save(filename, File(output))
+
+
+    return "Reporte generado: " + filename
