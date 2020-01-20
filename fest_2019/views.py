@@ -1764,6 +1764,141 @@ class RutasInstrumentosTrazabilidadHogaresView(TemplateView):
             kwargs['success'] = message
         return super(RutasInstrumentosTrazabilidadHogaresView,self).get_context_data(**kwargs)
 
+
+class RutasInstrumentosUpdateHogaresListView(UpdateView):
+    login_url = settings.LOGIN_URL
+    success_url = '../../'
+
+    def get_object(self, queryset=None):
+        self.model = self.modelos.get('model')
+        return self.model.objects.get(id=self.instrumento_object.soporte)
+
+    def dispatch(self, request, *args, **kwargs):
+
+        self.ruta = models.Rutas.objects.get(id=self.kwargs['pk_ruta'])
+        self.momento = models.Momentos.objects.get(id=self.kwargs['pk_momento'])
+        self.instrumento_object = models.InstrumentosRutaObject.objects.get(id=self.kwargs['pk_instrumento_object'])
+        self.instrumento = self.instrumento_object.instrumento
+
+        try:
+            self.modelos = modelos_instrumentos.get_modelo(self.instrumento.modelo)
+        except:
+            return HttpResponseRedirect('../../')
+
+        self.permissions = {
+            "all": [
+                "usuarios.fest_2019.ver",
+                "usuarios.fest_2019.rutas.ver"
+            ]
+        }
+
+        if not request.user.is_authenticated:
+            return HttpResponseRedirect(self.login_url)
+        else:
+            if request.user.has_perms(self.permissions.get('all')) and self.instrumento_object.estado in ['cargado', 'rechazado']:
+
+                if request.method.lower() in self.http_method_names:
+                    handler = getattr(self, request.method.lower(), self.http_method_not_allowed)
+                else:
+                    handler = self.http_method_not_allowed
+                return handler(request, *args, **kwargs)
+            else:
+                return HttpResponseRedirect('../../')
+
+    def get_template_names(self):
+        return self.modelos.get('template')
+
+    def get_form_class(self):
+        self.model = self.modelos.get('model')
+        return self.modelos.get('form')
+
+    def update_objeto_instrumento(self, id, modelo, creacion):
+
+        instrumento = models.InstrumentosRutaObject.objects.get(id=id)
+
+        if creacion:
+            models.InstrumentosRutaObject.objects.filter(id=id).update(
+                usuario_creacion=self.request.user
+            )
+
+            models.InstrumentosTrazabilidadRutaObject.objects.create(
+                instrumento=instrumento,
+                user=self.request.user,
+                observacion='Creación del soporte'
+            )
+
+        else:
+            models.InstrumentosTrazabilidadRutaObject.objects.create(
+                instrumento=instrumento,
+                user=self.request.user,
+                observacion='Actualización del soporte'
+            )
+
+        models.InstrumentosRutaObject.objects.filter(id=id).update(
+            modelo=self.instrumento.nombre,
+            soporte=modelo.id,
+            fecha_actualizacion=timezone.now(),
+            usuario_actualizacion=self.request.user,
+            consecutivo=self.instrumento.consecutivo,
+            nombre=self.instrumento.short_name,
+            estado='cargado'
+        )
+
+        self.ruta.update_novedades()
+
+        return 'Ok'
+
+    def form_valid(self, form):
+
+        self.object = form.save(commit=False)
+        self.object.ruta = self.ruta
+        self.object.instrumento = self.instrumento
+        self.object.nombre = self.instrumento.short_name
+        self.object.save()
+
+        self.object.hogares.clear()
+        if self.instrumento.nivel == 'individual':
+            self.object.hogares.add(form.cleaned_data['hogares'])
+
+        elif self.instrumento.nivel == 'ruta':
+            pass
+
+        else:
+            self.object.hogares.add(*form.cleaned_data['hogares'])
+
+        objeto = self.instrumento_object
+
+        ids = self.object.hogares.all().values_list('id', flat=True)
+        objeto.hogares.clear()
+        objeto.hogares.add(*ids)
+
+        models.ObservacionesInstrumentoRutaObject.objects.create(instrumento=objeto, usuario_creacion=self.request.user,
+                                                                 observacion="Actualización del instrumento")
+
+        self.update_objeto_instrumento(objeto.id, self.object, False)
+        objeto.clean_similares()
+
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_context_data(self, **kwargs):
+        kwargs['title'] = "Rutas"
+        kwargs['breadcrum_1'] = self.ruta.nombre
+        kwargs['breadcrum_2'] = self.momento.nombre
+        kwargs['breadcrum_active'] = self.instrumento.short_name
+        kwargs['ruta_breadcrum'] = 'Rutas'
+        kwargs['url_ruta_breadcrum'] = '/fest_2019/rutas/'
+        storage = get_messages(self.request)
+        for message in storage:
+            kwargs['success'] = message
+        return super(RutasInstrumentosUpdateHogaresListView, self).get_context_data(**kwargs)
+
+    def get_initial(self):
+        return {'pk_ruta': self.ruta.id, 'short_name': self.instrumento.short_name,
+                'pk_instrumento': self.instrumento.pk, 'pk_instrumento_object': self.instrumento_object.pk}
+
+
+
+
 #----------------------------------------------------------------------------------
 
 #----------------------------------- CUENTAS DE COBRO -------------------------------------

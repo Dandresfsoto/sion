@@ -798,8 +798,8 @@ class ActividadesHogaresRutasListApi(BaseDatatableView):
 
 class InstrumentosHogaresRutasListApi(BaseDatatableView):
     model = models.InstrumentosRutaObject
-    columns = ['creacion','id','consecutivo', 'nombre', 'estado', 'modelo','ruta']
-    order_columns = ['creacion','id', 'consecutivo', 'nombre', 'estado', 'modelo','ruta']
+    columns = ['creacion','cupo_object','id','consecutivo', 'nombre', 'estado', 'modelo','ruta']
+    order_columns = ['creacion','cupo_object','id', 'consecutivo', 'nombre', 'estado', 'modelo','ruta']
 
     def get_initial_queryset(self):
         self.ruta = models.Rutas.objects.get(id = self.kwargs['pk_ruta'])
@@ -875,6 +875,32 @@ class InstrumentosHogaresRutasListApi(BaseDatatableView):
         elif column == 'consecutivo':
             return row.get_hogares_list()
 
+
+        elif column == 'cupo_object':
+            ret = ''
+            if self.request.user.has_perms(self.permissions.get('ver')):
+
+                if row.estado in ['cargado', 'rechazado']:
+
+                    ret = '<div class="center-align">' \
+                          '<a href="editar/{0}" class="tooltipped edit-table" data-position="top" data-delay="50" data-tooltip="Actualizar el soporte">' \
+                          '<i class="material-icons">cloud_upload</i>' \
+                          '</a>' \
+                          '</div>'.format(row.id)
+
+
+                else:
+
+                    ret = '<div class="center-align">' \
+                          '<i class="material-icons">cloud_upload</i>' \
+                          '</div>'.format(row.id)
+
+            else:
+                ret = '<div class="center-align">' \
+                      '<i class="material-icons">cloud_upload</i>' \
+                      '</div>'.format(row.id)
+
+            return ret
 
 
         elif column == 'modelo':

@@ -60,6 +60,7 @@ block container_principal
             thead
                 tr
                     th Ver
+                    th Editar
                     th Trazabilidad
                     th Hogares
                     th Nombre
@@ -69,6 +70,7 @@ block container_principal
             tbody
                 tr
                     td Ver
+                    td Editar
                     td Trazabilidad
                     td Hogares
                     td Nombre
@@ -91,7 +93,7 @@ block body_script_auth
                 searching: true,
                 processing: true,
                 serverSide: true,
-                order: [[ 4, "asc" ]],
+                order: [[ 5, "asc" ]],
                 columnDefs: [{"orderable": false, "targets": [0,1,3]}],
                 ajax: "{{ url_datatable }}",
                 language: {

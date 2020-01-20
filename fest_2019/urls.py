@@ -41,7 +41,7 @@ urlpatterns = [
     path('rutas/actividades/<uuid:pk_ruta>/instrumentos/<uuid:pk_momento>/', views.RutasInstrumentosHogaresListView.as_view()),     #Permisos revisados
     path('rutas/actividades/<uuid:pk_ruta>/instrumentos/<uuid:pk_momento>/ver/<uuid:pk_instrumento_object>/', views.RutasInstrumentosVerHogaresView.as_view()), #Permisos revisados
     path('rutas/actividades/<uuid:pk_ruta>/instrumentos/<uuid:pk_momento>/trazabilidad/<uuid:pk_instrumento_object>/', views.RutasInstrumentosTrazabilidadHogaresView.as_view()),   #Permisos revisados
-
+    path('rutas/actividades/<uuid:pk_ruta>/instrumentos/<uuid:pk_momento>/editar/<uuid:pk_instrumento_object>/', views.RutasInstrumentosUpdateHogaresListView.as_view()),
 
 
     path('rutas/actividades/<uuid:pk_ruta>/instrumentos/<uuid:pk_momento>/aprobar/<uuid:pk_instrumento_object>/', views.AprobarInstrumentoHogaresView.as_view()),   #Permisos revisados
