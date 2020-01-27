@@ -726,7 +726,7 @@ class Hogares(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, unique=True, editable=False)
 
-    documento = models.BigIntegerField(unique=True)
+    documento = models.BigIntegerField()
     municipio = models.ForeignKey(Municipios, on_delete=models.DO_NOTHING, related_name='hogares_municipio_inscripcion')
 
     primer_apellido = models.CharField(max_length=100)

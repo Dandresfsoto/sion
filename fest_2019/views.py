@@ -611,12 +611,18 @@ class RutaCrearHogarView(LoginRequiredMixin,
         return permissions
 
     def form_valid(self, form):
-        self.object = form.save()
-        self.object.rutas.add(self.ruta)
+        documento = form.cleaned_data['documento']
+        if models.Hogares.objects.filter(documento = documento).count() == 0:
+            self.object = form.save()
+            self.object.rutas.add(self.ruta)
+        else:
+            hogar = models.Hogares.objects.get(documento = documento)
+            hogar.rutas.add(self.ruta)
         message = 'Se creó el hogar: {0}'.format(form.cleaned_data['documento'])
         messages.add_message(self.request, messages.INFO, message)
         self.ruta.update_hogares_inscritos()
         return HttpResponseRedirect(self.get_success_url())
+
 
     def get_context_data(self, **kwargs):
         kwargs['title'] = "NUEVO HOGAR"
@@ -2223,8 +2229,13 @@ class RutaCrearMisHogaresView(LoginRequiredMixin,
         return permissions
 
     def form_valid(self, form):
-        self.object = form.save()
-        self.object.rutas.add(self.ruta)
+        documento = form.cleaned_data['documento']
+        if models.Hogares.objects.filter(documento = documento).count() == 0:
+            self.object = form.save()
+            self.object.rutas.add(self.ruta)
+        else:
+            hogar = models.Hogares.objects.get(documento = documento)
+            hogar.rutas.add(self.ruta)
         message = 'Se creó el hogar: {0}'.format(form.cleaned_data['documento'])
         messages.add_message(self.request, messages.INFO, message)
         self.ruta.update_hogares_inscritos()
