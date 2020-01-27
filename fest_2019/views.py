@@ -621,7 +621,7 @@ class RutaCrearHogarView(LoginRequiredMixin,
         message = 'Se creó el hogar: {0}'.format(form.cleaned_data['documento'])
         messages.add_message(self.request, messages.INFO, message)
         self.ruta.update_hogares_inscritos()
-        return HttpResponseRedirect(self.get_success_url())
+        return HttpResponseRedirect("../")
 
 
     def get_context_data(self, **kwargs):
@@ -2239,7 +2239,7 @@ class RutaCrearMisHogaresView(LoginRequiredMixin,
         message = 'Se creó el hogar: {0}'.format(form.cleaned_data['documento'])
         messages.add_message(self.request, messages.INFO, message)
         self.ruta.update_hogares_inscritos()
-        return HttpResponseRedirect(self.get_success_url())
+        return HttpResponseRedirect("../")
 
     def get_context_data(self, **kwargs):
         kwargs['title'] = "NUEVO HOGAR"
