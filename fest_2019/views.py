@@ -1154,8 +1154,8 @@ class AprobarInstrumentoHogaresView(View):
                     if self.permiso == None:
                         return HttpResponseRedirect('../../')
                     else:
-                        ids_ver = self.permiso.rutas_preaprobar.all()
-                        if self.ruta in ids_ver:
+                        ids_aprobar= self.permiso.rutas_aprobar.all()
+                        if self.ruta in ids_aprobar:
                             self.instrumento_object.estado = 'aprobado'
                             models.InstrumentosTrazabilidadRutaObject.objects.create(
                                 instrumento=self.instrumento_object,
@@ -1651,8 +1651,8 @@ class RutasInstrumentosRechazarHogaresView(FormView):
                     if self.permiso == None:
                         return HttpResponseRedirect('../../')
                     else:
-                        ids_ver = self.permiso.rutas_ver.all()
-                        if self.ruta in ids_ver:
+                        ids_aprobar = self.permiso.rutas_aprobar.all()
+                        if self.ruta in ids_aprobar:
                             if request.method.lower() in self.http_method_names:
                                 handler = getattr(self, request.method.lower(), self.http_method_not_allowed)
                             else:

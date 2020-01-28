@@ -1046,7 +1046,7 @@ class PermisosCuentasRutas(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, unique=True, editable=False)
     user = models.OneToOneField(User,on_delete=models.DO_NOTHING)
     rutas_ver = models.ManyToManyField(Rutas,related_name="permisos_cuentas_ver",blank=True)
-    rutas_preaprobar = models.ManyToManyField(Rutas,related_name="permisos_cuentas_preaprobar",blank=True)
+    #rutas_preaprobar = models.ManyToManyField(Rutas,related_name="permisos_cuentas_preaprobar",blank=True)
     rutas_aprobar = models.ManyToManyField(Rutas,related_name="permisos_cuentas_aprobar",blank=True)
 
     def __str__(self):

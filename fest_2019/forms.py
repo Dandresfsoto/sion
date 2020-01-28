@@ -5175,7 +5175,6 @@ class PermisosCreateForm(forms.ModelForm):
         else:
             self.fields['user'].queryset = models.User.objects.none()
             self.fields['rutas_ver'].queryset = models.Rutas.objects.none()
-            self.fields['rutas_preaprobar'].queryset = models.Rutas.objects.none()
             self.fields['rutas_aprobar'].queryset = models.Rutas.objects.none()
 
         self.helper.layout = Layout(
@@ -5196,12 +5195,6 @@ class PermisosCreateForm(forms.ModelForm):
                     Row(
                         Column(
                             'rutas_ver',
-                            css_class='s12'
-                        )
-                    ),
-                    Row(
-                        Column(
-                            'rutas_preaprobar',
                             css_class='s12'
                         )
                     ),
@@ -5231,7 +5224,7 @@ class PermisosCreateForm(forms.ModelForm):
 
     class Meta:
         model = models.PermisosCuentasRutas
-        fields = ['user','rutas_ver','rutas_preaprobar','rutas_aprobar']
+        fields = ['user','rutas_ver','rutas_aprobar']
 
 
 class ArchivoRarZipForm(forms.Form):

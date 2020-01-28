@@ -928,7 +928,7 @@ class InstrumentosHogaresRutasListApi(BaseDatatableView):
         elif column == 'ruta':
             ret = ''
 
-            if self.request.user.is_superuser:
+            if self.ruta.id in self.permiso.rutas_aprobar.values_list('id',flat=True) or self.request.user.is_superuser:
 
                 if row.estado != 'aprobado':
 
