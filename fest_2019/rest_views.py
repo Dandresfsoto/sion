@@ -928,8 +928,7 @@ class InstrumentosHogaresRutasListApi(BaseDatatableView):
         elif column == 'ruta':
             ret = ''
 
-            if self.ruta.id in self.permiso.rutas_aprobar.values_list('id',flat=True) or self.request.user.is_superuser:
-
+            if self.request.user.is_superuser:
                 if row.estado != 'aprobado':
 
                     if row.cupo_object != None and row.cupo_object != '':
@@ -940,8 +939,8 @@ class InstrumentosHogaresRutasListApi(BaseDatatableView):
 
                     else:
                         ret += '<a style="color:green;" href="aprobar/{0}" class="tooltipped" data-position="top" data-delay="50" data-tooltip="{1}">' \
-                                    '<i class="material-icons">{2}</i>' \
-                               '</a>'.format(row.id,'Aprobar','check_box')
+                               '<i class="material-icons">{2}</i>' \
+                               '</a>'.format(row.id, 'Aprobar', 'check_box')
 
                 if row.estado != 'rechazado':
                     if row.cupo_object != None and row.cupo_object != '':
@@ -953,9 +952,41 @@ class InstrumentosHogaresRutasListApi(BaseDatatableView):
 
                     else:
                         ret += '<a style="color:red;margin-left:10px;" href="rechazar/{0}" class="tooltipped" data-position="top" data-delay="50" data-tooltip="{1}">' \
-                                    '<i class="material-icons">{2}</i>' \
+                               '<i class="material-icons">{2}</i>' \
                                '</a>'.format(row.id, 'Rechazar', 'highlight_off')
 
+
+            elif self.permiso != None:
+
+                if self.ruta.id in self.permiso.rutas_aprobar.values_list('id',flat=True):
+
+                    if row.estado != 'aprobado':
+
+                        if row.cupo_object != None and row.cupo_object != '':
+                            if row.cupo_object.estado not in ['Pagado']:
+                                ret += '<a style="color:green;" href="aprobar/{0}" class="tooltipped" data-position="top" data-delay="50" data-tooltip="{1}">' \
+                                       '<i class="material-icons">{2}</i>' \
+                                       '</a>'.format(row.id, 'Aprobar', 'check_box')
+
+                        else:
+                            ret += '<a style="color:green;" href="aprobar/{0}" class="tooltipped" data-position="top" data-delay="50" data-tooltip="{1}">' \
+                                        '<i class="material-icons">{2}</i>' \
+                                   '</a>'.format(row.id,'Aprobar','check_box')
+
+                    if row.estado != 'rechazado':
+                        if row.cupo_object != None and row.cupo_object != '':
+
+                            if row.cupo_object.estado not in ['Pagado']:
+                                ret += '<a style="color:red;margin-left:10px;" href="rechazar/{0}" class="tooltipped" data-position="top" data-delay="50" data-tooltip="{1}">' \
+                                       '<i class="material-icons">{2}</i>' \
+                                       '</a>'.format(row.id, 'Rechazar', 'highlight_off')
+
+                        else:
+                            ret += '<a style="color:red;margin-left:10px;" href="rechazar/{0}" class="tooltipped" data-position="top" data-delay="50" data-tooltip="{1}">' \
+                                        '<i class="material-icons">{2}</i>' \
+                                   '</a>'.format(row.id, 'Rechazar', 'highlight_off')
+            else:
+                pass
             return '<div class="center-align">' + ret + '</div>'
 
         else:
