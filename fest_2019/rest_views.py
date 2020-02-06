@@ -798,8 +798,8 @@ class ActividadesHogaresRutasListApi(BaseDatatableView):
 
 class InstrumentosHogaresRutasListApi(BaseDatatableView):
     model = models.InstrumentosRutaObject
-    columns = ['creacion','cupo_object','id','consecutivo', 'nombre', 'estado', 'modelo','ruta']
-    order_columns = ['creacion','cupo_object','id', 'consecutivo', 'nombre', 'estado', 'modelo','ruta']
+    columns = ['creacion','cupo_object','id','consecutivo', 'nombre', 'estado', 'modelo','ruta','observacion']
+    order_columns = ['creacion','cupo_object','id', 'consecutivo', 'nombre', 'estado', 'modelo','ruta','observacion']
 
     def get_initial_queryset(self):
         self.ruta = models.Rutas.objects.get(id = self.kwargs['pk_ruta'])
@@ -924,6 +924,22 @@ class InstrumentosHogaresRutasListApi(BaseDatatableView):
                 ret = ''
             return row.estado
 
+        elif column == 'observacion':
+
+            if row.estado in ['cargado']:
+
+                ret = '<div class="center-align">' \
+                      '<a href="eliminar/{0}" class="tooltipped delete-table" data-position="top" data-delay="50" data-tooltip="Eliminar soporte">' \
+                      '<i class="material-icons">delete</i>' \
+                      '</a>' \
+                      '</div>'.format(row.id)
+            else:
+
+                ret = '<div class="center-align">' \
+                      '<i class="material-icons">delete</i>' \
+                      '</div>'.format(row.id)
+
+            return ret
 
         elif column == 'ruta':
             ret = ''

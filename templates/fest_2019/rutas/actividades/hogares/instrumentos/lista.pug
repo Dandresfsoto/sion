@@ -67,6 +67,7 @@ block container_principal
                     th Estado
                     th Valor
                     th Acciones
+                    th Eliminar
             tbody
                 tr
                     td Ver
@@ -77,8 +78,18 @@ block container_principal
                     td Estado
                     td Valor
                     td Acciones
+                    td Eliminar
 
 
+    div(class="fixed-action-btn")
+        a(class="btn-floating btn-large pink")
+            i(class="large material-icons") add_circle
+        ul
+            | {% for instrumento in instrumentos %}
+            li
+                a(href="agregar/{{ instrumento.id }}",class="btn-floating {{ instrumento.color }} tooltipped",data-position="left",data-delay="50",data-tooltip="{{ instrumento.short_name }}")
+                    i(class="material-icons") {{ instrumento.icon }}
+            | {% endfor %}
 
 
 
