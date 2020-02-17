@@ -19,6 +19,9 @@ from config import views
 from django.conf import settings
 from django.conf.urls.static import static
 
+def trigger_error(request):
+    division_by_zero = 1 / 0
+
 urlpatterns = [
     path('', views.Index.as_view()),
     path('login/', views.Login.as_view()),
@@ -58,7 +61,7 @@ urlpatterns = [
     path('rest/v1.0/ofertas/', include('ofertas.rest_urls')),
     path('rest/v1.0/cpe_2018/', include('cpe_2018.rest_urls')),
     path('rest/v1.0/fest_2019/', include('fest_2019.rest_urls')),
-
+    path('sentry-debug/', trigger_error),
 ]
 
 if settings.DEBUG:

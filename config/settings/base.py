@@ -14,6 +14,8 @@ import os
 import environ
 import sys
 import locale
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
 
 
 
@@ -355,3 +357,12 @@ SOCIAL_AUTH_PIPELINE = (
 FTP_STORAGE_LOCATION = env('FTP_SICAN_2018')
 
 ATOMIC_REQUESTS = True
+
+sentry_sdk.init(
+    dsn=env('SENTRY_URL'),
+    integrations=[DjangoIntegration()],
+
+    # If you wish to associate users to errors (assuming you are using
+    # django.contrib.auth) you may enable sending PII data.
+    send_default_pii=True
+)

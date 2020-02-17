@@ -39,3 +39,4 @@ flower==0.9.3
 daphne==2.3.0
 azure==4.0.0
 whitenoise==4.1.2
+sentry-sdk==0.14.1
