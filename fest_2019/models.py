@@ -1193,6 +1193,14 @@ class InstrumentosRutaObject(models.Model):
 
         return hogares
 
+    def get_departamentos_reporte(self):
+        departamentos = ''
+
+        for hogar in self.hogares.all():
+            departamentos += '{0}, {1}\n'.format(hogar.municipio_residencia.nombre,hogar.municipio_residencia.departamento.nombre)
+
+        return departamentos
+
 
 class ObservacionesInstrumentoRutaObject(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, unique=True, editable=False)

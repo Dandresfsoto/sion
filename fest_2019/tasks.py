@@ -275,11 +275,11 @@ def build_informe_actividades(id):
     reporte = models_reportes.Reportes.objects.get(id = id)
     proceso = "IRACA"
 
-    titulos = ['Consecutivo', 'Ruta', 'Contratista', 'Cedula','Actividad', 'Hogares', 'Estado', 'Valor']
+    titulos = ['Consecutivo', 'Ruta', 'Contratista', 'Cedula','Actividad', 'Hogares', 'Departamentos','Estado', 'Valor']
 
-    formatos = ['0', 'General', 'General', '0', 'General', 'General', 'General', '"$"#,##0_);("$"#,##0)']
+    formatos = ['0', 'General', 'General', '0', 'General', 'General', 'General', 'General', '"$"#,##0_);("$"#,##0)']
 
-    ancho_columnas = [20, 30, 50, 50, 50, 50, 50, 50]
+    ancho_columnas = [20, 30, 50, 50, 50, 50, 50, 50, 50]
 
     contenidos = []
 
@@ -294,6 +294,7 @@ def build_informe_actividades(id):
             ins.ruta.contrato.contratista.cedula,
             ins.instrumento.nombre,
             ins.get_hogares_reporte(),
+            ins.get_departamentos_reporte(),
             ins.estado,
             '' if ins.cupo_object == None else ins.cupo_object.valor.amount
         ])

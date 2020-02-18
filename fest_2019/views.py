@@ -115,7 +115,7 @@ class Fest2019OptionsView(LoginRequiredMixin,
                 'sican_icon': 'apps',
                 'sican_description': 'Asignar permisos a usuarios para calificar rutas.'
             })
-
+        """
         if self.request.user.has_perm('usuarios.fest_2019.soportes.ver'):
             items.append({
                 'sican_categoria': 'Soportes',
@@ -126,7 +126,7 @@ class Fest2019OptionsView(LoginRequiredMixin,
                 'sican_icon': 'insert_drive_file',
                 'sican_description': 'Consulta de soportes por cédula titular del hogar.'
             })
-            
+        """
             
         if self.request.user.has_perm('usuarios.fest_2019.cortes.ver'):
             items.append({
@@ -138,7 +138,7 @@ class Fest2019OptionsView(LoginRequiredMixin,
                 'sican_icon': 'attach_money',
                 'sican_description': 'Cortes de pago y cuentas de cobro'
             })
-
+        """
         if self.request.user.has_perm('usuarios.fest_2019.ruteo.ver'):
             items.append({
                 'sican_categoria': 'Ruteo',
@@ -149,9 +149,9 @@ class Fest2019OptionsView(LoginRequiredMixin,
                 'sican_icon': 'view_list',
                 'sican_description': 'Asignación de rutas a los hogares'
             })
+        """
 
-
-
+        """
         if self.request.user.has_perm('usuarios.fest_2019.mishogares.ver'):
             items.append({
                 'sican_categoria': 'Mis hogares',
@@ -162,7 +162,7 @@ class Fest2019OptionsView(LoginRequiredMixin,
                 'sican_icon': 'home',
                 'sican_description': 'Registro de hogares asignados a mis rutas'
             })
-
+        """
 
         return items
 
