@@ -2460,6 +2460,7 @@ class ActaSocializacionComunidadesForm(forms.ModelForm):
             self.add_error('file2', 'El archivo cargado no tiene un formato valido')
 
 
+
     def __init__(self, *args, **kwargs):
         super(ActaSocializacionComunidadesForm, self).__init__(*args, **kwargs)
 
@@ -2537,7 +2538,18 @@ class ActaSocializacionComunidadesForm(forms.ModelForm):
                         css_class='s12'
                     )
                 ),
-                                Row(
+                Row(
+                    Fieldset(
+                        'Acta de conformación y capacitación de comite de control social:',
+                    )
+                ),
+                Row(
+                    Column(
+                        'file3',
+                        css_class='s12'
+                    )
+                ),
+                Row(
                     Fieldset(
                         'Registro fotografico:',
                     )
@@ -2644,6 +2656,17 @@ class ActaSocializacionComunidadesForm(forms.ModelForm):
                 Row(
                     Column(
                         'file2',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Acta de conformación y capacitación de comite de control social:',
+                    )
+                ),
+                Row(
+                    Column(
+                        'file3',
                         css_class='s12'
                     )
                 ),
@@ -2761,6 +2784,17 @@ class ActaSocializacionComunidadesForm(forms.ModelForm):
                 ),
                 Row(
                     Fieldset(
+                        'Acta de conformación y capacitación de comite de control social:',
+                    )
+                ),
+                Row(
+                    Column(
+                        'file3',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
                         'Registro fotografico:',
                     )
                 ),
@@ -2800,10 +2834,18 @@ class ActaSocializacionComunidadesForm(forms.ModelForm):
 
     class Meta:
         model = models.ActaSocializacionComunidades
-        fields = ['file','file2','nombre_comunidad','resguado_indigena_consejo_comunitario','municipio','nombre_representante',
+        fields = ['file','file2','file3','nombre_comunidad','resguado_indigena_consejo_comunitario','municipio','nombre_representante',
                   'documento_representante','cargo_representante','fecha_firma','foto1','foto2']
         widgets = {
             'file': forms.ClearableFileInput(attrs={
+                'data-max-file-size': "10M",
+                'accept': 'application/pdf,application/x-pdf'}
+            ),
+            'file2': forms.ClearableFileInput(attrs={
+                'data-max-file-size': "10M",
+                'accept': 'application/pdf,application/x-pdf'}
+            ),
+            'file3': forms.ClearableFileInput(attrs={
                 'data-max-file-size': "10M",
                 'accept': 'application/pdf,application/x-pdf'}
             ),

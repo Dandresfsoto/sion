@@ -1577,6 +1577,17 @@ class ActaSocializacionComunidades(models.Model):
         max_length=255
     )
 
+    file3 = ContentTypeRestrictedFileField(
+        upload_to=upload_dinamic_acta_socializacion_comunidades,
+        content_types=[
+            'application/pdf',
+        ],
+        max_upload_size=10485760,
+        max_length=255,
+        blank=True,
+        null=True
+    )
+
     foto1 = ContentTypeRestrictedFileField(
         upload_to=upload_dinamic_acta_socializacion_comunidades,
         content_types=[
@@ -1616,6 +1627,14 @@ class ActaSocializacionComunidades(models.Model):
         url = None
         try:
             url = self.file2.url
+        except:
+            pass
+        return url
+
+    def url_file3(self):
+        url = None
+        try:
+            url = self.file3.url
         except:
             pass
         return url
