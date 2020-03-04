@@ -1127,7 +1127,8 @@ class ReportarReporteForm(forms.Form):
         ('', '----------'),
         (settings.EMAIL_DIRECCION_FINANCIERA, settings.EMAIL_DIRECCION_FINANCIERA),
         (settings.EMAIL_GERENCIA, settings.EMAIL_GERENCIA),
-        (settings.EMAIL_CONTABILIDAD, settings.EMAIL_CONTABILIDAD)
+        (settings.EMAIL_CONTABILIDAD, settings.EMAIL_CONTABILIDAD),
+        (settings.EMAIL_REPRESENTANTE_LEGAL, settings.EMAIL_REPRESENTANTE_LEGAL),
     ]
 
     email = forms.EmailField(widget=forms.Select(choices=CHOICES))
