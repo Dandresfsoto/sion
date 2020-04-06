@@ -749,11 +749,16 @@ class PagosCreateView(LoginRequiredMixin,
                 estado = 'Pago creado',
                 publico=form.cleaned_data['publico'],
                 cuotas=form.cleaned_data['cuotas'],
-                tipo_cuenta = rh_models.Contratistas.objects.get(cedula=form.cleaned_data['cedula']).tipo_cuenta,
-                banco = rh_models.Contratistas.objects.get(cedula=form.cleaned_data['cedula']).banco.nombre,
-                cuenta = rh_models.Contratistas.objects.get(cedula=form.cleaned_data['cedula']).cuenta,
-                cargo = rh_models.Contratistas.objects.get(cedula=form.cleaned_data['cedula']).cargo.nombre,
             )
+
+            try:
+                pago.tipo_cuenta = pago.tercero.tipo_cuenta
+                pago.banco = pago.tercero.banco.nombre
+                pago.cuenta = pago.tercero.cuenta
+                pago.cargo = pago.tercero.cargo.nombre
+                pago.save()
+            except:
+                pass
 
             valor = 0
             for pago_obj in models.Pagos.objects.filter(reporte=pago.reporte):
@@ -786,11 +791,16 @@ class PagosCreateView(LoginRequiredMixin,
                 publico=form.cleaned_data['publico'],
                 descuentos_pendientes=form.cleaned_data['descuentos_pendientes'],
                 descuentos_pendientes_otro_valor=form.cleaned_data['descuentos_pendientes_otro_valor'],
-                tipo_cuenta=rh_models.Contratistas.objects.get(cedula=form.cleaned_data['cedula']).tipo_cuenta,
-                banco=rh_models.Contratistas.objects.get(cedula=form.cleaned_data['cedula']).banco.nombre,
-                cuenta=rh_models.Contratistas.objects.get(cedula=form.cleaned_data['cedula']).cuenta,
-                cargo=rh_models.Contratistas.objects.get(cedula=form.cleaned_data['cedula']).cargo.nombre,
             )
+
+            try:
+                pago_new.tipo_cuenta = pago_new.tercero.tipo_cuenta
+                pago_new.banco = pago_new.tercero.banco.nombre
+                pago_new.cuenta = pago_new.tercero.cuenta
+                pago_new.cargo = pago_new.tercero.cargo.nombre
+                pago_new.save()
+            except:
+                pass
 
             for i in range(1,6):
 
@@ -887,11 +897,16 @@ class PagosUpdateView(LoginRequiredMixin,
             pago.observacion = form.cleaned_data['observacion']
             pago.publico = form.cleaned_data['publico']
             pago.cuotas = form.cleaned_data['cuotas']
-            pago.tipo_cuenta = rh_models.Contratistas.objects.get(cedula=form.cleaned_data['cedula']).tipo_cuenta
-            pago.banco = rh_models.Contratistas.objects.get(cedula=form.cleaned_data['cedula']).banco.nombre
-            pago.cuenta = rh_models.Contratistas.objects.get(cedula=form.cleaned_data['cedula']).cuenta
-            pago.cargo = rh_models.Contratistas.objects.get(cedula=form.cleaned_data['cedula']).cargo.nombre
             pago.save()
+
+            try:
+                pago.tipo_cuenta = rh_models.Contratistas.objects.get(cedula=form.cleaned_data['cedula']).tipo_cuenta
+                pago.banco = rh_models.Contratistas.objects.get(cedula=form.cleaned_data['cedula']).banco.nombre
+                pago.cuenta = rh_models.Contratistas.objects.get(cedula=form.cleaned_data['cedula']).cuenta
+                pago.cargo = rh_models.Contratistas.objects.get(cedula=form.cleaned_data['cedula']).cargo.nombre
+                pago.save()
+            except:
+                pass
 
             valor = 0
             for pago_obj in models.Pagos.objects.filter(reporte=pago.reporte):
@@ -928,11 +943,16 @@ class PagosUpdateView(LoginRequiredMixin,
             pago.publico = form.cleaned_data['publico']
             pago.descuentos_pendientes = form.cleaned_data['descuentos_pendientes']
             pago.descuentos_pendientes_otro_valor = form.cleaned_data['descuentos_pendientes_otro_valor']
-            pago.tipo_cuenta = rh_models.Contratistas.objects.get(cedula=form.cleaned_data['cedula']).tipo_cuenta
-            pago.banco = rh_models.Contratistas.objects.get(cedula=form.cleaned_data['cedula']).banco.nombre
-            pago.cuenta = rh_models.Contratistas.objects.get(cedula=form.cleaned_data['cedula']).cuenta
-            pago.cargo = rh_models.Contratistas.objects.get(cedula=form.cleaned_data['cedula']).cargo.nombre
             pago.save()
+
+            try:
+                pago.tipo_cuenta = rh_models.Contratistas.objects.get(cedula=form.cleaned_data['cedula']).tipo_cuenta
+                pago.banco = rh_models.Contratistas.objects.get(cedula=form.cleaned_data['cedula']).banco.nombre
+                pago.cuenta = rh_models.Contratistas.objects.get(cedula=form.cleaned_data['cedula']).cuenta
+                pago.cargo = rh_models.Contratistas.objects.get(cedula=form.cleaned_data['cedula']).cargo.nombre
+                pago.save()
+            except:
+                pass
 
 
             for i in range(1,6):
