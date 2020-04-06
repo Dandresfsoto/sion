@@ -230,12 +230,20 @@ class ReportesListApi(BaseDatatableView):
     def render_column(self, row, column):
         if column == 'consecutivo':
             ret = ''
+
+            observacion = ''
+
+            if row.observacion != None and row.observacion != '':
+
+                observacion = '<a class="tooltipped link-sec" data-position="top" data-delay="50" data-tooltip="{0}"><i class="material-icons">announcement</i></a>'.format(row.observacion)
+
             if self.request.user.has_perm('usuarios.direccion_financiera.reportes.editar'):
                 ret = '<div class="center-align">' \
                            '<a href="editar/{0}" class="tooltipped edit-table" data-position="top" data-delay="50" data-tooltip="Editar reporte: {1}">' \
                                 '<p style="font-weight:bold;">{2}</p>' \
                            '</a>' \
-                       '</div>'.format(row.id,row.nombre,row.consecutivo.id)
+                           '{3}' \
+                      '</div>'.format(row.id,row.nombre,row.consecutivo.id,observacion)
 
             else:
                 ret = '<div class="center-align">' \

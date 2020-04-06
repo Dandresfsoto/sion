@@ -277,7 +277,12 @@ class ReporteForm(forms.ModelForm):
                             'efectivo',
                             css_class='s12 m6 l4'
                         ),
+                        Column(
+                            'rubro',
+                            css_class='s12 m6 l4'
+                        ),
                     ),
+
                     Row(
                         Column(
                             'inicio',
@@ -299,6 +304,17 @@ class ReporteForm(forms.ModelForm):
                         )
                     ),
                     css_class="s12"
+                ),
+            ),
+            Row(
+                Fieldset(
+                    'Observaciones',
+                )
+            ),
+            Row(
+                Column(
+                    'observacion',
+                    css_class='s12'
                 ),
             ),
             Row(
@@ -347,7 +363,7 @@ class ReporteForm(forms.ModelForm):
 
     class Meta:
         model = Reportes
-        fields = ['nombre','servicio','proyecto','tipo_soporte','inicio','fin','respaldo','firma','efectivo','numero_contrato','numero_documento_equivalente']
+        fields = ['nombre','servicio','proyecto','tipo_soporte','inicio','fin','respaldo','firma','efectivo','numero_contrato','numero_documento_equivalente', 'rubro', 'observacion']
         labels = {
             'servicio': 'Bien o servicio a gestionar',
             'tipo_soporte': 'Respaldo del reporte',
@@ -356,7 +372,8 @@ class ReporteForm(forms.ModelForm):
             'efectivo': 'Tipo de reporte'
         }
         widgets = {
-            'efectivo': forms.Select(choices=[(False,'Bancarizado'),(True,'Efectivo')])
+            'efectivo': forms.Select(choices=[(False,'Bancarizado'),(True,'Efectivo')]),
+            'observacion': forms.Textarea(attrs={'class': 'materialize-textarea'})
         }
 
 class ReporteUpdateForm(forms.ModelForm):
@@ -397,6 +414,12 @@ class ReporteUpdateForm(forms.ModelForm):
                     ),
                     Row(
                         Column(
+                            'rubro',
+                            css_class='s12 m6 l4'
+                        ),
+                    ),
+                    Row(
+                        Column(
                             'inicio',
                             css_class='s12 m6'
                         ),
@@ -416,6 +439,17 @@ class ReporteUpdateForm(forms.ModelForm):
                         )
                     ),
                     css_class="s12"
+                ),
+            ),
+            Row(
+                Fieldset(
+                    'Observaciones',
+                )
+            ),
+            Row(
+                Column(
+                    'observacion',
+                    css_class='s12'
                 ),
             ),
             Row(
@@ -464,11 +498,14 @@ class ReporteUpdateForm(forms.ModelForm):
 
     class Meta:
         model = Reportes
-        fields = ['nombre','proyecto','tipo_soporte','inicio','fin','respaldo','firma','numero_contrato','numero_documento_equivalente']
+        fields = ['nombre','proyecto','tipo_soporte','inicio','fin','respaldo','firma','numero_contrato','numero_documento_equivalente', 'observacion', 'rubro']
         labels = {
             'tipo_soporte': 'Respaldo del reporte',
             'inicio': 'Fecha de pago',
             'fin': 'Fecha de cargue'
+        }
+        widgets = {
+            'observacion': forms.Textarea(attrs={'class': 'materialize-textarea'})
         }
 
 class ResultadoReporteForm(forms.ModelForm):

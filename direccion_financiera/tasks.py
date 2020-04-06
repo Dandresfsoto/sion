@@ -211,17 +211,17 @@ def build_listado_tercero_especifico(id, tercero_id):
 @app.task
 def build_reporte_pagos(id):
     reporte = models_reportes.Reportes.objects.get(id = id)
-    proceso = "SICAN-REPORTE-PAGOS"
+    proceso = "SION-REPORTE-PAGOS"
 
 
-    titulos = ['Consecutivo', 'Fecha creación', 'Reporte', 'Tipo','Nombre', 'Servicio', 'Proyecto', 'Contratista', 'Cedula', 'Valor inicial', 'Descuentos',
-               'Valor','Estado']
+    titulos = ['Consecutivo', 'Fecha creación', 'Reporte', 'Rubro presupuestal', 'Tipo','Nombre', 'Servicio', 'Proyecto', 'Contratista', 'Cedula', 'Valor inicial', 'Descuentos',
+               'Valor','Estado', 'Tipo de cuenta', 'Banco', 'Cuenta', 'Cargo']
 
-    formatos = ['0', 'dd/mm/yy', '0', 'General', 'General', 'General', 'General', 'General', '0', '"$"#,##0.00_);[Red]("$"#,##0.00)', '"$"#,##0.00_);[Red]("$"#,##0.00)',
-                '"$"#,##0.00_);[Red]("$"#,##0.00)', 'General']
+    formatos = ['0', 'dd/mm/yy', '0', 'General', 'General', 'General', 'General', 'General', 'General', '0', '"$"#,##0.00_);[Red]("$"#,##0.00)', '"$"#,##0.00_);[Red]("$"#,##0.00)',
+                '"$"#,##0.00_);[Red]("$"#,##0.00)', 'General', 'General', 'General', 'General', 'General']
 
-    ancho_columnas = [20, 30, 30, 30, 30, 30, 30, 30, 30, 30,
-                      30, 30, 30]
+    ancho_columnas = [20, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30,
+                      30, 30, 30,30, 30,30, 30]
 
     contenidos = []
 
@@ -232,6 +232,7 @@ def build_reporte_pagos(id):
             int(i),
             pago.creation,
             pago.reporte.consecutivo.id,
+            pago.get_rubro(),
             'Efectivo' if pago.reporte.efectivo else 'Bancarizado',
             pago.reporte.nombre,
             pago.reporte.servicio.nombre,
@@ -242,6 +243,10 @@ def build_reporte_pagos(id):
             pago.valor_solo_descuentos_amount(),
             pago.valor_descuentos_amount(),
             pago.estado,
+            pago.tipo_cuenta,
+            pago.banco,
+            pago.cuenta,
+            pago.cargo
         ])
 
     output = construir_reporte(titulos, contenidos, formatos, ancho_columnas, reporte.nombre, reporte.creation, reporte.usuario, proceso)

@@ -66,6 +66,14 @@ class ConsecutivoReportes(models.Model):
     def __str__(self):
         return str(self.id)
 
+
+class RubroPresupuestal(models.Model):
+    nombre = models.CharField(max_length=500)
+
+    def __str__(self):
+        return self.nombre
+
+
 class Reportes(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, unique=True, editable=False)
     consecutivo = models.ForeignKey(ConsecutivoReportes, on_delete=models.DO_NOTHING, blank=True, null=True)
@@ -80,6 +88,7 @@ class Reportes(models.Model):
     nombre = models.CharField(max_length=100)
     servicio = models.ForeignKey(Servicios, on_delete=models.DO_NOTHING)
     proyecto = models.ForeignKey(Proyecto, on_delete=models.DO_NOTHING)
+    rubro = models.ForeignKey(RubroPresupuestal, on_delete=models.DO_NOTHING, blank=True, null=True)
     tipo_soporte = models.ForeignKey(TipoSoporte, on_delete=models.DO_NOTHING)
     inicio = models.DateField()
     fin = models.DateField()
@@ -96,6 +105,7 @@ class Reportes(models.Model):
     valor = MoneyField(max_digits=20, decimal_places=2, default_currency='COP')
 
     efectivo = models.BooleanField(default=False)
+    observacion = models.TextField(blank=True, null=True)
 
 
     numero_contrato = models.CharField(max_length=200,blank=True,null=True)
@@ -239,8 +249,19 @@ class Pagos(models.Model):
     descuentos_pendientes = models.TextField(blank=True, null=True)
     descuentos_pendientes_otro_valor = models.TextField(blank=True, null=True)
 
+    tipo_cuenta = models.CharField(max_length=500, blank=True, null=True)
+    banco = models.CharField(max_length=500, blank=True, null=True)
+    cuenta = models.CharField(max_length=500, blank=True, null=True)
+    cargo = models.CharField(max_length=500, blank=True, null=True)
+
     def __str__(self):
         return str(self.valor)
+
+    def get_rubro(self):
+        rubro = ''
+        if self.reporte.rubro != None:
+            rubro = self.reporte.rubro.nombre
+        return rubro
 
     def get_initial_amortizaciones(self):
         inicial = {}

@@ -748,7 +748,11 @@ class PagosCreateView(LoginRequiredMixin,
                 observacion = form.cleaned_data['observacion'],
                 estado = 'Pago creado',
                 publico=form.cleaned_data['publico'],
-                cuotas=form.cleaned_data['cuotas']
+                cuotas=form.cleaned_data['cuotas'],
+                tipo_cuenta = rh_models.Contratistas.objects.get(cedula=form.cleaned_data['cedula']).tipo_cuenta,
+                banco = rh_models.Contratistas.objects.get(cedula=form.cleaned_data['cedula']).banco.nombre,
+                cuenta = rh_models.Contratistas.objects.get(cedula=form.cleaned_data['cedula']).cuenta,
+                cargo = rh_models.Contratistas.objects.get(cedula=form.cleaned_data['cedula']).cargo.nombre,
             )
 
             valor = 0
@@ -781,7 +785,11 @@ class PagosCreateView(LoginRequiredMixin,
                 estado='Pago creado',
                 publico=form.cleaned_data['publico'],
                 descuentos_pendientes=form.cleaned_data['descuentos_pendientes'],
-                descuentos_pendientes_otro_valor=form.cleaned_data['descuentos_pendientes_otro_valor']
+                descuentos_pendientes_otro_valor=form.cleaned_data['descuentos_pendientes_otro_valor'],
+                tipo_cuenta=rh_models.Contratistas.objects.get(cedula=form.cleaned_data['cedula']).tipo_cuenta,
+                banco=rh_models.Contratistas.objects.get(cedula=form.cleaned_data['cedula']).banco.nombre,
+                cuenta=rh_models.Contratistas.objects.get(cedula=form.cleaned_data['cedula']).cuenta,
+                cargo=rh_models.Contratistas.objects.get(cedula=form.cleaned_data['cedula']).cargo.nombre,
             )
 
             for i in range(1,6):
@@ -879,6 +887,10 @@ class PagosUpdateView(LoginRequiredMixin,
             pago.observacion = form.cleaned_data['observacion']
             pago.publico = form.cleaned_data['publico']
             pago.cuotas = form.cleaned_data['cuotas']
+            pago.tipo_cuenta = rh_models.Contratistas.objects.get(cedula=form.cleaned_data['cedula']).tipo_cuenta
+            pago.banco = rh_models.Contratistas.objects.get(cedula=form.cleaned_data['cedula']).banco.nombre
+            pago.cuenta = rh_models.Contratistas.objects.get(cedula=form.cleaned_data['cedula']).cuenta
+            pago.cargo = rh_models.Contratistas.objects.get(cedula=form.cleaned_data['cedula']).cargo.nombre
             pago.save()
 
             valor = 0
@@ -916,6 +928,10 @@ class PagosUpdateView(LoginRequiredMixin,
             pago.publico = form.cleaned_data['publico']
             pago.descuentos_pendientes = form.cleaned_data['descuentos_pendientes']
             pago.descuentos_pendientes_otro_valor = form.cleaned_data['descuentos_pendientes_otro_valor']
+            pago.tipo_cuenta = rh_models.Contratistas.objects.get(cedula=form.cleaned_data['cedula']).tipo_cuenta
+            pago.banco = rh_models.Contratistas.objects.get(cedula=form.cleaned_data['cedula']).banco.nombre
+            pago.cuenta = rh_models.Contratistas.objects.get(cedula=form.cleaned_data['cedula']).cuenta
+            pago.cargo = rh_models.Contratistas.objects.get(cedula=form.cleaned_data['cedula']).cargo.nombre
             pago.save()
 
 
