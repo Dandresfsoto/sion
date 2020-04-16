@@ -1488,7 +1488,7 @@ class FichaIcoe(models.Model):
     total_salida = models.DecimalField(max_digits=10, decimal_places=2)
     total_variacion = models.DecimalField(max_digits=10, decimal_places=2)
 
-
+    #Ficha ICOE F-GI-IP 101
     file = ContentTypeRestrictedFileField(
         upload_to=upload_dinamic_ficha_icoe,
         content_types=[
@@ -1498,13 +1498,73 @@ class FichaIcoe(models.Model):
         max_length=255
     )
 
+    #Listado de Asistencia
     file2 = ContentTypeRestrictedFileField(
         upload_to=upload_dinamic_ficha_icoe,
         content_types=[
             'application/pdf',
+            'image/jpg',
+            'image/jpeg',
+            'image/png',
         ],
         max_upload_size=10485760,
         max_length=255
+    )
+
+    #FICHA ICOE en excel
+    file3 = ContentTypeRestrictedFileField(
+        upload_to=upload_dinamic_ficha_icoe,
+        content_types=[
+            'application/vnd.ms-excel',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ],
+        max_upload_size=10485760,
+        max_length=255,
+        blank=True,
+        null=True
+    )
+
+    #registro fotografico
+    foto1 = ContentTypeRestrictedFileField(
+        upload_to=upload_dinamic_ficha_icoe,
+        content_types=[
+            'image/jpg',
+            'image/jpeg',
+            'image/png',
+            'application/pdf',
+        ],
+        max_upload_size=10485760,
+        max_length=255,
+        blank=True,
+        null=True
+    )
+
+    foto2 = ContentTypeRestrictedFileField(
+        upload_to=upload_dinamic_ficha_icoe,
+        content_types=[
+            'image/jpg',
+            'image/jpeg',
+            'image/png',
+            'application/pdf',
+        ],
+        max_upload_size=10485760,
+        max_length=255,
+        blank=True,
+        null=True
+    )
+
+    foto3 = ContentTypeRestrictedFileField(
+        upload_to=upload_dinamic_ficha_icoe,
+        content_types=[
+            'image/jpg',
+            'image/jpeg',
+            'image/png',
+            'application/pdf',
+        ],
+        max_upload_size=10485760,
+        max_length=255,
+        blank=True,
+        null=True
     )
 
 
@@ -1528,12 +1588,48 @@ class FichaIcoe(models.Model):
             pass
         return url
 
+    def url_file3(self):
+        url = None
+        try:
+            url = self.file3.url
+        except:
+            pass
+        return url
 
+    def url_foto1(self):
+        url = None
+        try:
+            url = self.foto1.url
+        except:
+            pass
+        return url
 
+    def url_foto2(self):
+        url = None
+        try:
+            url = self.foto2.url
+        except:
+            pass
+        return url
 
+    def url_foto3(self):
+        url = None
+        try:
+            url = self.foto3.url
+        except:
+            pass
+        return url
 
-    def get_extension(self):
+    def get_extension_file(self):
         return self.file.name.split('.')[-1]
+
+    def get_extension_file2(self):
+        return self.file2.name.split('.')[-1]
+
+    def get_extension_file3(self):
+        return self.file3.name.split('.')[-1]
+
+
 
 
 
@@ -1684,7 +1780,7 @@ class FichaVisionDesarrollo(models.Model):
 
     asistentes = models.IntegerField()
 
-
+    #ACTA DE REUNION
     file = ContentTypeRestrictedFileField(
         upload_to=upload_dinamic_ficha_vision_desarrollo,
         content_types=[
@@ -1694,18 +1790,25 @@ class FichaVisionDesarrollo(models.Model):
         max_length=255
     )
 
+    #LISTADO DE ASISTENCIA
     file2 = ContentTypeRestrictedFileField(
         upload_to=upload_dinamic_ficha_vision_desarrollo,
         content_types=[
             'application/pdf',
+            'image/jpg',
+            'image/jpeg',
+            'image/png',
         ],
         max_upload_size=10485760,
         max_length=255
     )
 
+    #REGISTRO FOTOGRAFICO
+
     foto1 = ContentTypeRestrictedFileField(
         upload_to=upload_dinamic_ficha_vision_desarrollo,
         content_types=[
+            'application/pdf',
             'image/jpg',
             'image/jpeg',
             'image/png'
@@ -1718,6 +1821,52 @@ class FichaVisionDesarrollo(models.Model):
     foto2 = ContentTypeRestrictedFileField(
         upload_to=upload_dinamic_ficha_vision_desarrollo,
         content_types=[
+            'application/pdf',
+            'image/jpg',
+            'image/jpeg',
+            'image/png'
+        ],
+        max_upload_size=10485760,
+        max_length=255,
+        blank=True,
+        null=True
+    )
+
+    #Fotografia Visión en texto
+    foto3 = ContentTypeRestrictedFileField(
+        upload_to=upload_dinamic_ficha_vision_desarrollo,
+        content_types=[
+            'application/pdf',
+            'image/jpg',
+            'image/jpeg',
+            'image/png'
+        ],
+        max_upload_size=10485760,
+        max_length=255,
+        blank=True,
+        null=True
+    )
+
+    #Fotografia Cartografia de la Visión
+    foto4 = ContentTypeRestrictedFileField(
+        upload_to=upload_dinamic_ficha_vision_desarrollo,
+        content_types=[
+            'application/pdf',
+            'image/jpg',
+            'image/jpeg',
+            'image/png'
+        ],
+        max_upload_size=10485760,
+        max_length=255,
+        blank=True,
+        null=True
+    )
+
+    # Formulario Gforms
+    foto5 = ContentTypeRestrictedFileField(
+        upload_to=upload_dinamic_ficha_vision_desarrollo,
+        content_types=[
+            'application/pdf',
             'image/jpg',
             'image/jpeg',
             'image/png'
@@ -1763,10 +1912,51 @@ class FichaVisionDesarrollo(models.Model):
             pass
         return url
 
+    def url_foto3(self):
+        url = None
+        try:
+            url = self.foto3.url
+        except:
+            pass
+        return url
 
-    def get_extension(self):
+    def url_foto4(self):
+        url = None
+        try:
+            url = self.foto4.url
+        except:
+            pass
+        return url
+
+    def url_foto5(self):
+        url = None
+        try:
+            url = self.foto5.url
+        except:
+            pass
+        return url
+
+
+    def get_extension_file(self):
         return self.file.name.split('.')[-1]
 
+    def get_extension_file2(self):
+        return self.file2.name.split('.')[-1]
+
+    def get_extension_foto1(self):
+        return self.foto1.name.split('.')[-1]
+
+    def get_extension_foto2(self):
+        return self.foto2.name.split('.')[-1]
+
+    def get_extension_foto3(self):
+        return self.foto3.name.split('.')[-1]
+
+    def get_extension_foto4(self):
+        return self.foto4.name.split('.')[-1]
+
+    def get_extension_foto5(self):
+        return self.foto5.name.split('.')[-1]
 
 
 
@@ -1805,6 +1995,9 @@ class DiagnosticoComunitario(models.Model):
         upload_to=upload_dinamic_diagnostico_comunitario,
         content_types=[
             'application/pdf',
+            'image/jpg',
+            'image/jpeg',
+            'image/png',
         ],
         max_upload_size=10485760,
         max_length=255
@@ -1819,9 +2012,34 @@ class DiagnosticoComunitario(models.Model):
         max_length=255
     )
 
+    file4 = ContentTypeRestrictedFileField(
+        upload_to=upload_dinamic_diagnostico_comunitario,
+        content_types=[
+            'application/vnd.ms-excel',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ],
+        max_upload_size=10485760,
+        max_length=255,
+        blank=True,
+        null=True
+    )
+
+    file5 = ContentTypeRestrictedFileField(
+        upload_to=upload_dinamic_diagnostico_comunitario,
+        content_types=[
+            'application/vnd.ms-excel',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ],
+        max_upload_size=10485760,
+        max_length=255,
+        blank=True,
+        null=True
+    )
+
     foto1 = ContentTypeRestrictedFileField(
         upload_to=upload_dinamic_diagnostico_comunitario,
         content_types=[
+            'application/pdf',
             'image/jpg',
             'image/jpeg',
             'image/png'
@@ -1834,9 +2052,52 @@ class DiagnosticoComunitario(models.Model):
     foto2 = ContentTypeRestrictedFileField(
         upload_to=upload_dinamic_diagnostico_comunitario,
         content_types=[
+            'application/pdf',
             'image/jpg',
             'image/jpeg',
             'image/png'
+        ],
+        max_upload_size=10485760,
+        max_length=255,
+        blank=True,
+        null=True
+    )
+
+    foto3 = ContentTypeRestrictedFileField(
+        upload_to=upload_dinamic_diagnostico_comunitario,
+        content_types=[
+            'application/pdf',
+            'image/jpg',
+            'image/jpeg',
+            'image/png',
+        ],
+        max_upload_size=10485760,
+        max_length=255,
+        blank=True,
+        null=True
+    )
+
+    foto4 = ContentTypeRestrictedFileField(
+        upload_to=upload_dinamic_diagnostico_comunitario,
+        content_types=[
+            'application/pdf',
+            'image/jpg',
+            'image/jpeg',
+            'image/png',
+        ],
+        max_upload_size=10485760,
+        max_length=255,
+        blank=True,
+        null=True
+    )
+
+    foto5 = ContentTypeRestrictedFileField(
+        upload_to=upload_dinamic_diagnostico_comunitario,
+        content_types=[
+            'application/pdf',
+            'image/jpg',
+            'image/jpeg',
+            'image/png',
         ],
         max_upload_size=10485760,
         max_length=255,
@@ -1870,6 +2131,22 @@ class DiagnosticoComunitario(models.Model):
             pass
         return url
 
+    def url_file4(self):
+        url = None
+        try:
+            url = self.file4.url
+        except:
+            pass
+        return url
+
+    def url_file5(self):
+        url = None
+        try:
+            url = self.file5.url
+        except:
+            pass
+        return url
+
 
     def url_foto1(self):
         url = None
@@ -1887,9 +2164,48 @@ class DiagnosticoComunitario(models.Model):
             pass
         return url
 
+    def url_foto3(self):
+        url = None
+        try:
+            url = self.foto3.url
+        except:
+            pass
+        return url
 
-    def get_extension(self):
-        return self.file.name.split('.')[-1]
+    def url_foto4(self):
+        url = None
+        try:
+            url = self.foto4.url
+        except:
+            pass
+        return url
+
+    def url_foto5(self):
+        url = None
+        try:
+            url = self.foto5.url
+        except:
+            pass
+        return url
+
+
+    def get_extension_foto1(self):
+        return self.foto1.name.split('.')[-1]
+
+    def get_extension_foto2(self):
+        return self.foto2.name.split('.')[-1]
+
+    def get_extension_foto3(self):
+        return self.foto3.name.split('.')[-1]
+
+    def get_extension_foto4(self):
+        return self.foto4.name.split('.')[-1]
+
+    def get_extension_foto5(self):
+        return self.foto5.name.split('.')[-1]
+
+    def get_extension_file2(self):
+        return self.file2.name.split('.')[-1]
 
 
 

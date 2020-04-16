@@ -1170,12 +1170,6 @@ class FichaIcoeForm(forms.ModelForm):
 
 
 
-        if file2.name.split('.')[-1] == 'pdf' or file2.name.split('.')[-1] == 'PDF':
-            pass
-        else:
-            self.add_error('file2', 'El archivo cargado no tiene un formato valido')
-
-
     def __init__(self, *args, **kwargs):
         super(FichaIcoeForm, self).__init__(*args, **kwargs)
 
@@ -1533,7 +1527,20 @@ class FichaIcoeForm(forms.ModelForm):
 
                 Row(
                     Fieldset(
-                        'Acta escaneada',
+                        'FICHA ICOE en excel',
+                    )
+                ),
+
+                Row(
+                    Column(
+                        'file3',
+                        css_class='s12'
+                    )
+                ),
+
+                Row(
+                    Fieldset(
+                        'Ficha ICOE F-GI-IP 101 (escaneada)',
                     )
                 ),
 
@@ -1551,6 +1558,29 @@ class FichaIcoeForm(forms.ModelForm):
                 Row(
                     Column(
                         'file2',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Registro fotografico:',
+                    )
+                ),
+                Row(
+                    Column(
+                        'foto1',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        'foto2',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        'foto3',
                         css_class='s12'
                     )
                 ),
@@ -1927,7 +1957,20 @@ class FichaIcoeForm(forms.ModelForm):
 
                 Row(
                     Fieldset(
-                        'Acta escaneada',
+                        'FICHA ICOE en excel',
+                    )
+                ),
+
+                Row(
+                    Column(
+                        'file3',
+                        css_class='s12'
+                    )
+                ),
+
+                Row(
+                    Fieldset(
+                        'Ficha ICOE F-GI-IP 101 (escaneada)',
                     )
                 ),
 
@@ -1945,6 +1988,29 @@ class FichaIcoeForm(forms.ModelForm):
                 Row(
                     Column(
                         'file2',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Registro fotografico:',
+                    )
+                ),
+                Row(
+                    Column(
+                        'foto1',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        'foto2',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        'foto3',
                         css_class='s12'
                     )
                 ),
@@ -2323,7 +2389,20 @@ class FichaIcoeForm(forms.ModelForm):
 
                 Row(
                     Fieldset(
-                        'Acta escaneada',
+                        'FICHA ICOE en excel',
+                    )
+                ),
+
+                Row(
+                    Column(
+                        'file3',
+                        css_class='s12'
+                    )
+                ),
+
+                Row(
+                    Fieldset(
+                        'Ficha ICOE F-GI-IP 101 (escaneada)',
                     )
                 ),
 
@@ -2341,6 +2420,29 @@ class FichaIcoeForm(forms.ModelForm):
                 Row(
                     Column(
                         'file2',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Registro fotografico:',
+                    )
+                ),
+                Row(
+                    Column(
+                        'foto1',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        'foto2',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        'foto3',
                         css_class='s12'
                     )
                 ),
@@ -2368,7 +2470,7 @@ class FichaIcoeForm(forms.ModelForm):
 
     class Meta:
         model = models.FichaIcoe
-        fields = ['file','file2','municipio','nombre_comunidad','resguado_indigena_consejo_comunitario','fecha_entrada',
+        fields = ['file','file2', 'file3','foto1','foto2','foto3','municipio','nombre_comunidad','resguado_indigena_consejo_comunitario','fecha_entrada',
                   'fecha_salida','aspecto_1_entrada','aspecto_1_salida','aspecto_1_variacion','aspecto_2_entrada','aspecto_2_salida',
                   'aspecto_2_variacion','aspecto_3_entrada','aspecto_3_salida','aspecto_3_variacion','aspecto_4_entrada',
                   'aspecto_4_salida','aspecto_4_variacion','subindice_1_entrada','subindice_1_salida','subindice_1_variacion',
@@ -2384,8 +2486,15 @@ class FichaIcoeForm(forms.ModelForm):
             ),
             'file2': forms.ClearableFileInput(attrs={
                 'data-max-file-size': "10M",
-                'accept': 'application/pdf,application/x-pdf'}
+                'accept': 'application/pdf,application/x-pdf,image/jpg,image/jpeg,image/png'}
             ),
+            'file3': forms.ClearableFileInput(attrs={
+                'data-max-file-size': "10M",
+                'accept': 'application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}
+            ),
+            'foto1': forms.ClearableFileInput(attrs={'accept': 'image/jpg,image/jpeg,image/png,application/pdf'}),
+            'foto2': forms.ClearableFileInput(attrs={'accept': 'image/jpg,image/jpeg,image/png,application/pdf'}),
+            'foto3': forms.ClearableFileInput(attrs={'accept': 'image/jpg,image/jpeg,image/png,application/pdf'})
         }
 
         labels = {
@@ -2869,17 +2978,12 @@ class FichaVisionDesarrolloForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
         file = cleaned_data.get("file")
-        file2 = cleaned_data.get("file2")
 
         if file.name.split('.')[-1] == 'pdf' or file.name.split('.')[-1] == 'PDF':
             pass
         else:
             self.add_error('file', 'El archivo cargado no tiene un formato valido')
 
-        if file2.name.split('.')[-1] == 'pdf' or file2.name.split('.')[-1] == 'PDF':
-            pass
-        else:
-            self.add_error('file2', 'El archivo cargado no tiene un formato valido')
 
 
     def __init__(self, *args, **kwargs):
@@ -2930,12 +3034,45 @@ class FichaVisionDesarrolloForm(forms.ModelForm):
                 ),
                 Row(
                     Fieldset(
-                        'Acta escaneada',
+                        'Acta de Reunión',
                     )
                 ),
                 Row(
                     Column(
                         'file',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Fotografia Visión en texto',
+                    )
+                ),
+                Row(
+                    Column(
+                        'foto3',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Fotografia Cartografia de la Visión',
+                    )
+                ),
+                Row(
+                    Column(
+                        'foto4',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Formulario Gforms',
+                    )
+                ),
+                Row(
+                    Column(
+                        'foto5',
                         css_class='s12'
                     )
                 ),
@@ -3031,12 +3168,45 @@ class FichaVisionDesarrolloForm(forms.ModelForm):
                 ),
                 Row(
                     Fieldset(
-                        'Acta escaneada',
+                        'Acta de Reunión',
                     )
                 ),
                 Row(
                     Column(
                         'file',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Fotografia Visión en texto',
+                    )
+                ),
+                Row(
+                    Column(
+                        'foto3',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Fotografia Cartografia de la Visión',
+                    )
+                ),
+                Row(
+                    Column(
+                        'foto4',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Formulario Gforms',
+                    )
+                ),
+                Row(
+                    Column(
+                        'foto5',
                         css_class='s12'
                     )
                 ),
@@ -3134,12 +3304,45 @@ class FichaVisionDesarrolloForm(forms.ModelForm):
                 ),
                 Row(
                     Fieldset(
-                        'Acta escaneada',
+                        'Acta de Reunión',
                     )
                 ),
                 Row(
                     Column(
                         'file',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Fotografia Visión en texto',
+                    )
+                ),
+                Row(
+                    Column(
+                        'foto3',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Fotografia Cartografia de la Visión',
+                    )
+                ),
+                Row(
+                    Column(
+                        'foto4',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Formulario Gforms',
+                    )
+                ),
+                Row(
+                    Column(
+                        'foto5',
                         css_class='s12'
                     )
                 ),
@@ -3195,7 +3398,7 @@ class FichaVisionDesarrolloForm(forms.ModelForm):
 
     class Meta:
         model = models.FichaVisionDesarrollo
-        fields = ['file','file2','foto1','foto2','municipio','fecha','lugar','dependencia','asistentes']
+        fields = ['file','file2','foto1','foto2','foto3','foto4','foto5','municipio','fecha','lugar','dependencia','asistentes']
         widgets = {
             'file': forms.ClearableFileInput(attrs={
                 'data-max-file-size': "10M",
@@ -3203,10 +3406,13 @@ class FichaVisionDesarrolloForm(forms.ModelForm):
             ),
             'file2': forms.ClearableFileInput(attrs={
                 'data-max-file-size': "10M",
-                'accept': 'application/pdf,application/x-pdf'}
+                'accept': 'application/pdf,application/x-pdf,image/jpg,image/jpeg,image/png'}
             ),
-                        'foto1': forms.ClearableFileInput(attrs={'accept': 'image/jpg,image/jpeg,image/png'}),
-            'foto2': forms.ClearableFileInput(attrs={'accept': 'image/jpg,image/jpeg,image/png'})
+            'foto1': forms.ClearableFileInput(attrs={'accept': 'image/jpg,image/jpeg,image/png,application/pdf,application/x-pdf'}),
+            'foto2': forms.ClearableFileInput(attrs={'accept': 'image/jpg,image/jpeg,image/png,application/pdf,application/x-pdf'}),
+            'foto3': forms.ClearableFileInput(attrs={'accept': 'image/jpg,image/jpeg,image/png,application/pdf,application/x-pdf'}),
+            'foto4': forms.ClearableFileInput(attrs={'accept': 'image/jpg,image/jpeg,image/png,application/pdf,application/x-pdf'}),
+            'foto5': forms.ClearableFileInput(attrs={'accept': 'image/jpg,image/jpeg,image/png,application/pdf,application/x-pdf'}),
         }
 
         labels = {
@@ -3222,18 +3428,12 @@ class DiagnosticoComunitarioForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
         file = cleaned_data.get("file")
-        file2 = cleaned_data.get("file2")
         file3 = cleaned_data.get("file3")
 
         if file.name.split('.')[-1] == 'pdf' or file.name.split('.')[-1] == 'PDF':
             pass
         else:
             self.add_error('file', 'El archivo cargado no tiene un formato valido')
-
-        if file2.name.split('.')[-1] == 'pdf' or file2.name.split('.')[-1] == 'PDF':
-            pass
-        else:
-            self.add_error('file2', 'El archivo cargado no tiene un formato valido')
 
         if file3.name.split('.')[-1] == 'pdf' or file3.name.split('.')[-1] == 'PDF':
             pass
@@ -3300,23 +3500,78 @@ class DiagnosticoComunitarioForm(forms.ModelForm):
                 ),
                 Row(
                     Fieldset(
+                        'Informe de Diagnóstico:',
+                    )
+                ),
+                Row(
+                    Column(
+                        'file3',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Fotografia Diagrama Venn:',
+                    )
+                ),
+                Row(
+                    Column(
+                        'foto3',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Fotografia Matriz Vester:',
+                    )
+                ),
+                Row(
+                    Column(
+                        'foto4',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Fotografia Problemas Acciones:',
+                    )
+                ),
+                Row(
+                    Column(
+                        'foto5',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Matriz de Actores en Excel:',
+                    )
+                ),
+                Row(
+                    Column(
+                        'file4',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Matriz Dofa en Excel:',
+                    )
+                ),
+                Row(
+                    Column(
+                        'file5',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
                         'Listado de asistencia:',
                     )
                 ),
                 Row(
                     Column(
                         'file2',
-                        css_class='s12'
-                    )
-                ),
-                Row(
-                    Fieldset(
-                        'Informe de diagnostico:',
-                    )
-                ),
-                Row(
-                    Column(
-                        'file3',
                         css_class='s12'
                     )
                 ),
@@ -3412,23 +3667,78 @@ class DiagnosticoComunitarioForm(forms.ModelForm):
                 ),
                 Row(
                     Fieldset(
+                        'Informe de Diagnóstico:',
+                    )
+                ),
+                Row(
+                    Column(
+                        'file3',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Fotografia Diagrama Venn:',
+                    )
+                ),
+                Row(
+                    Column(
+                        'foto3',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Fotografia Matriz Vester:',
+                    )
+                ),
+                Row(
+                    Column(
+                        'foto4',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Fotografia Problemas Acciones:',
+                    )
+                ),
+                Row(
+                    Column(
+                        'foto5',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Matriz de Actores en Excel:',
+                    )
+                ),
+                Row(
+                    Column(
+                        'file4',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Matriz Dofa en Excel:',
+                    )
+                ),
+                Row(
+                    Column(
+                        'file5',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
                         'Listado de asistencia:',
                     )
                 ),
                 Row(
                     Column(
                         'file2',
-                        css_class='s12'
-                    )
-                ),
-                Row(
-                    Fieldset(
-                        'Informe de diagnostico:',
-                    )
-                ),
-                Row(
-                    Column(
-                        'file3',
                         css_class='s12'
                     )
                 ),
@@ -3526,23 +3836,78 @@ class DiagnosticoComunitarioForm(forms.ModelForm):
                 ),
                 Row(
                     Fieldset(
+                        'Informe de Diagnóstico:',
+                    )
+                ),
+                Row(
+                    Column(
+                        'file3',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Fotografia Diagrama Venn:',
+                    )
+                ),
+                Row(
+                    Column(
+                        'foto3',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Fotografia Matriz Vester:',
+                    )
+                ),
+                Row(
+                    Column(
+                        'foto4',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Fotografia Problemas Acciones:',
+                    )
+                ),
+                Row(
+                    Column(
+                        'foto5',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Matriz de Actores en Excel:',
+                    )
+                ),
+                Row(
+                    Column(
+                        'file4',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Matriz Dofa en Excel:',
+                    )
+                ),
+                Row(
+                    Column(
+                        'file5',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
                         'Listado de asistencia:',
                     )
                 ),
                 Row(
                     Column(
                         'file2',
-                        css_class='s12'
-                    )
-                ),
-                Row(
-                    Fieldset(
-                        'Informe de diagnostico:',
-                    )
-                ),
-                Row(
-                    Column(
-                        'file3',
                         css_class='s12'
                     )
                 ),
@@ -3587,7 +3952,7 @@ class DiagnosticoComunitarioForm(forms.ModelForm):
 
     class Meta:
         model = models.DiagnosticoComunitario
-        fields = ['file','file2', 'file3','foto1','foto2','municipio','fecha','lugar','dependencia','asistentes']
+        fields = ['file','file2', 'file3', 'file4', 'file5','foto1','foto2','foto3','foto4','foto5','municipio','fecha','lugar','dependencia','asistentes']
         widgets = {
             'file': forms.ClearableFileInput(attrs={
                 'data-max-file-size': "10M",
@@ -3595,14 +3960,25 @@ class DiagnosticoComunitarioForm(forms.ModelForm):
             ),
             'file2': forms.ClearableFileInput(attrs={
                 'data-max-file-size': "10M",
-                'accept': 'application/pdf,application/x-pdf'}
+                'accept': 'application/pdf,application/x-pdf,image/jpg,image/jpeg,image/png'}
             ),
             'file3': forms.ClearableFileInput(attrs={
                 'data-max-file-size': "10M",
                 'accept': 'application/pdf,application/x-pdf'}
             ),
-            'foto1': forms.ClearableFileInput(attrs={'accept': 'image/jpg,image/jpeg,image/png'}),
-            'foto2': forms.ClearableFileInput(attrs={'accept': 'image/jpg,image/jpeg,image/png'})
+            'file4': forms.ClearableFileInput(attrs={
+                'data-max-file-size': "10M",
+                'accept': 'application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}
+            ),
+            'file5': forms.ClearableFileInput(attrs={
+                'data-max-file-size': "10M",
+                'accept': 'application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}
+            ),
+            'foto1': forms.ClearableFileInput(attrs={'accept': 'image/jpg,image/jpeg,image/png,application/pdf,application/x-pdf'}),
+            'foto2': forms.ClearableFileInput(attrs={'accept': 'image/jpg,image/jpeg,image/png,application/pdf,application/x-pdf'}),
+            'foto3': forms.ClearableFileInput(attrs={'accept': 'image/jpg,image/jpeg,image/png,application/pdf,application/x-pdf'}),
+            'foto4': forms.ClearableFileInput(attrs={'accept': 'image/jpg,image/jpeg,image/png,application/pdf,application/x-pdf'}),
+            'foto5': forms.ClearableFileInput(attrs={'accept': 'image/jpg,image/jpeg,image/png,application/pdf,application/x-pdf'}),
         }
 
         labels = {

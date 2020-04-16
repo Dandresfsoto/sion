@@ -74,6 +74,13 @@ block body_script_auth
 
             $("label[for='id_hogares']").addClass('active');
             $("label[for='id_municipio']").addClass('active');
+            $("label[for='id_file']").addClass('active');
+            $("label[for='id_file2']").addClass('active');
+            $("label[for='id_file3']").addClass('active');
+            $("label[for='id_foto1']").addClass('active');
+            $("label[for='id_foto2']").addClass('active');
+            $("label[for='id_foto3']").addClass('active');
+
 
             $('#id_hogares').select2();
             $('#id_municipio').select2();
@@ -92,6 +99,18 @@ block body_script_auth
             });
 
             $('#id_file2').dropify({
+                error: {
+                    'fileSize': 'El archivo es demasiado grande.',
+                },
+                messages: {
+                    'default': 'Haz clic y selecciona el archivo, tambien puedes arrastrarlo y soltarlo aqui',
+                    'replace': 'Haz clic y selecciona el archivo, tambien puedes arrastrarlo y soltarlo aqui',
+                    'remove': 'Eliminar',
+                    'error': 'Ooops, algo malo paso.'
+                }
+            });
+
+            $('#id_file3').dropify({
                 error: {
                     'fileSize': 'El archivo es demasiado grande.',
                 },
@@ -128,6 +147,42 @@ block body_script_auth
                 clear: 'Borrar',
                 close: 'Ok',
                 closeOnSelect: false
+            });
+
+            $('#id_foto1').dropify({
+                error: {
+                    'fileSize': 'El archivo es demasiado grande.',
+                },
+                messages: {
+                    'default': 'Haz clic y selecciona la foto, tambien puedes arrastrarla y soltarlo aqui',
+                    'replace': 'Haz clic y selecciona la foto, tambien puedes arrastrarla y soltarlo aqui',
+                    'remove': 'Eliminar',
+                    'error': 'Ooops, algo malo paso.'
+                }
+            });
+
+            $('#id_foto2').dropify({
+                error: {
+                    'fileSize': 'El archivo es demasiado grande.',
+                },
+                messages: {
+                    'default': 'Haz clic y selecciona la foto, tambien puedes arrastrarla y soltarlo aqui',
+                    'replace': 'Haz clic y selecciona la foto, tambien puedes arrastrarla y soltarlo aqui',
+                    'remove': 'Eliminar',
+                    'error': 'Ooops, algo malo paso.'
+                }
+            });
+
+            $('#id_foto3').dropify({
+                error: {
+                    'fileSize': 'El archivo es demasiado grande.',
+                },
+                messages: {
+                    'default': 'Haz clic y selecciona la foto, tambien puedes arrastrarla y soltarlo aqui',
+                    'replace': 'Haz clic y selecciona la foto, tambien puedes arrastrarla y soltarlo aqui',
+                    'remove': 'Eliminar',
+                    'error': 'Ooops, algo malo paso.'
+                }
             });
 
         });

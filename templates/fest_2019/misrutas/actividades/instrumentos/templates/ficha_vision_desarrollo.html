@@ -57,6 +57,13 @@ var socket = new ReconnectingWebSocket(ws_scheme + '://' + window.location.host 
 
     $("label[for='id_hogares']").addClass('active');
     $("label[for='id_municipio']").addClass('active');
+    $("label[for='id_file']").addClass('active');
+    $("label[for='id_file2']").addClass('active');
+    $("label[for='id_foto1']").addClass('active');
+    $("label[for='id_foto2']").addClass('active');
+    $("label[for='id_foto3']").addClass('active');
+    $("label[for='id_foto4']").addClass('active');
+    $("label[for='id_foto5']").addClass('active');
 
     $('#id_hogares').select2();
     $('#id_municipio').select2();
@@ -114,6 +121,42 @@ var socket = new ReconnectingWebSocket(ws_scheme + '://' + window.location.host 
     });
 
     $('#id_foto2').dropify({
+        error: {
+            'fileSize': 'El archivo es demasiado grande.',
+        },
+        messages: {
+            'default': 'Haz clic y selecciona la foto, tambien puedes arrastrarla y soltarlo aqui',
+            'replace': 'Haz clic y selecciona la foto, tambien puedes arrastrarla y soltarlo aqui',
+            'remove': 'Eliminar',
+            'error': 'Ooops, algo malo paso.'
+        }
+    });
+
+    $('#id_foto3').dropify({
+        error: {
+            'fileSize': 'El archivo es demasiado grande.',
+        },
+        messages: {
+            'default': 'Haz clic y selecciona la foto, tambien puedes arrastrarla y soltarlo aqui',
+            'replace': 'Haz clic y selecciona la foto, tambien puedes arrastrarla y soltarlo aqui',
+            'remove': 'Eliminar',
+            'error': 'Ooops, algo malo paso.'
+        }
+    });
+
+    $('#id_foto4').dropify({
+        error: {
+            'fileSize': 'El archivo es demasiado grande.',
+        },
+        messages: {
+            'default': 'Haz clic y selecciona la foto, tambien puedes arrastrarla y soltarlo aqui',
+            'replace': 'Haz clic y selecciona la foto, tambien puedes arrastrarla y soltarlo aqui',
+            'remove': 'Eliminar',
+            'error': 'Ooops, algo malo paso.'
+        }
+    });
+
+    $('#id_foto5').dropify({
         error: {
             'fileSize': 'El archivo es demasiado grande.',
         },
