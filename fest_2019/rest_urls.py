@@ -2,6 +2,9 @@ from django.urls import path, include
 from fest_2019 import rest_views
 
 urlpatterns = [
+    path('proyectos_api/', rest_views.ProyectosApiView.as_view()),
+
+
     path('bd/', rest_views.HogaresListApi.as_view()),
 
     path('entregables/', rest_views.EntregablesListApi.as_view()),

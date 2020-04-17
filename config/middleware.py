@@ -11,7 +11,7 @@ class LoginRequiredMiddleware(MiddlewareMixin):
             '/registro/','/registro/completo/','/privacidad/','/verificar/','/verificar','/rest/v1.0/usuarios/recovery/',
             '/perfil/','/logout/','/rest/v1.0/recursos_humanos/certificaciones/cedula/',
             '/rest/v1.0/usuarios/perfil/educacion_superior/','/rest/v1.0/usuarios/municipios/autocomplete/',
-            '/rest/v1.0/usuarios/avatar/','/rest/v1.0/usuarios/perfil/experiencia/'
+            '/rest/v1.0/usuarios/avatar/','/rest/v1.0/usuarios/perfil/experiencia/', '/rest/v1.0/fest_2019/proyectos_api/'
         ]
 
         if not request.user.is_authenticated:

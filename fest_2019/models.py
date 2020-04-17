@@ -15,6 +15,7 @@ from pytz import timezone
 from django.conf import settings
 import json
 from delta import html
+from django.contrib.postgres.fields import JSONField
 
 
 
@@ -3009,3 +3010,8 @@ class Contactos(models.Model):
 
     def __str__(self):
         return self.nombres
+
+
+class ProyectosApi(models.Model):
+    json = JSONField(default=dict)
+    creation = models.DateTimeField(auto_now_add=True)

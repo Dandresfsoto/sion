@@ -11,6 +11,19 @@ from usuarios.models import Departamentos, Municipios, Corregimientos, Veredas
 from django.shortcuts import render
 from uuid import UUID
 from django.db.models import Q
+from rest_framework import mixins, generics, status
+from rest_framework.permissions import AllowAny
+from.serializers import ProyectosApiSerializer
+
+
+class ProyectosApiView(mixins.CreateModelMixin,
+                       generics.GenericAPIView):
+
+    serializer_class = ProyectosApiSerializer
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
 
 
 class HogaresListApi(BaseDatatableView):
