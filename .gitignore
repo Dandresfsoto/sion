@@ -2,3 +2,4 @@
 media/
 .env
 .envs
+.venv/

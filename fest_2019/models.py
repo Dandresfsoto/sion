@@ -2,7 +2,8 @@ from django.db import models
 import uuid
 from usuarios.models import Municipios, User, Departamentos, Corregimientos, Veredas, PueblosIndigenas, \
     ResguardosIndigenas, ComunidadesIndigenas, LenguasNativas, ConsejosAfro, ComunidadesAfro, CategoriaDiscapacidad, \
-    DificultadesPermanentesDiscapacidad, ElementosDiscapacidad, TiposRehabilitacionDiscapacidad
+    DificultadesPermanentesDiscapacidad, ElementosDiscapacidad, TiposRehabilitacionDiscapacidad, ConsejosResguardosProyectosIraca, \
+    ComunidadesProyectosIraca
 
 from recursos_humanos import models as models_rh
 from djmoney.models.fields import MoneyField
@@ -3012,6 +3013,254 @@ class Contactos(models.Model):
         return self.nombres
 
 
+def upload_dinamic_ficha_proyecto(instance, filename):
+    return '/'.join(['FEST 2019', 'Proyectos', str(instance.id), filename])
+
+
 class ProyectosApi(models.Model):
     json = JSONField(default=dict)
     creation = models.DateTimeField(auto_now_add=True)
+    valor = MoneyField(max_digits=10, decimal_places=2, default_currency='COP', default=0)
+
+
+    convenio = models.TextField(default='213-19')
+    codigo_proyecto = models.TextField(blank=True, null=True)
+    fecha_elaboracion = models.DateField(blank=True, null=True)
+    municipio = models.ForeignKey(Municipios, on_delete=models.DO_NOTHING, related_name='municipio_ficha_proyecto',
+                                  blank=True, null=True)
+    resguado_indigena_consejo_comunitario = models.ForeignKey(ConsejosResguardosProyectosIraca,
+                                                              on_delete=models.DO_NOTHING, blank=True, null=True)
+    nombre_comunidad = models.ManyToManyField(ComunidadesProyectosIraca, blank=True)
+    nombre_representante = models.TextField(blank=True, null=True)
+    numero_hogares = models.IntegerField(blank=True, null=True)
+
+    nombre_proyecto = models.TextField(blank=True, null=True)
+    linea = models.TextField(blank=True, null=True)
+    duracion = models.TextField(blank=True, null=True)
+    ubicacion_proyecto = models.TextField(blank=True, null=True)
+    producto_servicio = models.TextField(blank=True, null=True)
+    problema = models.TextField(blank=True, null=True)
+    justificacion = models.TextField(blank=True, null=True)
+    criterios_socioculturales = models.TextField(blank=True, null=True)
+
+    objetivo_general = models.TextField(blank=True, null=True)
+
+    objetivo_especifico_1 = models.TextField(blank=True, null=True)
+    objetivo_especifico_2 = models.TextField(blank=True, null=True)
+    objetivo_especifico_3 = models.TextField(blank=True, null=True)
+
+    actividad_1 = models.TextField(blank=True, null=True)
+    mes_1_1 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_2_1 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_3_1 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_4_1 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_5_1 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_6_1 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    indicador_1 = models.TextField(blank=True, null=True)
+    unidad_medida_1 = models.TextField(blank=True, null=True)
+    meta_1 = models.IntegerField(blank=True, null=True)
+    medio_verificacion_1 = models.TextField(blank=True, null=True)
+    observaciones_1 = models.TextField(blank=True, null=True)
+
+    actividad_2 = models.TextField(blank=True, null=True)
+    mes_1_2 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_2_2 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_3_2 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_4_2 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_5_2 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_6_2 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    indicador_2 = models.TextField(blank=True, null=True)
+    unidad_medida_2 = models.TextField(blank=True, null=True)
+    meta_2 = models.IntegerField(blank=True, null=True)
+    medio_verificacion_2 = models.TextField(blank=True, null=True)
+    observaciones_2 = models.TextField(blank=True, null=True)
+
+    actividad_3 = models.TextField(blank=True, null=True)
+    mes_1_3 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_2_3 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_3_3 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_4_3 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_5_3 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_6_3 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    indicador_3 = models.TextField(blank=True, null=True)
+    unidad_medida_3 = models.TextField(blank=True, null=True)
+    meta_3 = models.IntegerField(blank=True, null=True)
+    medio_verificacion_3 = models.TextField(blank=True, null=True)
+    observaciones_3 = models.TextField(blank=True, null=True)
+
+    actividad_4 = models.TextField(blank=True, null=True)
+    mes_1_4 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_2_4 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_3_4 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_4_4 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_5_4 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_6_4 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    indicador_4 = models.TextField(blank=True, null=True)
+    unidad_medida_4 = models.TextField(blank=True, null=True)
+    meta_4 = models.IntegerField(blank=True, null=True)
+    medio_verificacion_4 = models.TextField(blank=True, null=True)
+    observaciones_4 = models.TextField(blank=True, null=True)
+
+    actividad_5 = models.TextField(blank=True, null=True)
+    mes_1_5 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_2_5 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_3_5 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_4_5 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_5_5 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_6_5 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    indicador_5 = models.TextField(blank=True, null=True)
+    unidad_medida_5 = models.TextField(blank=True, null=True)
+    meta_5 = models.IntegerField(blank=True, null=True)
+    medio_verificacion_5 = models.TextField(blank=True, null=True)
+    observaciones_5 = models.TextField(blank=True, null=True)
+
+    actividad_6 = models.TextField(blank=True, null=True)
+    mes_1_6 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_2_6 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_3_6 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_4_6 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_5_6 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_6_6 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    indicador_6 = models.TextField(blank=True, null=True)
+    unidad_medida_6 = models.TextField(blank=True, null=True)
+    meta_6 = models.IntegerField(blank=True, null=True)
+    medio_verificacion_6 = models.TextField(blank=True, null=True)
+    observaciones_6 = models.TextField(blank=True, null=True)
+
+    actividad_7 = models.TextField(blank=True, null=True)
+    mes_1_7 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_2_7 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_3_7 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_4_7 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_5_7 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_6_7 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    indicador_7 = models.TextField(blank=True, null=True)
+    unidad_medida_7 = models.TextField(blank=True, null=True)
+    meta_7 = models.IntegerField(blank=True, null=True)
+    medio_verificacion_7 = models.TextField(blank=True, null=True)
+    observaciones_7 = models.TextField(blank=True, null=True)
+
+    actividad_8 = models.TextField(blank=True, null=True)
+    mes_1_8 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_2_8 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_3_8 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_4_8 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_5_8 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_6_8 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    indicador_8 = models.TextField(blank=True, null=True)
+    unidad_medida_8 = models.TextField(blank=True, null=True)
+    meta_8 = models.IntegerField(blank=True, null=True)
+    medio_verificacion_8 = models.TextField(blank=True, null=True)
+    observaciones_8 = models.TextField(blank=True, null=True)
+
+    actividad_9 = models.TextField(blank=True, null=True)
+    mes_1_9 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_2_9 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_3_9 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_4_9 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_5_9 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_6_9 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    indicador_9 = models.TextField(blank=True, null=True)
+    unidad_medida_9 = models.TextField(blank=True, null=True)
+    meta_9 = models.IntegerField(blank=True, null=True)
+    medio_verificacion_9 = models.TextField(blank=True, null=True)
+    observaciones_9 = models.TextField(blank=True, null=True)
+
+    actividad_10 = models.TextField(blank=True, null=True)
+    mes_1_10 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_2_10 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_3_10 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_4_10 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_5_10 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_6_10 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    indicador_10 = models.TextField(blank=True, null=True)
+    unidad_medida_10 = models.TextField(blank=True, null=True)
+    meta_10 = models.IntegerField(blank=True, null=True)
+    medio_verificacion_10 = models.TextField(blank=True, null=True)
+    observaciones_10 = models.TextField(blank=True, null=True)
+
+    conservacion_manejo_ambiental = models.TextField(blank=True, null=True)
+    sustentabilidad = models.TextField(blank=True, null=True)
+    riesgos_acciones = models.TextField(blank=True, null=True)
+
+    aliado_1 = models.TextField(blank=True, null=True)
+    aporte_aliado_1 = models.TextField(blank=True, null=True)
+    nombre_aliado_1 = models.TextField(blank=True, null=True)
+    datos_contacto_aliado_1 = models.TextField(blank=True, null=True)
+
+    aliado_2 = models.TextField(blank=True, null=True)
+    aporte_aliado_2 = models.TextField(blank=True, null=True)
+    nombre_aliado_2 = models.TextField(blank=True, null=True)
+    datos_contacto_aliado_2 = models.TextField(blank=True, null=True)
+
+    aliado_3 = models.TextField(blank=True, null=True)
+    aporte_aliado_3 = models.TextField(blank=True, null=True)
+    nombre_aliado_3 = models.TextField(blank=True, null=True)
+    datos_contacto_aliado_3 = models.TextField(blank=True, null=True)
+
+    aliado_4 = models.TextField(blank=True, null=True)
+    aporte_aliado_4 = models.TextField(blank=True, null=True)
+    nombre_aliado_4 = models.TextField(blank=True, null=True)
+    datos_contacto_aliado_4 = models.TextField(blank=True, null=True)
+
+    concepto_tecnico = models.TextField(blank=True, null=True)
+
+    anexo_1 = models.TextField(blank=True, null=True)
+    anexo_2 = models.TextField(blank=True, null=True)
+    anexo_3 = models.TextField(blank=True, null=True)
+    anexo_4 = models.TextField(blank=True, null=True)
+
+    nombre_representante_consejo = models.TextField(blank=True, null=True)
+    cedula_representante_consejo = models.BigIntegerField(blank=True, null=True)
+
+    nombre_representante_comite = models.TextField(blank=True, null=True)
+    cedula_representante_comite = models.BigIntegerField(blank=True, null=True)
+
+    nombre_funcionario = models.TextField(blank=True, null=True)
+    cedula_funcionario = models.BigIntegerField(blank=True, null=True)
+
+    file = ContentTypeRestrictedFileField(
+        upload_to=upload_dinamic_ficha_proyecto,
+        content_types=[
+            'application/vnd.ms-excel',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        ],
+        max_upload_size=10485760,
+        max_length=255,
+        blank=True, null=True
+    )
+
+
+    def url_file(self):
+        url = None
+        try:
+            url = self.file.url
+        except:
+            pass
+        return url
+
+
+    def __str__(self):
+        try:
+            name = f"Gestor: {self.json['documento']}"
+        except:
+            name = str(self.id)
+        return name
+
+
+    def get_documentos_managers(self):
+        documentos = []
+
+        for manager in self.json['data']['managers']:
+            documentos.append(manager['document'])
+
+        return documentos
+
+
+@receiver(post_save, sender=ProyectosApi)
+def ProyectosApiPostSave(sender, instance, **kwargs):
+
+    try:
+        ProyectosApi.objects.filter(id = instance.id).update(valor = instance.json['data']['budget_used'], numero_hogares = instance.json['data']['homes'])
+    except:
+        pass

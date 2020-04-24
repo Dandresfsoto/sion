@@ -14,10 +14,13 @@ from usuarios.tasks import send_mail_templated
 from config.settings.base import DEFAULT_FROM_EMAIL, EMAIL_HOST_USER
 import random
 from django.contrib.auth import authenticate, login
-from usuarios.models import PaqueteActivacion, CodigoActivacion,Municipios, Experiencias
+from usuarios.models import PaqueteActivacion, CodigoActivacion,Municipios, Experiencias, ConsejosResguardosProyectosIraca, \
+    ComunidadesProyectosIraca
 from dal import autocomplete
 from django.utils import timezone
 from django.core import serializers
+from django.shortcuts import render
+from uuid import UUID
 
 class NotificationsApi(APIView):
     """
@@ -563,3 +566,25 @@ class HvAPI(APIView):
         status_response = status.HTTP_200_OK
 
         return Response({'response': response}, status=status_response)
+
+def cargar_consejos(request):
+    municipio_id = request.GET.get('municipio')
+    try:
+        UUID(municipio_id)
+    except:
+        consejos = ConsejosResguardosProyectosIraca.objects.none()
+    else:
+        consejos = ConsejosResguardosProyectosIraca.objects.filter(municipio=municipio_id).order_by('nombre')
+
+    return render(request, 'consejos/load/consejos_dropdown_list_options.html', {'consejos': consejos})
+
+def cargar_comunidades(request):
+    consejo_id = request.GET.get('consejo')
+    try:
+        UUID(consejo_id)
+    except:
+        comunidades = ComunidadesProyectosIraca.objects.none()
+    else:
+        comunidades = ComunidadesProyectosIraca.objects.filter(consejo_resguardo__id=consejo_id).order_by('nombre')
+
+    return render(request, 'comunidades/load/comunidades_dropdown_list_options.html', {'comunidades': comunidades})

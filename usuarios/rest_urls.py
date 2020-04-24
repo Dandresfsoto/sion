@@ -14,4 +14,6 @@ urlpatterns = [
     path('perfil/experiencia/',rest_views.ExperienciaAPI.as_view()),
     path('avatar/',rest_views.AvatarAPI.as_view()),
     path('hv/',rest_views.HvAPI.as_view()),
+    path('cargar/consejos/', rest_views.cargar_consejos),
+    path('cargar/comunidades/', rest_views.cargar_comunidades),
 ]

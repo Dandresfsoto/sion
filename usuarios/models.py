@@ -437,6 +437,28 @@ class HojasDeVida(models.Model):
     def __str__(self):
         return str(self.id)
 
+
+
+class ConsejosResguardosProyectosIraca(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, unique=True, editable=False)
+    municipio = models.ForeignKey(Municipios, on_delete=models.DO_NOTHING, blank=True, null=True)
+    nombre = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.nombre
+
+
+class ComunidadesProyectosIraca(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, unique=True, editable=False)
+    consejo_resguardo = models.ForeignKey(ConsejosResguardosProyectosIraca,on_delete=models.DO_NOTHING)
+    nombre = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.nombre
+
+
+
+
 @receiver(post_save, sender=User)
 def UserPostSave(sender, instance, **kwargs):
 

@@ -138,6 +138,18 @@ class Fest2019OptionsView(LoginRequiredMixin,
                 'sican_icon': 'attach_money',
                 'sican_description': 'Cortes de pago y cuentas de cobro'
             })
+
+        if self.request.user.has_perm('usuarios.fest_2019.misproyectos.ver'):
+            items.append({
+                'sican_categoria': 'Mis proyectos',
+                'sican_color': 'blue darken-3',
+                'sican_order': 9,
+                'sican_url': 'misproyectos/',
+                'sican_name': 'Mis proyectos',
+                'sican_icon': 'business_center',
+                'sican_description': 'Registro de proyectos'
+            })
+
         """
         if self.request.user.has_perm('usuarios.fest_2019.ruteo.ver'):
             items.append({
@@ -172,6 +184,70 @@ class Fest2019OptionsView(LoginRequiredMixin,
         return super(Fest2019OptionsView,self).get_context_data(**kwargs)
 
 #----------------------------------------------------------------------------------
+
+class MisProyectosListView(LoginRequiredMixin,
+                           MultiplePermissionsRequiredMixin,
+                           TemplateView):
+
+    permissions = {
+        "all": [
+            "usuarios.fest_2019.ver",
+            "usuarios.fest_2019.misproyectos.ver",
+        ]
+    }
+    login_url = settings.LOGIN_URL
+    template_name = 'fest_2019/misproyectos/lista.html'
+
+
+    def get_context_data(self, **kwargs):
+        kwargs['title'] = "Mis proyectos"
+        kwargs['url_datatable'] = '/rest/v1.0/fest_2019/misproyectos/'
+        storage = get_messages(self.request)
+        for message in storage:
+            kwargs['success'] = message
+        return super(MisProyectosListView,self).get_context_data(**kwargs)
+
+
+class MisProyectosUpdateView(LoginRequiredMixin,
+                             MultiplePermissionsRequiredMixin,
+                             UpdateView):
+
+    login_url = settings.LOGIN_URL
+    template_name = 'fest_2019/misproyectos/editar.html'
+    form_class = forms.FichaProyectoForm
+    success_url = "../../"
+    model = models.ProyectosApi
+
+    def get_permission_required(self, request=None):
+        permissions = {
+            "all": [
+                "usuarios.fest_2019.ver",
+                "usuarios.fest_2019.misproyectos.editar",
+            ]
+        }
+        return permissions
+
+    def get_context_data(self, **kwargs):
+        proyecto = models.ProyectosApi.objects.get(id = self.kwargs['pk'])
+        kwargs['title'] = "Mis proyectos"
+        kwargs['breadcrumb_active'] = f"{proyecto.nombre_proyecto}"
+        kwargs['url_carga_consejos'] = '/rest/v1.0/usuarios/cargar/consejos/'
+        kwargs['url_carga_comunidades'] = '/rest/v1.0/usuarios/cargar/comunidades/'
+        storage = get_messages(self.request)
+        for message in storage:
+            kwargs['success'] = message
+        return super(MisProyectosUpdateView, self).get_context_data(**kwargs)
+
+
+    def form_valid(self, form):
+        self.object = form.save()
+        return super(MisProyectosUpdateView, self).form_valid(form)
+
+
+    def get_initial(self):
+        return {'pk':self.kwargs['pk']}
+
+
 
 #-------------------------------------- BD ----------------------------------------
 

@@ -4,6 +4,9 @@ from fest_2019 import views
 urlpatterns = [
     path('', views.Fest2019OptionsView.as_view()),
 
+    path('misproyectos/', views.MisProyectosListView.as_view()),
+    path('misproyectos/editar/<int:pk>/', views.MisProyectosUpdateView.as_view()),
+
     path('bd/', views.HogaresListView.as_view()),
     path('bd/crear/', views.HogaresCreateView.as_view()),
     path('bd/editar/<uuid:pk>/', views.HogaresUpdateView.as_view()),

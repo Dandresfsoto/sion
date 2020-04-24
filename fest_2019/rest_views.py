@@ -26,6 +26,67 @@ class ProyectosApiView(mixins.CreateModelMixin,
         return self.create(request, *args, **kwargs)
 
 
+
+
+class MisProyectosListApi(BaseDatatableView):
+    model = models.ProyectosApi
+    columns = ['id','creation','nombre_proyecto','numero_hogares','valor']
+    order_columns = ['id','creation','nombre_proyecto','numero_hogares','valor']
+
+    def get_initial_queryset(self):
+
+        self.permissions = {
+            "ver": [
+                "usuarios.fest_2019.ver",
+                "usuarios.fest_2019.misproyectos.ver",
+            ],
+            "editar": [
+                "usuarios.fest_2019.ver",
+                "usuarios.fest_2019.misproyectos.editar",
+            ]
+        }
+
+        return self.model.objects.all()
+
+    def filter_queryset(self, qs):
+        search = self.request.GET.get(u'search[value]', None)
+        if search:
+            q = Q(nombre__icontains=search) | Q(contrato__contratista__cedula__icontains=search) | \
+                Q(contrato__contratista__nombres__icontains=search) | Q(contrato__contratista__apellidos__icontains=search)
+            qs = qs.filter(q)
+        return qs
+
+    def render_column(self, row, column):
+
+        if column == 'id':
+            ret = ''
+            if self.request.user.has_perms(self.permissions.get('editar')):
+                ret = '<div class="center-align">' \
+                           '<a href="editar/{0}" class="tooltipped edit-table" data-position="top" data-delay="50" data-tooltip="Editar ruta {1}">' \
+                                '<i class="material-icons">edit</i>' \
+                           '</a>' \
+                       '</div>'.format(row.id,'')
+
+            else:
+                ret = '<div class="center-align">' \
+                           '<i class="material-icons">edit</i>' \
+                       '</div>'.format(row.id,'')
+
+            return ret
+
+        elif column == 'creation':
+            return timezone.localtime(row.creation).strftime('%d de %B del %Y a las %I:%M:%S %p')
+
+
+        elif column == 'valor':
+            return '<div class="center-align">$ {:20,.2f}</div>'.format(row.valor.amount)
+
+        else:
+            return super(MisProyectosListApi, self).render_column(row, column)
+
+
+
+
 class HogaresListApi(BaseDatatableView):
     model = models.Hogares
     columns = ['id','documento','primer_nombre','municipio','rutas']

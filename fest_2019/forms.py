@@ -19,7 +19,8 @@ from cpe_2018.widgets import SelectWithDisabled
 from django.utils import timezone
 from usuarios.models import Municipios,Departamentos, Corregimientos, Veredas, PueblosIndigenas, ResguardosIndigenas, \
     ComunidadesIndigenas ,LenguasNativas, ConsejosAfro, ComunidadesAfro, CategoriaDiscapacidad, \
-    DificultadesPermanentesDiscapacidad, ElementosDiscapacidad, TiposRehabilitacionDiscapacidad
+    DificultadesPermanentesDiscapacidad, ElementosDiscapacidad, TiposRehabilitacionDiscapacidad, ConsejosResguardosProyectosIraca, \
+    ComunidadesProyectosIraca
 from direccion_financiera.models import Bancos
 from django.db.models import Sum
 
@@ -5923,4 +5924,412 @@ class ContactoCreateForm(forms.ModelForm):
         model = models.Contactos
         fields = ['municipio','nombres','apellidos','cargo','celular','email','resguardo','comunidad','lenguas']
         widgets = {
+        }
+
+
+class FichaProyectoForm(forms.ModelForm):
+
+    """
+    def _clean_fields(self):
+        for name, field in self.fields.items():
+            # value_from_datadict() gets the data from the data dictionaries.
+            # Each widget type knows how to retrieve its own data, because some
+            # widgets split data over several HTML fields.
+            if name not in ['resguado_indigena_consejo_comunitario','nombre_comunidad']:
+                if field.disabled:
+                    value = self.get_initial_for_field(field, name)
+                else:
+                    value = field.widget.value_from_datadict(self.data, self.files, self.add_prefix(name))
+                try:
+                    if isinstance(field, FileField):
+                        initial = self.get_initial_for_field(field, name)
+                        value = field.clean(value, initial)
+                    else:
+                        value = field.clean(value)
+
+                    self.cleaned_data[name] = value
+                    if hasattr(self, 'clean_%s' % name):
+                        value = getattr(self, 'clean_%s' % name)()
+                        self.cleaned_data[name] = value
+                except ValidationError as e:
+                    self.add_error(name, e)
+            else:
+                value = field.widget.value_from_datadict(self.data, self.files, self.add_prefix(name))
+                if name == 'resguado_indigena_consejo_comunitario':
+                    if value != '' and value != None:
+                        self.cleaned_data[name] = ConsejosResguardosProyectosIraca.objects.get(id = value)
+                    else:
+                        self.cleaned_data[name] = None
+                else:
+                    if value != []:
+                        self.cleaned_data[name] = ComunidadesProyectosIraca.objects.get(id = value)
+                    else:
+                        self.cleaned_data[name] = None
+    """
+
+    def __init__(self, *args, **kwargs):
+        super(FichaProyectoForm, self).__init__(*args, **kwargs)
+
+        ids_municipios = models.ConsejosResguardosProyectosIraca.objects.all().values_list('municipio__id',flat=True)
+
+        self.fields['municipio'].queryset = models.Municipios.objects.filter(id__in=ids_municipios)
+
+        if kwargs['instance'] is None:
+            self.fields['convenio'].initial = '213-19'
+            self.fields['resguado_indigena_consejo_comunitario'].queryset = models.ConsejosResguardosProyectosIraca.objects.none()
+            self.fields['nombre_comunidad'].queryset = models.ComunidadesProyectosIraca.objects.none()
+
+        else:
+            instance = kwargs['instance']
+            self.fields['convenio'].initial = '213-19'
+
+            self.fields['resguado_indigena_consejo_comunitario'].queryset = models.ConsejosResguardosProyectosIraca.objects.none()
+
+            if instance.municipio != None:
+                self.fields['resguado_indigena_consejo_comunitario'].queryset = models.ConsejosResguardosProyectosIraca.objects.filter(municipio = instance.municipio)
+
+            self.fields['nombre_comunidad'].queryset = models.ComunidadesProyectosIraca.objects.none()
+
+            if instance.resguado_indigena_consejo_comunitario != None:
+                self.fields['nombre_comunidad'].queryset = models.ComunidadesProyectosIraca.objects.filter(consejo_resguardo = instance.resguado_indigena_consejo_comunitario)
+
+
+    class Meta:
+        model = models.ProyectosApi
+        fields = ['convenio','codigo_proyecto','fecha_elaboracion','municipio','resguado_indigena_consejo_comunitario',
+                  'nombre_comunidad', 'nombre_representante',
+                  'numero_hogares','nombre_proyecto','linea','duracion','ubicacion_proyecto','producto_servicio','problema',
+                  'justificacion','criterios_socioculturales','objetivo_general','objetivo_especifico_1','objetivo_especifico_2',
+                  'objetivo_especifico_3',
+
+                  'actividad_1','mes_1_1','mes_2_1','mes_3_1','mes_4_1','mes_5_1','mes_6_1',
+                  'indicador_1','unidad_medida_1','meta_1','medio_verificacion_1','observaciones_1',
+
+                  'actividad_2', 'mes_1_2', 'mes_2_2', 'mes_3_2', 'mes_4_2', 'mes_5_2', 'mes_6_2',
+                  'indicador_2', 'unidad_medida_2', 'meta_2',
+                  'medio_verificacion_2', 'observaciones_2',
+
+                  'actividad_3', 'mes_1_3', 'mes_2_3', 'mes_3_3', 'mes_4_3', 'mes_5_3', 'mes_6_3',
+                  'indicador_3', 'unidad_medida_3', 'meta_3',
+                  'medio_verificacion_3', 'observaciones_3',
+
+                   'actividad_4', 'mes_1_4', 'mes_2_4', 'mes_3_4', 'mes_4_4', 'mes_5_4', 'mes_6_4',
+                  'indicador_4', 'unidad_medida_4', 'meta_4',
+                  'medio_verificacion_4', 'observaciones_4',
+
+                  'actividad_5', 'mes_1_5', 'mes_2_5', 'mes_3_5', 'mes_4_5', 'mes_5_5', 'mes_6_5',
+                  'indicador_5', 'unidad_medida_5', 'meta_5',
+                  'medio_verificacion_5', 'observaciones_5',
+
+                  'actividad_6', 'mes_1_6', 'mes_2_6', 'mes_3_6', 'mes_4_6', 'mes_5_6', 'mes_6_6',
+                  'indicador_6', 'unidad_medida_6', 'meta_6',
+                  'medio_verificacion_6', 'observaciones_6',
+
+                   'actividad_7', 'mes_1_7', 'mes_2_7', 'mes_3_7', 'mes_4_7', 'mes_5_7', 'mes_6_7',
+                  'indicador_7', 'unidad_medida_7', 'meta_7',
+                  'medio_verificacion_7', 'observaciones_7',
+
+                  'actividad_8', 'mes_1_8', 'mes_2_8', 'mes_3_8', 'mes_4_8', 'mes_5_8', 'mes_6_8',
+                  'indicador_8', 'unidad_medida_8', 'meta_8',
+                  'medio_verificacion_8', 'observaciones_8',
+
+                   'actividad_9', 'mes_1_9', 'mes_2_9', 'mes_3_9', 'mes_4_9', 'mes_5_9', 'mes_6_9',
+                  'indicador_9', 'unidad_medida_9', 'meta_9',
+                  'medio_verificacion_9', 'observaciones_9',
+
+                  'actividad_10', 'mes_1_10', 'mes_2_10', 'mes_3_10', 'mes_4_10', 'mes_5_10', 'mes_6_10',
+                  'indicador_10', 'unidad_medida_10', 'meta_10',
+                  'medio_verificacion_10', 'observaciones_10',
+
+                  'conservacion_manejo_ambiental', 'sustentabilidad', 'riesgos_acciones',
+
+                  'aliado_1', 'aporte_aliado_1', 'nombre_aliado_1', 'datos_contacto_aliado_1',
+                  'aliado_2', 'aporte_aliado_2', 'nombre_aliado_2', 'datos_contacto_aliado_2',
+                  'aliado_3', 'aporte_aliado_3', 'nombre_aliado_3', 'datos_contacto_aliado_3',
+                  'aliado_4', 'aporte_aliado_4', 'nombre_aliado_4', 'datos_contacto_aliado_4',
+
+                  'concepto_tecnico', 'anexo_1', 'anexo_2', 'anexo_3', 'anexo_4',
+
+                  'nombre_representante_consejo', 'cedula_representante_consejo', 'nombre_representante_comite',
+                  'cedula_representante_comite', 'nombre_funcionario', 'cedula_funcionario',
+
+                  ]
+        widgets = {
+            'convenio': forms.TextInput(attrs={'autocomplete':'off'}),
+            'nombre_representante': forms.TextInput(attrs={'autocomplete':'off'}),
+            'nombre_proyecto': forms.TextInput(attrs={'autocomplete':'off'}),
+            'ubicacion_proyecto': forms.TextInput(attrs={'autocomplete':'off'}),
+            'producto_servicio': forms.TextInput(attrs={'autocomplete':'off'}),
+
+
+            'actividad_1': forms.TextInput(attrs={'autocomplete':'off'}),
+            'indicador_1': forms.TextInput(attrs={'autocomplete':'off'}),
+            'meta_1': forms.TextInput(attrs={'readonly':'readonly'}),
+            'unidad_medida_1': forms.TextInput(attrs={'autocomplete':'off'}),
+            'medio_verificacion_1': forms.TextInput(attrs={'autocomplete':'off'}),
+            'observaciones_1': forms.TextInput(attrs={'autocomplete':'off'}),
+
+            'actividad_2': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'indicador_2': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'meta_2': forms.TextInput(attrs={'readonly': 'readonly'}),
+            'unidad_medida_2': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'medio_verificacion_2': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'observaciones_2': forms.TextInput(attrs={'autocomplete': 'off'}),
+
+            'actividad_3': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'indicador_3': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'meta_3': forms.TextInput(attrs={'readonly': 'readonly'}),
+            'unidad_medida_3': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'medio_verificacion_3': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'observaciones_3': forms.TextInput(attrs={'autocomplete': 'off'}),
+
+            'actividad_4': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'indicador_4': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'meta_4': forms.TextInput(attrs={'readonly': 'readonly'}),
+            'unidad_medida_4': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'medio_verificacion_4': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'observaciones_4': forms.TextInput(attrs={'autocomplete': 'off'}),
+
+            'actividad_5': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'indicador_5': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'meta_5': forms.TextInput(attrs={'readonly': 'readonly'}),
+            'unidad_medida_5': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'medio_verificacion_5': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'observaciones_5': forms.TextInput(attrs={'autocomplete': 'off'}),
+
+            'actividad_6': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'indicador_6': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'meta_6': forms.TextInput(attrs={'readonly': 'readonly'}),
+            'unidad_medida_6': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'medio_verificacion_6': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'observaciones_6': forms.TextInput(attrs={'autocomplete': 'off'}),
+
+            'actividad_7': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'indicador_7': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'meta_7': forms.TextInput(attrs={'readonly': 'readonly'}),
+            'unidad_medida_7': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'medio_verificacion_7': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'observaciones_7': forms.TextInput(attrs={'autocomplete': 'off'}),
+
+            'actividad_8': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'indicador_8': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'meta_8': forms.TextInput(attrs={'readonly': 'readonly'}),
+            'unidad_medida_8': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'medio_verificacion_8': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'observaciones_8': forms.TextInput(attrs={'autocomplete': 'off'}),
+
+            'actividad_9': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'indicador_9': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'meta_9': forms.TextInput(attrs={'readonly': 'readonly'}),
+            'unidad_medida_9': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'medio_verificacion_9': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'observaciones_9': forms.TextInput(attrs={'autocomplete': 'off'}),
+
+            'actividad_10': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'indicador_10': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'meta_10': forms.TextInput(attrs={'readonly': 'readonly'}),
+            'unidad_medida_10': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'medio_verificacion_10': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'observaciones_10': forms.TextInput(attrs={'autocomplete': 'off'}),
+
+
+            'conservacion_manejo_ambiental': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'sustentabilidad': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'riesgos_acciones': forms.TextInput(attrs={'autocomplete': 'off'}),
+
+
+            'anexo_1': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'anexo_2': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'anexo_3': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'anexo_4': forms.TextInput(attrs={'autocomplete': 'off'}),
+
+
+
+
+
+            'nombre_representante_consejo': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'nombre_representante_comite': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'nombre_funcionario': forms.TextInput(attrs={'autocomplete': 'off'}),
+
+
+
+            'aliado_1': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'aporte_aliado_1': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'nombre_aliado_1': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'datos_contacto_aliado_1': forms.TextInput(attrs={'autocomplete': 'off'}),
+
+            'aliado_2': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'aporte_aliado_2': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'nombre_aliado_2': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'datos_contacto_aliado_2': forms.TextInput(attrs={'autocomplete': 'off'}),
+
+            'aliado_3': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'aporte_aliado_3': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'nombre_aliado_3': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'datos_contacto_aliado_3': forms.TextInput(attrs={'autocomplete': 'off'}),
+
+            'aliado_4': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'aporte_aliado_4': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'nombre_aliado_4': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'datos_contacto_aliado_4': forms.TextInput(attrs={'autocomplete': 'off'}),
+
+
+
+            'concepto_tecnico': forms.TextInput(attrs={'autocomplete': 'off'}),
+
+
+
+
+            'objetivo_especifico_1': forms.TextInput(attrs={'autocomplete':'off'}),
+            'objetivo_especifico_2': forms.TextInput(attrs={'autocomplete':'off'}),
+            'objetivo_especifico_3': forms.TextInput(attrs={'autocomplete':'off'}),
+            'linea': forms.Select(choices=[('','----------'),('Comercial','Comercial'),('Agropecuario','Agropecuario'),('Transformación','Transformación'),('Otro','Otro')]),
+            'duracion': forms.Select(choices=[('','----------'),('1 mes','1 mes'),('2 meses','2 meses'),('3 meses','3 meses'),('4 meses','4 meses'),('5 meses','5 meses'),('6 meses','6 meses')]),
+            'codigo_proyecto': forms.TextInput(attrs={'autocomplete':'off'}),
+            'problema': forms.Textarea(attrs={'class':'materialize-textarea'}),
+            'justificacion': forms.Textarea(attrs={'class':'materialize-textarea'}),
+            'criterios_socioculturales': forms.Textarea(attrs={'class':'materialize-textarea'}),
+            'objetivo_general': forms.Textarea(attrs={'class':'materialize-textarea'}),
+        }
+
+        labels = {
+            'fecha_elaboracion': 'Fecha de elaboración',
+            'resguado_indigena_consejo_comunitario': 'Consejo(s) / Resguardo(s)',
+            'nombre_comunidad' : 'Comunidad (es)',
+            'numero_hogares':'No. Hogares Beneficiarios',
+            'nombre_proyecto':'Nombre del Proyecto',
+            'linea':'Linea',
+            'duracion':'Duración',
+            'ubicacion_proyecto':'Ubicación del Proyecto',
+            'producto_servicio':'Producto/Servicio',
+
+            'mes_1_1': 'Mes 1',
+            'mes_2_1': 'Mes 2',
+            'mes_3_1': 'Mes 3',
+            'mes_4_1': 'Mes 4',
+            'mes_5_1': 'Mes 5',
+            'mes_6_1': 'Mes 6',
+            'mes_7_1': 'Mes 7',
+            'mes_8_1': 'Mes 8',
+            'mes_9_1': 'Mes 9',
+            'mes_10_1': 'Mes 10',
+            'mes_11_1': 'Mes 11',
+            'mes_12_1': 'Mes 12',
+
+            'mes_1_2': 'Mes 1',
+            'mes_2_2': 'Mes 2',
+            'mes_3_2': 'Mes 3',
+            'mes_4_2': 'Mes 4',
+            'mes_5_2': 'Mes 5',
+            'mes_6_2': 'Mes 6',
+            'mes_7_2': 'Mes 7',
+            'mes_8_2': 'Mes 8',
+            'mes_9_2': 'Mes 9',
+            'mes_10_2': 'Mes 10',
+            'mes_11_2': 'Mes 11',
+            'mes_12_2': 'Mes 12',
+
+            'mes_1_3': 'Mes 1',
+            'mes_2_3': 'Mes 2',
+            'mes_3_3': 'Mes 3',
+            'mes_4_3': 'Mes 4',
+            'mes_5_3': 'Mes 5',
+            'mes_6_3': 'Mes 6',
+            'mes_7_3': 'Mes 7',
+            'mes_8_3': 'Mes 8',
+            'mes_9_3': 'Mes 9',
+            'mes_10_3': 'Mes 10',
+            'mes_11_3': 'Mes 11',
+            'mes_12_3': 'Mes 12',
+
+            'mes_1_4': 'Mes 1',
+            'mes_2_4': 'Mes 2',
+            'mes_3_4': 'Mes 3',
+            'mes_4_4': 'Mes 4',
+            'mes_5_4': 'Mes 5',
+            'mes_6_4': 'Mes 6',
+            'mes_7_4': 'Mes 7',
+            'mes_8_4': 'Mes 8',
+            'mes_9_4': 'Mes 9',
+            'mes_10_4': 'Mes 10',
+            'mes_11_4': 'Mes 11',
+            'mes_12_4': 'Mes 12',
+
+            'mes_1_5': 'Mes 1',
+            'mes_2_5': 'Mes 2',
+            'mes_3_5': 'Mes 3',
+            'mes_4_5': 'Mes 4',
+            'mes_5_5': 'Mes 5',
+            'mes_6_5': 'Mes 6',
+            'mes_7_5': 'Mes 7',
+            'mes_8_5': 'Mes 8',
+            'mes_9_5': 'Mes 9',
+            'mes_10_5': 'Mes 10',
+            'mes_11_5': 'Mes 11',
+            'mes_12_5': 'Mes 12',
+
+            'mes_1_6': 'Mes 1',
+            'mes_2_6': 'Mes 2',
+            'mes_3_6': 'Mes 3',
+            'mes_4_6': 'Mes 4',
+            'mes_5_6': 'Mes 5',
+            'mes_6_6': 'Mes 6',
+            'mes_7_6': 'Mes 7',
+            'mes_8_6': 'Mes 8',
+            'mes_9_6': 'Mes 9',
+            'mes_10_6': 'Mes 10',
+            'mes_11_6': 'Mes 11',
+            'mes_12_6': 'Mes 12',
+
+            'mes_1_7': 'Mes 1',
+            'mes_2_7': 'Mes 2',
+            'mes_3_7': 'Mes 3',
+            'mes_4_7': 'Mes 4',
+            'mes_5_7': 'Mes 5',
+            'mes_6_7': 'Mes 6',
+            'mes_7_7': 'Mes 7',
+            'mes_8_7': 'Mes 8',
+            'mes_9_7': 'Mes 9',
+            'mes_10_7': 'Mes 10',
+            'mes_11_7': 'Mes 11',
+            'mes_12_7': 'Mes 12',
+
+            'mes_1_8': 'Mes 1',
+            'mes_2_8': 'Mes 2',
+            'mes_3_8': 'Mes 3',
+            'mes_4_8': 'Mes 4',
+            'mes_5_8': 'Mes 5',
+            'mes_6_8': 'Mes 6',
+            'mes_7_8': 'Mes 7',
+            'mes_8_8': 'Mes 8',
+            'mes_9_8': 'Mes 9',
+            'mes_10_8': 'Mes 10',
+            'mes_11_8': 'Mes 11',
+            'mes_12_8': 'Mes 12',
+
+            'mes_1_9': 'Mes 1',
+            'mes_2_9': 'Mes 2',
+            'mes_3_9': 'Mes 3',
+            'mes_4_9': 'Mes 4',
+            'mes_5_9': 'Mes 5',
+            'mes_6_9': 'Mes 6',
+            'mes_7_9': 'Mes 7',
+            'mes_8_9': 'Mes 8',
+            'mes_9_9': 'Mes 9',
+            'mes_10_9': 'Mes 10',
+            'mes_11_9': 'Mes 11',
+            'mes_12_9': 'Mes 12',
+
+            'mes_1_10': 'Mes 1',
+            'mes_2_10': 'Mes 2',
+            'mes_3_10': 'Mes 3',
+            'mes_4_10': 'Mes 4',
+            'mes_5_10': 'Mes 5',
+            'mes_6_10': 'Mes 6',
+            'mes_7_10': 'Mes 7',
+            'mes_8_10': 'Mes 8',
+            'mes_9_10': 'Mes 9',
+            'mes_10_10': 'Mes 10',
+            'mes_11_10': 'Mes 11',
+            'mes_12_10': 'Mes 12',
         }
