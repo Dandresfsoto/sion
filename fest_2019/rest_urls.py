@@ -3,6 +3,8 @@ from fest_2019 import rest_views
 
 urlpatterns = [
     path('proyectos_api/', rest_views.ProyectosApiView.as_view()),
+    path('proyectos_api/<int:cedula>/', rest_views.ProyectosApiListView.as_view()),
+    path('proyectos_api/<int:cedula>/<int:pk>/', rest_views.ProyectosApiRetrieveView.as_view()),
 
 
 

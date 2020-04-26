@@ -15,9 +15,16 @@ class LoginRequiredMiddleware(MiddlewareMixin):
         ]
 
         if not request.user.is_authenticated:
+
             if not request.path == settings.LOGIN_URL and not request.path.split('/')[1] == 'oauth' and not request.path.split('/')[1] == 'certificaciones' and not request.path.split('/')[1] == 'media':
                 if request.path not in exclude_paths:
-                    return redirect(settings.LOGIN_URL)
+
+                    path_split = request.path.split('/')
+
+                    if 'rest' in path_split and 'v1.0' in path_split and 'fest_2019' in path_split and 'proyectos_api' in path_split and 'rest' in path_split and 'rest' in path_split:
+                        pass
+                    else:
+                        return redirect(settings.LOGIN_URL)
         else:
 
             if request.user.cedula == None:

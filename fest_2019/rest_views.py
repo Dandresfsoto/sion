@@ -27,6 +27,33 @@ class ProyectosApiView(mixins.CreateModelMixin,
 
 
 
+class ProyectosApiListView(mixins.ListModelMixin,
+                           generics.GenericAPIView):
+
+    serializer_class = ProyectosApiSerializer
+    permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        return models.ProyectosApi.objects.filter(json__documento = str(self.kwargs['cedula']))
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+
+
+class ProyectosApiRetrieveView(mixins.RetrieveModelMixin,
+                               generics.GenericAPIView):
+
+    serializer_class = ProyectosApiSerializer
+    permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        return models.ProyectosApi.objects.filter(json__documento = str(self.kwargs['cedula']))
+
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
+
+
 
 class MisProyectosListApi(BaseDatatableView):
     model = models.ProyectosApi

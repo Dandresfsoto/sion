@@ -6,7 +6,8 @@ class ProyectosApiSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ProyectosApi
-        fields = ['json']
+        fields = ['id','json']
+        read_only_fields = ['id']
 
     def create(self, validated_data):
 
