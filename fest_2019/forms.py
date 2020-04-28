@@ -6055,11 +6055,17 @@ class FichaProyectoForm(forms.ModelForm):
 
                   ]
         widgets = {
-            'convenio': forms.TextInput(attrs={'autocomplete':'off'}),
-            'nombre_representante': forms.TextInput(attrs={'autocomplete':'off'}),
-            'nombre_proyecto': forms.TextInput(attrs={'autocomplete':'off'}),
-            'ubicacion_proyecto': forms.TextInput(attrs={'autocomplete':'off'}),
-            'producto_servicio': forms.TextInput(attrs={'autocomplete':'off'}),
+            'convenio': forms.TextInput(attrs={'autocomplete':'off','readonly':'readonly'}),
+            'codigo_proyecto': forms.TextInput(attrs={'autocomplete':'off','readonly':'readonly'}),
+            'fecha_elaboracion': forms.TextInput(attrs={'autocomplete': 'off','readonly':'readonly'}),
+
+            'numero_hogares': forms.TextInput(attrs={'autocomplete': 'off','readonly':'readonly'}),
+
+            'nombre_representante': forms.TextInput(attrs={'autocomplete':'off','readonly':'readonly'}),
+            'nombre_proyecto': forms.TextInput(attrs={'autocomplete':'off','readonly':'readonly'}),
+            'linea': forms.TextInput(attrs={'autocomplete':'off','readonly':'readonly'}),
+            'ubicacion_proyecto': forms.TextInput(attrs={'autocomplete':'off','readonly':'readonly'}),
+            'producto_servicio': forms.TextInput(attrs={'autocomplete':'off','readonly':'readonly'}),
 
 
             'actividad_1': forms.TextInput(attrs={'autocomplete':'off'}),
@@ -6133,9 +6139,9 @@ class FichaProyectoForm(forms.ModelForm):
             'observaciones_10': forms.TextInput(attrs={'autocomplete': 'off'}),
 
 
-            'conservacion_manejo_ambiental': forms.TextInput(attrs={'autocomplete': 'off'}),
-            'sustentabilidad': forms.TextInput(attrs={'autocomplete': 'off'}),
-            'riesgos_acciones': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'conservacion_manejo_ambiental': forms.TextInput(attrs={'autocomplete': 'off','readonly':'readonly'}),
+            'sustentabilidad': forms.TextInput(attrs={'autocomplete': 'off','readonly':'readonly'}),
+            'riesgos_acciones': forms.TextInput(attrs={'autocomplete': 'off','readonly':'readonly'}),
 
 
             'anexo_1': forms.TextInput(attrs={'autocomplete': 'off'}),
@@ -6147,9 +6153,9 @@ class FichaProyectoForm(forms.ModelForm):
 
 
 
-            'nombre_representante_consejo': forms.TextInput(attrs={'autocomplete': 'off'}),
-            'nombre_representante_comite': forms.TextInput(attrs={'autocomplete': 'off'}),
-            'nombre_funcionario': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'nombre_representante_consejo': forms.TextInput(attrs={'autocomplete': 'off','readonly':'readonly'}),
+            'nombre_representante_comite': forms.TextInput(attrs={'autocomplete': 'off','readonly':'readonly'}),
+            'nombre_funcionario': forms.TextInput(attrs={'autocomplete': 'off','readonly':'readonly'}),
 
 
 
@@ -6175,21 +6181,24 @@ class FichaProyectoForm(forms.ModelForm):
 
 
 
-            'concepto_tecnico': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'concepto_tecnico': forms.TextInput(attrs={'autocomplete': 'off','readonly':'readonly'}),
+            'cedula_representante_comite': forms.TextInput(attrs={'autocomplete': 'off','readonly':'readonly'}),
+            'cedula_funcionario': forms.TextInput(attrs={'autocomplete': 'off','readonly':'readonly'}),
 
 
 
 
-            'objetivo_especifico_1': forms.TextInput(attrs={'autocomplete':'off'}),
-            'objetivo_especifico_2': forms.TextInput(attrs={'autocomplete':'off'}),
-            'objetivo_especifico_3': forms.TextInput(attrs={'autocomplete':'off'}),
-            'linea': forms.Select(choices=[('','----------'),('Comercial','Comercial'),('Agropecuario','Agropecuario'),('Transformación','Transformación'),('Otro','Otro')]),
-            'duracion': forms.Select(choices=[('','----------'),('1 mes','1 mes'),('2 meses','2 meses'),('3 meses','3 meses'),('4 meses','4 meses'),('5 meses','5 meses'),('6 meses','6 meses')]),
-            'codigo_proyecto': forms.TextInput(attrs={'autocomplete':'off'}),
-            'problema': forms.Textarea(attrs={'class':'materialize-textarea'}),
-            'justificacion': forms.Textarea(attrs={'class':'materialize-textarea'}),
-            'criterios_socioculturales': forms.Textarea(attrs={'class':'materialize-textarea'}),
-            'objetivo_general': forms.Textarea(attrs={'class':'materialize-textarea'}),
+            'objetivo_especifico_1': forms.TextInput(attrs={'autocomplete':'off','readonly':'readonly'}),
+            'objetivo_especifico_2': forms.TextInput(attrs={'autocomplete':'off','readonly':'readonly'}),
+            'objetivo_especifico_3': forms.TextInput(attrs={'autocomplete':'off','readonly':'readonly'}),
+
+            'duracion': forms.Select(choices=[('','----------'),('1','1 mes'),('2','2 meses'),('3','3 meses'),('4','4 meses'),('5','5 meses'),('6','6 meses')]),
+            'problema': forms.Textarea(attrs={'class':'materialize-textarea','readonly':'readonly'}),
+            'justificacion': forms.Textarea(attrs={'class':'materialize-textarea','readonly':'readonly'}),
+            'criterios_socioculturales': forms.Textarea(attrs={'class':'materialize-textarea','readonly':'readonly'}),
+            'objetivo_general': forms.Textarea(attrs={'class':'materialize-textarea','readonly':'readonly'}),
+
+            'cedula_representante_consejo': forms.NumberInput(attrs={'autocomplete': 'off', 'readonly': 'readonly'}),
         }
 
         labels = {

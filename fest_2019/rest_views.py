@@ -57,8 +57,8 @@ class ProyectosApiRetrieveView(mixins.RetrieveModelMixin,
 
 class MisProyectosListApi(BaseDatatableView):
     model = models.ProyectosApi
-    columns = ['id','creation','nombre_proyecto','numero_hogares','valor']
-    order_columns = ['id','creation','nombre_proyecto','numero_hogares','valor']
+    columns = ['id','creation','nombre_proyecto','numero_hogares','valor', 'file']
+    order_columns = ['id','creation','nombre_proyecto','numero_hogares','valor', 'file']
 
     def get_initial_queryset(self):
 
@@ -107,6 +107,18 @@ class MisProyectosListApi(BaseDatatableView):
 
         elif column == 'valor':
             return '<div class="center-align">$ {:20,.2f}</div>'.format(row.valor.amount)
+
+        elif column == 'file':
+            if row.url_file() != None:
+                ret = '<div class="center-align">' \
+                            '<a href="{0}" class="tooltipped edit-table" data-position="top" data-delay="50" data-tooltip="{1}">' \
+                                '<i class="material-icons">insert_drive_file</i>' \
+                            '</a>' \
+                      '</div>'.format(row.url_file(),'Descargar archivo')
+            else:
+                ret = ''
+
+            return ret
 
         else:
             return super(MisProyectosListApi, self).render_column(row, column)

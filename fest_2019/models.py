@@ -17,8 +17,11 @@ from django.conf import settings
 import json
 from delta import html
 from django.contrib.postgres.fields import JSONField
-
-
+import datetime
+import openpyxl
+from io import BytesIO
+from django.core.files import File
+from openpyxl.drawing.image import Image
 
 
 settings_time_zone = timezone(settings.TIME_ZONE)
@@ -3256,11 +3259,390 @@ class ProyectosApi(models.Model):
 
         return documentos
 
+    def get_comunidades(self):
+        nombre = ''
+
+        for comunidad in self.nombre_comunidad.all():
+            nombre += f'{comunidad.nombre}, '
+
+        return nombre[:-2]
+
 
 @receiver(post_save, sender=ProyectosApi)
 def ProyectosApiPostSave(sender, instance, **kwargs):
 
     try:
-        ProyectosApi.objects.filter(id = instance.id).update(valor = instance.json['data']['budget_used'], numero_hogares = instance.json['data']['homes'])
+        valor = instance.json['data']['budget_used']
+        convenio = instance.json['data']['agreement']
+        codigo_proyecto = instance.json['data']['projectCode']
+        fecha_elaboracion = datetime.datetime.fromtimestamp(instance.json['data']['createdAt'] / 1e3)
+        nombre_representante = instance.json['data']['legalRepresentative']
+        numero_hogares = instance.json['data']['homes']
+        nombre_proyecto = instance.json['data']['projectName']
+        linea = instance.json['data']['line']
+        duracion = instance.json['data']['duration']
+        ubicacion_proyecto = instance.json['data']['projectLocation']
+        producto_servicio = instance.json['data']['productService']
+        problema = instance.json['data']['problem']
+        justificacion = instance.json['data']['justification']
+        criterios_socioculturales = instance.json['data']['criterion']
+        objetivo_general = instance.json['data']['objective']
+        objetivo_especifico_1 = instance.json['data']['specificObjectives'][0]
+        objetivo_especifico_2 = instance.json['data']['specificObjectives'][1]
+        objetivo_especifico_3 = instance.json['data']['specificObjectives'][2]
+
+        conservacion_manejo_ambiental = instance.json['data']['environmentalManagement']
+        sustentabilidad = instance.json['data']['sustainability']
+        riesgos_acciones = instance.json['data']['risks']
+
+        concepto_tecnico = instance.json['data']['technicalConcept']
+
+        nombre_representante_consejo = instance.json['data']['RepresentativeCouncil']['name']
+        cedula_representante_consejo = instance.json['data']['RepresentativeCouncil']['document']
+
+        nombre_representante_comite = instance.json['data']['RepresentativeCommittee']['name']
+        cedula_representante_comite = instance.json['data']['RepresentativeCommittee']['document']
+
+        nombre_funcionario = instance.json['data']['Official']['name']
+        cedula_funcionario = instance.json['data']['Official']['document']
+
     except:
         pass
+
+    else:
+        ProyectosApi.objects.filter(id=instance.id).update(
+            valor=valor,
+            convenio = convenio,
+            codigo_proyecto = codigo_proyecto,
+            fecha_elaboracion = fecha_elaboracion,
+            nombre_representante = nombre_representante,
+            numero_hogares = numero_hogares,
+            nombre_proyecto = nombre_proyecto,
+            linea = linea,
+            duracion = duracion,
+            ubicacion_proyecto = ubicacion_proyecto,
+            producto_servicio = producto_servicio,
+            problema = problema,
+            justificacion = justificacion,
+            criterios_socioculturales = criterios_socioculturales,
+            objetivo_general = objetivo_general,
+            objetivo_especifico_1 = objetivo_especifico_1,
+            objetivo_especifico_2 = objetivo_especifico_2,
+            objetivo_especifico_3 = objetivo_especifico_3,
+
+            conservacion_manejo_ambiental = conservacion_manejo_ambiental,
+            sustentabilidad = sustentabilidad,
+            riesgos_acciones = riesgos_acciones,
+
+            concepto_tecnico = concepto_tecnico,
+
+            nombre_representante_consejo = nombre_representante_consejo,
+            cedula_representante_consejo = cedula_representante_consejo,
+
+            nombre_representante_comite = nombre_representante_comite,
+            cedula_representante_comite = cedula_representante_comite,
+
+            nombre_funcionario = nombre_funcionario,
+            cedula_funcionario = cedula_funcionario,
+        )
+
+        post_save.disconnect(ProyectosApiPostSave, sender=ProyectosApi)
+
+        output = BytesIO()
+
+        wb = openpyxl.load_workbook(filename=settings.STATICFILES_DIRS[0] + '/documentos/ficha_proyecto.xlsx')
+        ws = wb.get_sheet_by_name('Ficha de proyecto')
+        logo_sican = Image(settings.STATICFILES_DIRS[0] + '/img/logo_prosperidad.png', size=(439, 85))
+        logo_sican.drawing.top = 10
+        logo_sican.drawing.left = 71
+        ws.add_image(logo_sican)
+
+        ws['G6'] = instance.convenio
+        ws['R6'] = instance.codigo_proyecto
+        ws['AI6'] = instance.fecha_elaboracion
+
+        if instance.municipio != None:
+            ws['G8'] = instance.municipio.departamento.nombre
+            ws['P8'] = instance.municipio.nombre
+
+        if instance.resguado_indigena_consejo_comunitario != None:
+            ws['Z8'] = instance.resguado_indigena_consejo_comunitario.nombre
+
+        ws['K9'] = instance.get_comunidades()
+
+        ws['Z9'] = instance.nombre_representante
+        ws['AM9'] = instance.numero_hogares
+        ws['K11'] = instance.nombre_proyecto
+        ws['N12'] = instance.linea
+
+        if instance.duracion == '1':
+            ws['L13'] = f'{instance.duracion} mes'
+        else:
+            ws['L13'] = f'{instance.duracion} meses'
+
+        ws['Z13'] = instance.ubicacion_proyecto
+        ws['AO13'] = instance.producto_servicio
+        ws['C15'] = instance.problema
+        ws['C17'] = instance.justificacion
+        ws['C19'] = instance.criterios_socioculturales
+        ws['C21'] = instance.objetivo_general
+        ws['D23'] = instance.objetivo_especifico_1
+        ws['D24'] = instance.objetivo_especifico_2
+        ws['D25'] = instance.objetivo_especifico_3
+
+        ws['D31'] = instance.actividad_1
+        if instance.mes_1_1 != 0:
+            ws['N31'] = instance.mes_1_1
+        if instance.mes_2_1 != 0:
+            ws['O31'] = instance.mes_2_1
+        if instance.mes_3_1 != 0:
+            ws['P31'] = instance.mes_3_1
+        if instance.mes_4_1 != 0:
+            ws['Q31'] = instance.mes_4_1
+        if instance.mes_5_1 != 0:
+            ws['R31'] = instance.mes_5_1
+        if instance.mes_6_1 != 0:
+            ws['S31'] = instance.mes_6_1
+        ws['Z31'] = instance.indicador_1
+        ws['AF31'] = instance.unidad_medida_1
+        ws['AI31'] = instance.meta_1
+        ws['AL31'] = instance.medio_verificacion_1
+        ws['AQ31'] = instance.observaciones_1
+
+
+        ws['D32'] = instance.actividad_2
+        if instance.mes_1_2 != 0:
+            ws['N32'] = instance.mes_1_2
+        if instance.mes_2_2 != 0:
+            ws['O32'] = instance.mes_2_2
+        if instance.mes_3_2 != 0:
+            ws['P32'] = instance.mes_3_2
+        if instance.mes_4_2 != 0:
+            ws['Q32'] = instance.mes_4_2
+        if instance.mes_5_2 != 0:
+            ws['R32'] = instance.mes_5_2
+        if instance.mes_6_2 != 0:
+            ws['S32'] = instance.mes_6_2
+        ws['Z32'] = instance.indicador_2
+        ws['AF32'] = instance.unidad_medida_2
+        ws['AI32'] = instance.meta_2
+        ws['AL32'] = instance.medio_verificacion_2
+        ws['AQ32'] = instance.observaciones_2
+
+
+
+        ws['D33'] = instance.actividad_3
+        if instance.mes_1_3 != 0:
+            ws['N33'] = instance.mes_1_3
+        if instance.mes_2_3 != 0:
+            ws['O33'] = instance.mes_2_3
+        if instance.mes_3_3 != 0:
+            ws['P33'] = instance.mes_3_3
+        if instance.mes_4_3 != 0:
+            ws['Q33'] = instance.mes_4_3
+        if instance.mes_5_3 != 0:
+            ws['R33'] = instance.mes_5_3
+        if instance.mes_6_3 != 0:
+            ws['S33'] = instance.mes_6_3
+        ws['Z33'] = instance.indicador_3
+        ws['AF33'] = instance.unidad_medida_3
+        ws['AI33'] = instance.meta_3
+        ws['AL33'] = instance.medio_verificacion_3
+        ws['AQ33'] = instance.observaciones_3
+
+
+
+
+        ws['D34'] = instance.actividad_4
+        if instance.mes_1_4 != 0:
+            ws['N34'] = instance.mes_1_4
+        if instance.mes_2_4 != 0:
+            ws['O34'] = instance.mes_2_4
+        if instance.mes_3_4 != 0:
+            ws['P34'] = instance.mes_3_4
+        if instance.mes_4_4 != 0:
+            ws['Q34'] = instance.mes_4_4
+        if instance.mes_5_4 != 0:
+            ws['R34'] = instance.mes_5_4
+        if instance.mes_6_4 != 0:
+            ws['S34'] = instance.mes_6_4
+        ws['Z34'] = instance.indicador_4
+        ws['AF34'] = instance.unidad_medida_4
+        ws['AI34'] = instance.meta_4
+        ws['AL34'] = instance.medio_verificacion_4
+        ws['AQ34'] = instance.observaciones_4
+
+
+
+        ws['D35'] = instance.actividad_5
+        if instance.mes_1_5 != 0:
+            ws['N35'] = instance.mes_1_5
+        if instance.mes_2_5 != 0:
+            ws['O35'] = instance.mes_2_5
+        if instance.mes_3_5 != 0:
+            ws['P35'] = instance.mes_3_5
+        if instance.mes_4_5 != 0:
+            ws['Q35'] = instance.mes_4_5
+        if instance.mes_5_5 != 0:
+            ws['R35'] = instance.mes_5_5
+        if instance.mes_6_5 != 0:
+            ws['S35'] = instance.mes_6_5
+        ws['Z35'] = instance.indicador_5
+        ws['AF35'] = instance.unidad_medida_5
+        ws['AI35'] = instance.meta_5
+        ws['AL35'] = instance.medio_verificacion_5
+        ws['AQ35'] = instance.observaciones_5
+
+
+
+
+        ws['D36'] = instance.actividad_6
+        if instance.mes_1_6 != 0:
+            ws['N36'] = instance.mes_1_6
+        if instance.mes_2_6 != 0:
+            ws['O36'] = instance.mes_2_6
+        if instance.mes_3_6 != 0:
+            ws['P36'] = instance.mes_3_6
+        if instance.mes_4_6 != 0:
+            ws['Q36'] = instance.mes_4_6
+        if instance.mes_5_6 != 0:
+            ws['R36'] = instance.mes_5_6
+        if instance.mes_6_6 != 0:
+            ws['S36'] = instance.mes_6_6
+        ws['Z36'] = instance.indicador_6
+        ws['AF36'] = instance.unidad_medida_6
+        ws['AI36'] = instance.meta_6
+        ws['AL36'] = instance.medio_verificacion_6
+        ws['AQ36'] = instance.observaciones_6
+
+
+
+
+        ws['D37'] = instance.actividad_7
+        if instance.mes_1_7 != 0:
+            ws['N37'] = instance.mes_1_7
+        if instance.mes_2_7 != 0:
+            ws['O37'] = instance.mes_2_7
+        if instance.mes_3_7 != 0:
+            ws['P37'] = instance.mes_3_7
+        if instance.mes_4_7 != 0:
+            ws['Q37'] = instance.mes_4_7
+        if instance.mes_5_7 != 0:
+            ws['R37'] = instance.mes_5_7
+        if instance.mes_6_7 != 0:
+            ws['S37'] = instance.mes_6_7
+        ws['Z37'] = instance.indicador_7
+        ws['AF37'] = instance.unidad_medida_7
+        ws['AI37'] = instance.meta_7
+        ws['AL37'] = instance.medio_verificacion_7
+        ws['AQ37'] = instance.observaciones_7
+
+
+
+
+        ws['D38'] = instance.actividad_8
+        if instance.mes_1_8 != 0:
+            ws['N38'] = instance.mes_1_8
+        if instance.mes_2_8 != 0:
+            ws['O38'] = instance.mes_2_8
+        if instance.mes_3_8 != 0:
+            ws['P38'] = instance.mes_3_8
+        if instance.mes_4_8 != 0:
+            ws['Q38'] = instance.mes_4_8
+        if instance.mes_5_8 != 0:
+            ws['R38'] = instance.mes_5_8
+        if instance.mes_6_8 != 0:
+            ws['S38'] = instance.mes_6_8
+        ws['Z38'] = instance.indicador_8
+        ws['AF38'] = instance.unidad_medida_8
+        ws['AI38'] = instance.meta_8
+        ws['AL38'] = instance.medio_verificacion_8
+        ws['AQ38'] = instance.observaciones_8
+
+
+
+
+        ws['D39'] = instance.actividad_9
+        if instance.mes_1_9 != 0:
+            ws['N39'] = instance.mes_1_9
+        if instance.mes_2_9 != 0:
+            ws['O39'] = instance.mes_2_9
+        if instance.mes_3_9 != 0:
+            ws['P39'] = instance.mes_3_9
+        if instance.mes_4_9 != 0:
+            ws['Q39'] = instance.mes_4_9
+        if instance.mes_5_9 != 0:
+            ws['R39'] = instance.mes_5_9
+        if instance.mes_6_9 != 0:
+            ws['S39'] = instance.mes_6_9
+        ws['Z39'] = instance.indicador_9
+        ws['AF39'] = instance.unidad_medida_9
+        ws['AI39'] = instance.meta_9
+        ws['AL39'] = instance.medio_verificacion_9
+        ws['AQ39'] = instance.observaciones_9
+
+
+
+
+        ws['D40'] = instance.actividad_10
+        if instance.mes_1_10 != 0:
+            ws['N40'] = instance.mes_1_10
+        if instance.mes_2_10 != 0:
+            ws['O40'] = instance.mes_2_10
+        if instance.mes_3_10 != 0:
+            ws['P40'] = instance.mes_3_10
+        if instance.mes_4_10 != 0:
+            ws['Q40'] = instance.mes_4_10
+        if instance.mes_5_10 != 0:
+            ws['R40'] = instance.mes_5_10
+        if instance.mes_6_10 != 0:
+            ws['S40'] = instance.mes_6_10
+        ws['Z40'] = instance.indicador_10
+        ws['AF40'] = instance.unidad_medida_10
+        ws['AI40'] = instance.meta_10
+        ws['AL40'] = instance.medio_verificacion_10
+        ws['AQ40'] = instance.observaciones_10
+
+
+        ws['C50'] = instance.aliado_1
+        ws['K50'] = instance.aporte_aliado_1
+        ws['AA50'] = instance.nombre_aliado_1
+        ws['AK50'] = instance.datos_contacto_aliado_1
+
+        ws['C51'] = instance.aliado_2
+        ws['K51'] = instance.aporte_aliado_2
+        ws['AA51'] = instance.nombre_aliado_2
+        ws['AK51'] = instance.datos_contacto_aliado_2
+
+        ws['C52'] = instance.aliado_3
+        ws['K52'] = instance.aporte_aliado_3
+        ws['AA52'] = instance.nombre_aliado_3
+        ws['AK52'] = instance.datos_contacto_aliado_3
+
+        ws['C53'] = instance.aliado_4
+        ws['K53'] = instance.aporte_aliado_4
+        ws['AA53'] = instance.nombre_aliado_4
+        ws['AK53'] = instance.datos_contacto_aliado_4
+
+
+
+        ws['C43'] = instance.conservacion_manejo_ambiental
+        ws['C45'] = instance.sustentabilidad
+        ws['C47'] = instance.riesgos_acciones
+
+        ws['C55'] = instance.concepto_tecnico
+
+        ws['E62'] = instance.nombre_representante_consejo
+        ws['E63'] = instance.cedula_representante_consejo
+
+        ws['S62'] = instance.nombre_representante_comite
+        ws['S63'] = instance.cedula_representante_comite
+
+        ws['AJ62'] = instance.nombre_funcionario
+        ws['AJ63'] = instance.cedula_funcionario
+
+        wb.save(output)
+        filename = str(instance.id) + '.xlsx'
+        instance.file.save(filename, File(output))
+
+        post_save.connect(ProyectosApiPostSave, sender=ProyectosApi)

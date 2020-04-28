@@ -58,15 +58,15 @@ var socket = new ReconnectingWebSocket(ws_scheme + '://' + window.location.host 
     $("label[for='id_municipio']").addClass('active');
     $("label[for='id_resguado_indigena_consejo_comunitario']").addClass('active');
     $("label[for='id_nombre_comunidad']").addClass('active');
-    $("label[for='id_linea']").addClass('active');
     $("label[for='id_duracion']").addClass('active');
 
     $('#id_hogares').select2();
     $('#id_municipio').select2();
     $('#id_resguado_indigena_consejo_comunitario').select2();
     $('#id_nombre_comunidad').select2();
-    $('#id_linea').select2();
-    $('#id_duracion').select2();
+    $('#id_duracion').select2({
+        disabled: true
+    });
 
     update_meses($('#id_duracion').val())
 
@@ -390,18 +390,7 @@ var socket = new ReconnectingWebSocket(ws_scheme + '://' + window.location.host 
     });
 
 
-    $('#id_fecha_elaboracion').pickadate({
-        format: 'dd/mm/yyyy',
-        selectMonths: true,
-        selectYears: 150,
-        monthsFull: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre',
-            'Octubre', 'Noviembre', 'Diciembre'],
-        weekdaysShort: ['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'],
-        today: 'Hoy',
-        clear: 'Borrar',
-        close: 'Ok',
-        closeOnSelect: false
-    });
+
 
     function update_meta_1() {
         var value = 0
