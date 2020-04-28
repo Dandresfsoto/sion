@@ -3310,43 +3310,45 @@ def ProyectosApiPostSave(sender, instance, **kwargs):
         pass
 
     else:
-        ProyectosApi.objects.filter(id=instance.id).update(
-            valor=valor,
-            convenio = convenio,
-            codigo_proyecto = codigo_proyecto,
-            fecha_elaboracion = fecha_elaboracion,
-            nombre_representante = nombre_representante,
-            numero_hogares = numero_hogares,
-            nombre_proyecto = nombre_proyecto,
-            linea = linea,
-            duracion = duracion,
-            ubicacion_proyecto = ubicacion_proyecto,
-            producto_servicio = producto_servicio,
-            problema = problema,
-            justificacion = justificacion,
-            criterios_socioculturales = criterios_socioculturales,
-            objetivo_general = objetivo_general,
-            objetivo_especifico_1 = objetivo_especifico_1,
-            objetivo_especifico_2 = objetivo_especifico_2,
-            objetivo_especifico_3 = objetivo_especifico_3,
-
-            conservacion_manejo_ambiental = conservacion_manejo_ambiental,
-            sustentabilidad = sustentabilidad,
-            riesgos_acciones = riesgos_acciones,
-
-            concepto_tecnico = concepto_tecnico,
-
-            nombre_representante_consejo = nombre_representante_consejo,
-            cedula_representante_consejo = cedula_representante_consejo,
-
-            nombre_representante_comite = nombre_representante_comite,
-            cedula_representante_comite = cedula_representante_comite,
-
-            nombre_funcionario = nombre_funcionario,
-            cedula_funcionario = cedula_funcionario,
-        )
 
         post_save.disconnect(ProyectosApiPostSave, sender=ProyectosApi)
+
+        instance.valor = valor
+        instance.convenio = convenio
+        instance.codigo_proyecto = codigo_proyecto
+        instance.fecha_elaboracion = fecha_elaboracion
+        instance.nombre_representante = nombre_representante
+        instance.numero_hogares = numero_hogares
+        instance.nombre_proyecto = nombre_proyecto
+        instance.linea = linea
+        instance.duracion = duracion
+        instance.ubicacion_proyecto = ubicacion_proyecto
+        instance.producto_servicio = producto_servicio
+        instance.problema = problema
+        instance.justificacion = justificacion
+        instance.criterios_socioculturales = criterios_socioculturales
+        instance.objetivo_general = objetivo_general
+        instance.objetivo_especifico_1 = objetivo_especifico_1
+        instance.objetivo_especifico_2 = objetivo_especifico_2
+        instance.objetivo_especifico_3 = objetivo_especifico_3
+
+        instance.conservacion_manejo_ambiental = conservacion_manejo_ambiental
+        instance.sustentabilidad = sustentabilidad
+        instance.riesgos_acciones = riesgos_acciones
+
+        instance.concepto_tecnico = concepto_tecnico
+
+        instance.nombre_representante_consejo = nombre_representante_consejo
+        instance.cedula_representante_consejo = cedula_representante_consejo
+
+        instance.nombre_representante_comite = nombre_representante_comite
+        instance.cedula_representante_comite = cedula_representante_comite
+
+        instance.nombre_funcionario = nombre_funcionario
+        instance.cedula_funcionario = cedula_funcionario
+
+        instance.save()
+
 
         output = BytesIO()
 
