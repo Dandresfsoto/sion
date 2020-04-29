@@ -15,7 +15,7 @@ django-cleanup==2.1.0
 social-auth-app-django==2.1.0
 django-datatables-view==1.14.0
 django-mail-templated==2.6.5
-openpyxl==2.3.5
+openpyxl==3.0.3
 Pillow==6.0.0
 django-storages==1.7.1
 django-money==0.12.3

@@ -3,9 +3,10 @@ import openpyxl
 from io import BytesIO
 from django.conf import settings
 from openpyxl.drawing.image import Image
-from openpyxl.styles import PatternFill, Border, Side, Alignment, Protection, Font, Style
+from openpyxl.styles import PatternFill, Border, Side, Alignment, Protection, Font
 from pytz import timezone
 from openpyxl.comments import Comment
+from openpyxl.utils import get_column_letter
 
 settings_time_zone = timezone(settings.TIME_ZONE)
 
@@ -16,10 +17,10 @@ def construir_reporte(titulos,contenidos,formatos,ancho_columnas,nombre,fecha,us
         output = BytesIO()
         wb = openpyxl.load_workbook(filename=settings.STATICFILES_DIRS[0]+'/documentos/formato_informe.xlsx')
         ws = wb.get_sheet_by_name('Hoja1')
-        logo_sican = Image(settings.STATICFILES_DIRS[0] + '/img/icon-192.png',size=(151,151))
-        logo_sican.drawing.top = 0
-        logo_sican.drawing.left = 0
-        ws.add_image(logo_sican)
+        #logo_sican = Image(settings.STATICFILES_DIRS[0] + '/img/icon-192.png')
+        #logo_sican.drawing.top = 0
+        #logo_sican.drawing.left = 0
+        #ws.add_image(logo_sican)
 
         ws['B1'] = "   Nombre: " + nombre
         ws['B3'] = "   Fecha: " + fecha.astimezone(settings_time_zone).strftime('%d/%m/%Y a las %I:%M:%S %p')
@@ -31,25 +32,12 @@ def construir_reporte(titulos,contenidos,formatos,ancho_columnas,nombre,fecha,us
         for col_num in range(len(titulos)):
             ws.cell(row=row_num, column=col_num+1).value = titulos[col_num]
             if col_num != 0:
-                ws.column_dimensions[openpyxl.cell.get_column_letter(col_num+1)].width = ancho_columnas[col_num]
+                ws.column_dimensions[get_column_letter(col_num+1)].width = ancho_columnas[col_num]
 
-            ws.cell(row=row_num, column=col_num + 1).style = Style(font=Font(name='Arial',
-                                                                             size=11,
-                                                                             bold=True,
-                                                                             color='FFFFFFFF'
-                                                                             ),
-                                                                   fill=PatternFill(
-                                                                       fill_type='solid',
-                                                                       start_color='FF4C666E',
-                                                                       end_color='FF000000'
-                                                                   ),
-                                                                   alignment=Alignment(
-                                                                       horizontal='center',
-                                                                       vertical='center',
-                                                                       wrap_text=True
-                                                                   ),
-                                                                   number_format='General'
-                                                                   )
+            ws.cell(row=row_num, column=col_num + 1).font = Font(name='Arial',size=11,bold=True,color='FFFFFFFF')
+            ws.cell(row=row_num, column=col_num + 1).fill = PatternFill(fill_type='solid',start_color='FF4C666E',end_color='FF000000')
+            ws.cell(row=row_num, column=col_num + 1).alignment = Alignment(horizontal='center',vertical='center',wrap_text=True)
+            ws.cell(row=row_num, column=col_num + 1).number_format = 'General'
 
 
 
@@ -71,14 +59,10 @@ def construir_reporte(titulos,contenidos,formatos,ancho_columnas,nombre,fecha,us
                         ws.cell(row=row_num,column=col_num+1).value = contenido[col_num][0]
                         ws.cell(row=row_num, column=col_num + 1).hyperlink = contenido[col_num][1]
 
-                    ws.cell(row=row_num, column=col_num + 1).style = Style(font=Font(name='Arial', size=10, bold=True,color='FF4C666E'),
-                                                                           alignment=Alignment(
-                                                                               horizontal='center',
-                                                                               vertical='center',
-                                                                               wrap_text=True
-                                                                           ),
-                                                                           number_format=formatos[col_num][0]
-                                                                           )
+                    ws.cell(row=row_num, column=col_num + 1).font = Font(name='Arial', size=10, bold=True,color='FF4C666E')
+                    ws.cell(row=row_num, column=col_num + 1).alignment = Alignment(horizontal='center',vertical='center',wrap_text=True)
+                    ws.cell(row=row_num, column=col_num + 1).number_format = formatos[col_num][0]
+
 
                 elif isinstance(contenido[col_num], list):
 
@@ -100,29 +84,17 @@ def construir_reporte(titulos,contenidos,formatos,ancho_columnas,nombre,fecha,us
 
                         if contenido[col_num][1] == 'FFFFFFFF':
 
-                            ws.cell(row=row_num, column=col_num + 1).style = Style(font=Font(name='Arial', size=10),
-                                                                                   alignment=Alignment(
-                                                                                       horizontal='center',
-                                                                                       vertical='center',
-                                                                                       wrap_text=True
-                                                                                   ),
-                                                                                   number_format=formatos[col_num][0],
-                                                                                   )
+                            ws.cell(row=row_num, column=col_num + 1).font=Font(name='Arial', size=10)
+                            ws.cell(row=row_num, column=col_num + 1).alignment=Alignment(horizontal='center',vertical='center',wrap_text=True)
+                            ws.cell(row=row_num, column=col_num + 1).number_format=formatos[col_num][0]
+
                         else:
-                            ws.cell(row=row_num, column=col_num + 1).style = Style(
-                                font=Font(name='Arial', size=10, bold=True, color=contenido[col_num][2]),
-                                alignment=Alignment(
-                                    horizontal='center',
-                                    vertical='center',
-                                    wrap_text=True
-                                ),
-                                fill=PatternFill(
-                                    fill_type='solid',
-                                    start_color=contenido[col_num][1],
-                                    end_color=contenido[col_num][1]
-                                ),
-                                number_format=formatos[col_num][0],
-                                )
+
+                            ws.cell(row=row_num, column=col_num + 1).font=Font(name='Arial', size=10, bold=True, color=contenido[col_num][2])
+                            ws.cell(row=row_num, column=col_num + 1).alignment=Alignment(horizontal='center',vertical='center',wrap_text=True)
+                            ws.cell(row=row_num, column=col_num + 1).fill=PatternFill(fill_type='solid',start_color=contenido[col_num][1],end_color=contenido[col_num][1])
+                            ws.cell(row=row_num, column=col_num + 1).number_format=formatos[col_num][0]
+
 
                     else:
                         if contenido[col_num][0] == True and contenido[col_num][0] != 1:
@@ -136,29 +108,17 @@ def construir_reporte(titulos,contenidos,formatos,ancho_columnas,nombre,fecha,us
 
                         if contenido[col_num][1] == 'FFFFFFFF':
 
-                            ws.cell(row=row_num, column=col_num + 1).style = Style(font=Font(name='Arial', size=10),
-                                                                                   alignment=Alignment(
-                                                                                       horizontal='center',
-                                                                                       vertical='center',
-                                                                                       wrap_text=True
-                                                                                   ),
-                                                                                   number_format=formatos[col_num][0],
-                                                                                   )
+                            ws.cell(row=row_num, column=col_num + 1).font=Font(name='Arial', size=10)
+                            ws.cell(row=row_num, column=col_num + 1).alignment=Alignment(horizontal='center',vertical='center',wrap_text=True)
+                            ws.cell(row=row_num, column=col_num + 1).number_format=formatos[col_num][0]
+
+
                         else:
-                            ws.cell(row=row_num, column=col_num + 1).style = Style(
-                                font=Font(name='Arial', size=10, bold=True, color=contenido[col_num][2]),
-                                alignment=Alignment(
-                                    horizontal='center',
-                                    vertical='center',
-                                    wrap_text=True
-                                ),
-                                fill=PatternFill(
-                                    fill_type='solid',
-                                    start_color=contenido[col_num][1],
-                                    end_color=contenido[col_num][1]
-                                ),
-                                number_format=formatos[col_num][0],
-                            )
+
+                            ws.cell(row=row_num, column=col_num + 1).font=Font(name='Arial', size=10, bold=True, color=contenido[col_num][2])
+                            ws.cell(row=row_num, column=col_num + 1).alignment=Alignment(horizontal='center',vertical='center',wrap_text=True)
+                            ws.cell(row=row_num, column=col_num + 1).fill=PatternFill(fill_type='solid',start_color=contenido[col_num][1],end_color=contenido[col_num][1])
+                            ws.cell(row=row_num, column=col_num + 1).number_format=formatos[col_num][0]
 
                 else:
 
@@ -171,14 +131,10 @@ def construir_reporte(titulos,contenidos,formatos,ancho_columnas,nombre,fecha,us
                     else:
                         ws.cell(row=row_num,column=col_num+1).value = contenido[col_num]
 
-                    ws.cell(row=row_num, column=col_num + 1).style = Style(font=Font(name='Arial', size=10),
-                                                                           alignment=Alignment(
-                                                                               horizontal='center',
-                                                                               vertical='center',
-                                                                               wrap_text=True
-                                                                           ),
-                                                                           number_format=formatos[col_num]
-                                                                           )
+                    ws.cell(row=row_num, column=col_num + 1).font=Font(name='Arial', size=10)
+                    ws.cell(row=row_num, column=col_num + 1).alignment=Alignment(horizontal='center',vertical='center',wrap_text=True)
+                    ws.cell(row=row_num, column=col_num + 1).number_format=formatos[col_num]
+
 
         wb.save(output)
         return output
@@ -192,35 +148,21 @@ def construir_reporte_pagina(output_in,sheet_name,titulos,contenidos,formatos,an
         ws = wb.create_sheet(sheet_name)
 
         ws2 = wb.get_sheet_by_name('Hoja1')
-        logo_sican = Image(settings.STATICFILES_DIRS[0] + '/img/icon-192.png', size=(151, 151))
-        logo_sican.drawing.top = 0
-        logo_sican.drawing.left = 0
-        ws2.add_image(logo_sican)
+        #logo_sican = Image(settings.STATICFILES_DIRS[0] + '/img/icon-192.png', size=(151, 151))
+        #logo_sican.drawing.top = 0
+        #logo_sican.drawing.left = 0
+        #ws2.add_image(logo_sican)
 
 
         row_num = 1
         for col_num in range(len(titulos)):
             ws.cell(row=row_num, column=col_num+1).value = titulos[col_num]
-            ws.column_dimensions[openpyxl.cell.get_column_letter(col_num+1)].width = ancho_columnas[col_num]
+            ws.column_dimensions[get_column_letter(col_num+1)].width = ancho_columnas[col_num]
 
-            ws.cell(row=row_num, column=col_num + 1).style = Style(font=Font(name='Arial',
-                                                                             size=11,
-                                                                             bold=True,
-                                                                             color='FFFFFFFF'
-                                                                             ),
-                                                                   fill=PatternFill(
-                                                                       fill_type='solid',
-                                                                       start_color='ef6c00',
-                                                                       end_color='FF000000'
-                                                                   ),
-                                                                   alignment=Alignment(
-                                                                       horizontal='center',
-                                                                       vertical='center',
-                                                                       wrap_text=True
-                                                                   ),
-                                                                   number_format='General'
-                                                                   )
-
+            ws.cell(row=row_num, column=col_num + 1).font=Font(name='Arial',size=11,bold=True,color='FFFFFFFF')
+            ws.cell(row=row_num, column=col_num + 1).fill=PatternFill(fill_type='solid',start_color='ef6c00',end_color='FF000000')
+            ws.cell(row=row_num, column=col_num + 1).alignment=Alignment(horizontal='center',vertical='center',wrap_text=True)
+            ws.cell(row=row_num, column=col_num + 1).number_format='General'
 
 
         for contenido in contenidos:
@@ -241,14 +183,10 @@ def construir_reporte_pagina(output_in,sheet_name,titulos,contenidos,formatos,an
                         ws.cell(row=row_num,column=col_num+1).value = contenido[col_num][0]
                         ws.cell(row=row_num, column=col_num + 1).hyperlink = contenido[col_num][1]
 
-                    ws.cell(row=row_num, column=col_num + 1).style = Style(font=Font(name='Arial', size=10, bold=True,color='FF4C666E'),
-                                                                           alignment=Alignment(
-                                                                               horizontal='center',
-                                                                               vertical='center',
-                                                                               wrap_text=True
-                                                                           ),
-                                                                           number_format=formatos[col_num][0]
-                                                                           )
+                    ws.cell(row=row_num, column=col_num + 1).font=Font(name='Arial', size=10, bold=True,color='FF4C666E')
+                    ws.cell(row=row_num, column=col_num + 1).alignment=Alignment(horizontal='center',vertical='center',wrap_text=True)
+                    ws.cell(row=row_num, column=col_num + 1).number_format=formatos[col_num][0]
+
 
                 elif isinstance(contenido[col_num], list):
 
@@ -270,29 +208,17 @@ def construir_reporte_pagina(output_in,sheet_name,titulos,contenidos,formatos,an
 
                         if contenido[col_num][1] == 'FFFFFFFF':
 
-                            ws.cell(row=row_num, column=col_num + 1).style = Style(font=Font(name='Arial', size=10),
-                                                                                   alignment=Alignment(
-                                                                                       horizontal='center',
-                                                                                       vertical='center',
-                                                                                       wrap_text=True
-                                                                                   ),
-                                                                                   number_format=formatos[col_num][0],
-                                                                                   )
+                            ws.cell(row=row_num, column=col_num + 1).font=Font(name='Arial', size=10)
+                            ws.cell(row=row_num, column=col_num + 1).alignment=Alignment(horizontal='center',vertical='center',wrap_text=True)
+                            ws.cell(row=row_num, column=col_num + 1).number_format=formatos[col_num][0]
+
                         else:
-                            ws.cell(row=row_num, column=col_num + 1).style = Style(
-                                font=Font(name='Arial', size=10, bold=True, color=contenido[col_num][2]),
-                                alignment=Alignment(
-                                    horizontal='center',
-                                    vertical='center',
-                                    wrap_text=True
-                                ),
-                                fill=PatternFill(
-                                    fill_type='solid',
-                                    start_color=contenido[col_num][1],
-                                    end_color=contenido[col_num][1]
-                                ),
-                                number_format=formatos[col_num][0],
-                                )
+
+                            ws.cell(row=row_num, column=col_num + 1).font=Font(name='Arial', size=10, bold=True, color=contenido[col_num][2])
+                            ws.cell(row=row_num, column=col_num + 1).alignment=Alignment(horizontal='center',vertical='center',wrap_text=True)
+                            ws.cell(row=row_num, column=col_num + 1).fill=PatternFill(fill_type='solid',start_color=contenido[col_num][1],end_color=contenido[col_num][1])
+                            ws.cell(row=row_num, column=col_num + 1).number_format=formatos[col_num][0]
+
                     else:
                         if contenido[col_num][0] == True and contenido[col_num][0] != 1:
                             ws.cell(row=row_num, column=col_num + 1).value = "SI"
@@ -305,29 +231,16 @@ def construir_reporte_pagina(output_in,sheet_name,titulos,contenidos,formatos,an
 
                         if contenido[col_num][1] == 'FFFFFFFF':
 
-                            ws.cell(row=row_num, column=col_num + 1).style = Style(font=Font(name='Arial', size=10),
-                                                                                   alignment=Alignment(
-                                                                                       horizontal='center',
-                                                                                       vertical='center',
-                                                                                       wrap_text=True
-                                                                                   ),
-                                                                                   number_format=formatos[col_num][0],
-                                                                                   )
+                            ws.cell(row=row_num, column=col_num + 1).font=Font(name='Arial', size=10)
+                            ws.cell(row=row_num, column=col_num + 1).alignment=Alignment(horizontal='center',vertical='center',wrap_text=True)
+                            ws.cell(row=row_num, column=col_num + 1).number_format=formatos[col_num][0]
+
                         else:
-                            ws.cell(row=row_num, column=col_num + 1).style = Style(
-                                font=Font(name='Arial', size=10, bold=True, color=contenido[col_num][2]),
-                                alignment=Alignment(
-                                    horizontal='center',
-                                    vertical='center',
-                                    wrap_text=True
-                                ),
-                                fill=PatternFill(
-                                    fill_type='solid',
-                                    start_color=contenido[col_num][1],
-                                    end_color=contenido[col_num][1]
-                                ),
-                                number_format=formatos[col_num][0],
-                            )
+
+                            ws.cell(row=row_num, column=col_num + 1).font=Font(name='Arial', size=10, bold=True, color=contenido[col_num][2])
+                            ws.cell(row=row_num, column=col_num + 1).alignment=Alignment(horizontal='center',vertical='center',wrap_text=True)
+                            ws.cell(row=row_num, column=col_num + 1).fill=PatternFill(fill_type='solid',start_color=contenido[col_num][1],end_color=contenido[col_num][1])
+                            ws.cell(row=row_num, column=col_num + 1).number_format=formatos[col_num][0]
 
 
                 else:
@@ -341,14 +254,11 @@ def construir_reporte_pagina(output_in,sheet_name,titulos,contenidos,formatos,an
                     else:
                         ws.cell(row=row_num,column=col_num+1).value = contenido[col_num]
 
-                    ws.cell(row=row_num, column=col_num + 1).style = Style(font=Font(name='Arial', size=10),
-                                                                           alignment=Alignment(
-                                                                               horizontal='center',
-                                                                               vertical='center',
-                                                                               wrap_text=True
-                                                                           ),
-                                                                           number_format=formatos[col_num]
-                                                                           )
+
+                    ws.cell(row=row_num, column=col_num + 1).font=Font(name='Arial', size=10)
+                    ws.cell(row=row_num, column=col_num + 1).alignment=Alignment(horizontal='center',vertical='center',wrap_text=True)
+                    ws.cell(row=row_num, column=col_num + 1).number_format=formatos[col_num]
+
 
         wb.save(output)
         return output

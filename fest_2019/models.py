@@ -3354,10 +3354,11 @@ def ProyectosApiPostSave(sender, instance, **kwargs):
 
         wb = openpyxl.load_workbook(filename=settings.STATICFILES_DIRS[0] + '/documentos/ficha_proyecto.xlsx')
         ws = wb.get_sheet_by_name('Ficha de proyecto')
-        logo_sican = Image(settings.STATICFILES_DIRS[0] + '/img/logo_prosperidad.png', size=(439, 85))
-        logo_sican.drawing.top = 10
-        logo_sican.drawing.left = 71
-        ws.add_image(logo_sican)
+        #logo_sican = Image(settings.STATICFILES_DIRS[0] + '/img/logo_prosperidad.png')#, size=(439, 85))
+
+        #logo_sican.width = 450
+        #logo_sican.height = 86
+        #ws.add_image(logo_sican, 'C1')
 
         ws['G6'] = instance.convenio
         ws['R6'] = instance.codigo_proyecto
@@ -3642,6 +3643,93 @@ def ProyectosApiPostSave(sender, instance, **kwargs):
 
         ws['AJ62'] = instance.nombre_funcionario
         ws['AJ63'] = instance.cedula_funcionario
+
+
+
+        ws = wb.get_sheet_by_name('Plan de inversion')
+        #logo_sican = Image(settings.STATICFILES_DIRS[0] + '/img/logo_prosperidad_2.png') #size=(400, 85))
+
+        #logo_sican.width = 410
+        #logo_sican.height = 81
+
+        #ws.add_image(logo_sican)
+
+
+        if instance.municipio != None:
+            ws['O6'] = instance.municipio.departamento.nombre
+            ws['O7'] = instance.municipio.nombre
+
+
+        ws['E7'] = instance.codigo_proyecto
+
+
+
+        if instance.resguado_indigena_consejo_comunitario != None:
+            ws['S6'] = instance.resguado_indigena_consejo_comunitario.nombre
+
+        ws['S7'] = instance.get_comunidades()
+
+        ws['V6'] = instance.numero_hogares
+
+
+        try:
+            productos_list = instance.json['data']['supplies']
+        except:
+            pass
+        else:
+            productos = len(productos_list)
+
+
+            for i in range(0,200 - productos):
+                ws.delete_rows(10)
+
+            i = 1
+
+            for product in productos_list:
+                ws[f'A{9+i}'] = i
+
+                try:
+                    ws[f'B{9+i}'] = product['name']
+                except:
+                    pass
+
+
+                try:
+                    ws[f'N{9+i}'] = product['count']
+                except:
+                    pass
+
+
+                try:
+                    ws[f'P{9+i}'] = product['price']
+                except:
+                    pass
+
+
+
+                try:
+                    ws[f'O{9+i}'] = product['price'] / product['count']
+                except:
+                    pass
+
+                i += 1
+
+
+            try:
+                ws[f'P{9+i}'] = instance.json['data']['budget_used']
+            except:
+                pass
+
+
+
+            try:
+                ws[f'P{11+i}'] = instance.json['data']['budget_used'] / instance.json['data']['homes']
+            except:
+                pass
+
+
+
+
 
         wb.save(output)
         filename = str(instance.id) + '.xlsx'

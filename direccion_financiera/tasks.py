@@ -28,9 +28,13 @@ def build_reporte_interno(id, email):
         wb = openpyxl.load_workbook(filename=settings.STATICFILES_DIRS[0] + '/documentos/reporte_'+ str(cantidad) +'.xlsx')
         ws = wb.get_sheet_by_name('REPORTE')
         logo_sican = Image(settings.STATICFILES_DIRS[0] + '/img/andes-logo.png')
-        logo_sican.drawing.top = 46
-        logo_sican.drawing.left = 66
-        ws.add_image(logo_sican)
+        #logo_sican.drawing.top = 46
+        #logo_sican.drawing.left = 66
+
+        logo_sican.width = 200
+        logo_sican.height = 170
+
+        ws.add_image(logo_sican, 'C2')
 
         ws['F4'] = 'F-GAF-17-C' + str(reporte.consecutivo.id)
         ws['I4'] = reporte.reporte_update_datetime()
