@@ -3695,20 +3695,20 @@ def ProyectosApiPostSave(sender, instance, **kwargs):
 
 
                 try:
-                    ws[f'N{9+i}'] = product['count']
+                    ws[f'N{9+i}'] = int(product['count'])
                 except:
                     pass
 
 
                 try:
-                    ws[f'P{9+i}'] = product['price']
+                    ws[f'P{9+i}'] = int(product['price']) * int(product['count'])
                 except:
                     pass
 
 
 
                 try:
-                    ws[f'O{9+i}'] = product['price'] / product['count']
+                    ws[f'O{9+i}'] = int(product['price'])
                 except:
                     pass
 
@@ -3716,14 +3716,14 @@ def ProyectosApiPostSave(sender, instance, **kwargs):
 
 
             try:
-                ws[f'P{9+i}'] = instance.json['data']['budget_used']
+                ws[f'P{9+i}'] = int(instance.json['data']['budget_used'])
             except:
                 pass
 
 
 
             try:
-                ws[f'P{11+i}'] = instance.json['data']['budget_used'] / instance.json['data']['homes']
+                ws[f'P{11+i}'] = int(instance.json['data']['budget_used']) / int(instance.json['data']['homes'])
             except:
                 pass
 
