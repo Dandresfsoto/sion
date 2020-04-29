@@ -3697,6 +3697,19 @@ def ProyectosApiPostSave(sender, instance, **kwargs):
 
 
                 try:
+                    ws[f'G{9+i}'] = product['description']
+                except:
+                    pass
+
+
+
+                try:
+                    ws[f'M{9+i}'] = product['unit_of_measurement']
+                except:
+                    pass
+
+
+                try:
                     ws[f'N{9+i}'] = int(product['count'])
                 except:
                     pass
