@@ -244,6 +244,10 @@ class MisProyectosUpdateView(LoginRequiredMixin,
         return super(MisProyectosUpdateView, self).form_valid(form)
 
 
+    def form_invalid(self, form):
+        return super(MisProyectosUpdateView, self).form_invalid(form)
+
+
     def get_initial(self):
         return {'pk':self.kwargs['pk']}
 

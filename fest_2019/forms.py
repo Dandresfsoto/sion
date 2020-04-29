@@ -5929,7 +5929,6 @@ class ContactoCreateForm(forms.ModelForm):
 
 class FichaProyectoForm(forms.ModelForm):
 
-    """
     def _clean_fields(self):
         for name, field in self.fields.items():
             # value_from_datadict() gets the data from the data dictionaries.
@@ -5962,10 +5961,9 @@ class FichaProyectoForm(forms.ModelForm):
                         self.cleaned_data[name] = None
                 else:
                     if value != []:
-                        self.cleaned_data[name] = ComunidadesProyectosIraca.objects.get(id = value)
+                        self.cleaned_data[name] = ComunidadesProyectosIraca.objects.filter(id__in = value)
                     else:
                         self.cleaned_data[name] = None
-    """
 
     def __init__(self, *args, **kwargs):
         super(FichaProyectoForm, self).__init__(*args, **kwargs)

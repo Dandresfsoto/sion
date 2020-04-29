@@ -22,6 +22,7 @@ import openpyxl
 from io import BytesIO
 from django.core.files import File
 from openpyxl.drawing.image import Image
+import dateutil.parser
 
 
 settings_time_zone = timezone(settings.TIME_ZONE)
@@ -3275,7 +3276,8 @@ def ProyectosApiPostSave(sender, instance, **kwargs):
         valor = instance.json['data']['budget_used']
         convenio = instance.json['data']['agreement']
         codigo_proyecto = instance.json['data']['projectCode']
-        fecha_elaboracion = datetime.datetime.fromtimestamp(instance.json['data']['createdAt'] / 1e3)
+        fecha_elaboracion = dateutil.parser.parse(instance.json['data']['creationDate'])
+        #fecha_elaboracion = datetime.datetime.fromtimestamp(instance.json['data']['createdAt'] / 1e3)
         nombre_representante = instance.json['data']['legalRepresentative']
         numero_hogares = instance.json['data']['homes']
         nombre_proyecto = instance.json['data']['projectName']
