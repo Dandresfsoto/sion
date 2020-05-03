@@ -3414,7 +3414,7 @@ class ProyectosApi(models.Model):
 def ProyectosApiPostSave(sender, instance, **kwargs):
 
     try:
-        valor = instance.json['data']['budget_used']
+        valor = int(instance.json['data']['budgetIRACAUsed']) + int(instance.json['data']['budgedCommunity']) + int(instance.json['data']['budgedOthers'])
         convenio = instance.json['data']['agreement']
         codigo_proyecto = instance.json['data']['projectCode']
         fecha_elaboracion = dateutil.parser.parse(instance.json['data']['creationDate'])
