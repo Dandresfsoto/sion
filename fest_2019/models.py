@@ -23,6 +23,8 @@ from io import BytesIO
 from django.core.files import File
 from openpyxl.drawing.image import Image
 import dateutil.parser
+from openpyxl.styles import PatternFill, Border, Side, Alignment, Protection, Font
+from copy import copy
 
 
 settings_time_zone = timezone(settings.TIME_ZONE)
@@ -3018,13 +3020,13 @@ class Contactos(models.Model):
 
 
 def upload_dinamic_ficha_proyecto(instance, filename):
-    return '/'.join(['FEST 2019', 'Proyectos', str(instance.id), filename])
+    return '/'.join(['IRACA', 'Proyectos', str(instance.id), filename])
 
 
 class ProyectosApi(models.Model):
     json = JSONField(default=dict)
     creation = models.DateTimeField(auto_now_add=True)
-    valor = MoneyField(max_digits=10, decimal_places=2, default_currency='COP', default=0)
+    valor = MoneyField(max_digits=20, decimal_places=2, default_currency='COP', default=0)
 
 
     convenio = models.TextField(default='213-19')
@@ -3039,6 +3041,7 @@ class ProyectosApi(models.Model):
     numero_hogares = models.IntegerField(blank=True, null=True)
 
     nombre_proyecto = models.TextField(blank=True, null=True)
+    tipo_proyecto = models.TextField(blank=True, null=True)
     linea = models.TextField(blank=True, null=True)
     duracion = models.TextField(blank=True, null=True)
     ubicacion_proyecto = models.TextField(blank=True, null=True)
@@ -3060,6 +3063,12 @@ class ProyectosApi(models.Model):
     mes_4_1 = models.PositiveIntegerField(default=0, blank=True, null=True)
     mes_5_1 = models.PositiveIntegerField(default=0, blank=True, null=True)
     mes_6_1 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_7_1 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_8_1 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_9_1 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_10_1 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_11_1 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_12_1 = models.PositiveIntegerField(default=0, blank=True, null=True)
     indicador_1 = models.TextField(blank=True, null=True)
     unidad_medida_1 = models.TextField(blank=True, null=True)
     meta_1 = models.IntegerField(blank=True, null=True)
@@ -3073,6 +3082,12 @@ class ProyectosApi(models.Model):
     mes_4_2 = models.PositiveIntegerField(default=0, blank=True, null=True)
     mes_5_2 = models.PositiveIntegerField(default=0, blank=True, null=True)
     mes_6_2 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_7_2 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_8_2 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_9_2 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_10_2 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_11_2 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_12_2 = models.PositiveIntegerField(default=0, blank=True, null=True)
     indicador_2 = models.TextField(blank=True, null=True)
     unidad_medida_2 = models.TextField(blank=True, null=True)
     meta_2 = models.IntegerField(blank=True, null=True)
@@ -3086,6 +3101,12 @@ class ProyectosApi(models.Model):
     mes_4_3 = models.PositiveIntegerField(default=0, blank=True, null=True)
     mes_5_3 = models.PositiveIntegerField(default=0, blank=True, null=True)
     mes_6_3 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_7_3 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_8_3 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_9_3 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_10_3 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_11_3 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_12_3 = models.PositiveIntegerField(default=0, blank=True, null=True)
     indicador_3 = models.TextField(blank=True, null=True)
     unidad_medida_3 = models.TextField(blank=True, null=True)
     meta_3 = models.IntegerField(blank=True, null=True)
@@ -3099,6 +3120,12 @@ class ProyectosApi(models.Model):
     mes_4_4 = models.PositiveIntegerField(default=0, blank=True, null=True)
     mes_5_4 = models.PositiveIntegerField(default=0, blank=True, null=True)
     mes_6_4 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_7_4 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_8_4 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_9_4 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_10_4 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_11_4 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_12_4 = models.PositiveIntegerField(default=0, blank=True, null=True)
     indicador_4 = models.TextField(blank=True, null=True)
     unidad_medida_4 = models.TextField(blank=True, null=True)
     meta_4 = models.IntegerField(blank=True, null=True)
@@ -3112,6 +3139,12 @@ class ProyectosApi(models.Model):
     mes_4_5 = models.PositiveIntegerField(default=0, blank=True, null=True)
     mes_5_5 = models.PositiveIntegerField(default=0, blank=True, null=True)
     mes_6_5 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_7_5 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_8_5 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_9_5 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_10_5 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_11_5 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_12_5 = models.PositiveIntegerField(default=0, blank=True, null=True)
     indicador_5 = models.TextField(blank=True, null=True)
     unidad_medida_5 = models.TextField(blank=True, null=True)
     meta_5 = models.IntegerField(blank=True, null=True)
@@ -3125,6 +3158,12 @@ class ProyectosApi(models.Model):
     mes_4_6 = models.PositiveIntegerField(default=0, blank=True, null=True)
     mes_5_6 = models.PositiveIntegerField(default=0, blank=True, null=True)
     mes_6_6 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_7_6 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_8_6 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_9_6 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_10_6 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_11_6 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_12_6 = models.PositiveIntegerField(default=0, blank=True, null=True)
     indicador_6 = models.TextField(blank=True, null=True)
     unidad_medida_6 = models.TextField(blank=True, null=True)
     meta_6 = models.IntegerField(blank=True, null=True)
@@ -3138,6 +3177,12 @@ class ProyectosApi(models.Model):
     mes_4_7 = models.PositiveIntegerField(default=0, blank=True, null=True)
     mes_5_7 = models.PositiveIntegerField(default=0, blank=True, null=True)
     mes_6_7 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_7_7 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_8_7 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_9_7 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_10_7 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_11_7 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_12_7 = models.PositiveIntegerField(default=0, blank=True, null=True)
     indicador_7 = models.TextField(blank=True, null=True)
     unidad_medida_7 = models.TextField(blank=True, null=True)
     meta_7 = models.IntegerField(blank=True, null=True)
@@ -3151,6 +3196,12 @@ class ProyectosApi(models.Model):
     mes_4_8 = models.PositiveIntegerField(default=0, blank=True, null=True)
     mes_5_8 = models.PositiveIntegerField(default=0, blank=True, null=True)
     mes_6_8 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_7_8 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_8_8 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_9_8 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_10_8 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_11_8 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_12_8 = models.PositiveIntegerField(default=0, blank=True, null=True)
     indicador_8 = models.TextField(blank=True, null=True)
     unidad_medida_8 = models.TextField(blank=True, null=True)
     meta_8 = models.IntegerField(blank=True, null=True)
@@ -3164,6 +3215,12 @@ class ProyectosApi(models.Model):
     mes_4_9 = models.PositiveIntegerField(default=0, blank=True, null=True)
     mes_5_9 = models.PositiveIntegerField(default=0, blank=True, null=True)
     mes_6_9 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_7_9 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_8_9 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_9_9 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_10_9 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_11_9 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_12_9 = models.PositiveIntegerField(default=0, blank=True, null=True)
     indicador_9 = models.TextField(blank=True, null=True)
     unidad_medida_9 = models.TextField(blank=True, null=True)
     meta_9 = models.IntegerField(blank=True, null=True)
@@ -3177,6 +3234,12 @@ class ProyectosApi(models.Model):
     mes_4_10 = models.PositiveIntegerField(default=0, blank=True, null=True)
     mes_5_10 = models.PositiveIntegerField(default=0, blank=True, null=True)
     mes_6_10 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_7_10 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_8_10 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_9_10 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_10_10 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_11_10 = models.PositiveIntegerField(default=0, blank=True, null=True)
+    mes_12_10 = models.PositiveIntegerField(default=0, blank=True, null=True)
     indicador_10 = models.TextField(blank=True, null=True)
     unidad_medida_10 = models.TextField(blank=True, null=True)
     meta_10 = models.IntegerField(blank=True, null=True)
@@ -3229,16 +3292,94 @@ class ProyectosApi(models.Model):
             'application/vnd.ms-excel',
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         ],
-        max_upload_size=10485760,
+        max_upload_size=20485760,
         max_length=255,
         blank=True, null=True
     )
+
+    file2 = models.FileField(
+        upload_to=upload_dinamic_ficha_proyecto,
+        max_length=255,
+        blank=True, null=True
+    )
+
+    file3 = models.FileField(
+        upload_to=upload_dinamic_ficha_proyecto,
+        max_length=255,
+        blank=True, null=True
+    )
+
+    file4 = models.FileField(
+        upload_to=upload_dinamic_ficha_proyecto,
+        max_length=255,
+        blank=True, null=True
+    )
+
+    file5 = models.FileField(
+        upload_to=upload_dinamic_ficha_proyecto,
+        max_length=255,
+        blank=True, null=True
+    )
+
+
+    def get_hogares(self):
+        managers = []
+
+        for manager in self.json['data']['managers']:
+
+            verificado = False
+            nombre_verificado = ''
+
+            if Hogares.objects.filter(documento = manager['document']).count() > 0:
+                verificado = True
+                nombre_verificado = Hogares.objects.filter(documento = manager['document'])[0].get_full_name()
+
+            managers.append({
+                'name': manager['name'],
+                'document': manager['document'],
+                'verificado': verificado,
+                'nombre_verificado': nombre_verificado,
+            })
+
+        return managers
 
 
     def url_file(self):
         url = None
         try:
             url = self.file.url
+        except:
+            pass
+        return url
+
+    def url_file2(self):
+        url = None
+        try:
+            url = self.file2.url
+        except:
+            pass
+        return url
+
+    def url_file3(self):
+        url = None
+        try:
+            url = self.file3.url
+        except:
+            pass
+        return url
+
+    def url_file4(self):
+        url = None
+        try:
+            url = self.file4.url
+        except:
+            pass
+        return url
+
+    def url_file5(self):
+        url = None
+        try:
+            url = self.file5.url
         except:
             pass
         return url
@@ -3277,7 +3418,7 @@ def ProyectosApiPostSave(sender, instance, **kwargs):
         convenio = instance.json['data']['agreement']
         codigo_proyecto = instance.json['data']['projectCode']
         fecha_elaboracion = dateutil.parser.parse(instance.json['data']['creationDate'])
-        #fecha_elaboracion = datetime.datetime.fromtimestamp(instance.json['data']['createdAt'] / 1e3)
+        #fecha_elaboracion = datetime.datetime.fromtimestamp(instance.json['data']['createdAt'] / 2e3)
         nombre_representante = instance.json['data']['legalRepresentative']
         numero_hogares = instance.json['data']['homes']
         nombre_proyecto = instance.json['data']['projectName']
@@ -3287,6 +3428,7 @@ def ProyectosApiPostSave(sender, instance, **kwargs):
         producto_servicio = instance.json['data']['productService']
         problema = instance.json['data']['problem']
         justificacion = instance.json['data']['justification']
+        tipo_proyecto = instance.json['data']['project_type']
         criterios_socioculturales = instance.json['data']['criterion']
         objetivo_general = instance.json['data']['objective']
         objetivo_especifico_1 = instance.json['data']['specificObjectives'][0]
@@ -3297,7 +3439,7 @@ def ProyectosApiPostSave(sender, instance, **kwargs):
         sustentabilidad = instance.json['data']['sustainability']
         riesgos_acciones = instance.json['data']['risks']
 
-        concepto_tecnico = instance.json['data']['technicalConcept']
+        #concepto_tecnico = instance.json['data']['technicalConcept']
 
         nombre_representante_consejo = instance.json['data']['RepresentativeCouncil']['name']
         cedula_representante_consejo = instance.json['data']['RepresentativeCouncil']['document']
@@ -3317,6 +3459,7 @@ def ProyectosApiPostSave(sender, instance, **kwargs):
 
         instance.valor = valor
         instance.convenio = convenio
+        instance.tipo_proyecto = tipo_proyecto
         instance.codigo_proyecto = codigo_proyecto
         instance.fecha_elaboracion = fecha_elaboracion
         instance.nombre_representante = nombre_representante
@@ -3338,8 +3481,6 @@ def ProyectosApiPostSave(sender, instance, **kwargs):
         instance.sustentabilidad = sustentabilidad
         instance.riesgos_acciones = riesgos_acciones
 
-        instance.concepto_tecnico = concepto_tecnico
-
         instance.nombre_representante_consejo = nombre_representante_consejo
         instance.cedula_representante_consejo = cedula_representante_consejo
 
@@ -3356,11 +3497,6 @@ def ProyectosApiPostSave(sender, instance, **kwargs):
 
         wb = openpyxl.load_workbook(filename=settings.STATICFILES_DIRS[0] + '/documentos/ficha_proyecto.xlsx')
         ws = wb.get_sheet_by_name('Ficha de proyecto')
-        #logo_sican = Image(settings.STATICFILES_DIRS[0] + '/img/logo_prosperidad.png')#, size=(439, 85))
-
-        #logo_sican.width = 450
-        #logo_sican.height = 86
-        #ws.add_image(logo_sican, 'C1')
 
         ws['G6'] = instance.convenio
         ws['R6'] = instance.codigo_proyecto
@@ -3408,6 +3544,18 @@ def ProyectosApiPostSave(sender, instance, **kwargs):
             ws['R31'] = instance.mes_5_1
         if instance.mes_6_1 != 0:
             ws['S31'] = instance.mes_6_1
+        if instance.mes_7_1 != 0:
+            ws['T31'] = instance.mes_7_1
+        if instance.mes_8_1 != 0:
+            ws['U31'] = instance.mes_8_1
+        if instance.mes_9_1 != 0:
+            ws['V31'] = instance.mes_9_1
+        if instance.mes_10_1 != 0:
+            ws['W31'] = instance.mes_10_1
+        if instance.mes_11_1 != 0:
+            ws['X31'] = instance.mes_11_1
+        if instance.mes_12_1 != 0:
+            ws['Y31'] = instance.mes_12_1
         ws['Z31'] = instance.indicador_1
         ws['AF31'] = instance.unidad_medida_1
         ws['AI31'] = instance.meta_1
@@ -3428,6 +3576,18 @@ def ProyectosApiPostSave(sender, instance, **kwargs):
             ws['R32'] = instance.mes_5_2
         if instance.mes_6_2 != 0:
             ws['S32'] = instance.mes_6_2
+        if instance.mes_7_2 != 0:
+            ws['T32'] = instance.mes_7_2
+        if instance.mes_8_2 != 0:
+            ws['U32'] = instance.mes_8_2
+        if instance.mes_9_2 != 0:
+            ws['V32'] = instance.mes_9_2
+        if instance.mes_10_2 != 0:
+            ws['W32'] = instance.mes_10_2
+        if instance.mes_11_2 != 0:
+            ws['X32'] = instance.mes_11_2
+        if instance.mes_12_2 != 0:
+            ws['Y32'] = instance.mes_12_2
         ws['Z32'] = instance.indicador_2
         ws['AF32'] = instance.unidad_medida_2
         ws['AI32'] = instance.meta_2
@@ -3449,6 +3609,18 @@ def ProyectosApiPostSave(sender, instance, **kwargs):
             ws['R33'] = instance.mes_5_3
         if instance.mes_6_3 != 0:
             ws['S33'] = instance.mes_6_3
+        if instance.mes_7_3 != 0:
+            ws['T33'] = instance.mes_7_3
+        if instance.mes_8_3 != 0:
+            ws['U33'] = instance.mes_8_3
+        if instance.mes_9_3 != 0:
+            ws['V33'] = instance.mes_9_3
+        if instance.mes_10_3 != 0:
+            ws['W33'] = instance.mes_10_3
+        if instance.mes_11_3 != 0:
+            ws['X33'] = instance.mes_11_3
+        if instance.mes_12_3 != 0:
+            ws['Y33'] = instance.mes_12_3
         ws['Z33'] = instance.indicador_3
         ws['AF33'] = instance.unidad_medida_3
         ws['AI33'] = instance.meta_3
@@ -3471,6 +3643,18 @@ def ProyectosApiPostSave(sender, instance, **kwargs):
             ws['R34'] = instance.mes_5_4
         if instance.mes_6_4 != 0:
             ws['S34'] = instance.mes_6_4
+        if instance.mes_7_4 != 0:
+            ws['T34'] = instance.mes_7_4
+        if instance.mes_8_4 != 0:
+            ws['U34'] = instance.mes_8_4
+        if instance.mes_9_4 != 0:
+            ws['V34'] = instance.mes_9_4
+        if instance.mes_10_4 != 0:
+            ws['W34'] = instance.mes_10_4
+        if instance.mes_11_4 != 0:
+            ws['X34'] = instance.mes_11_4
+        if instance.mes_12_4 != 0:
+            ws['Y34'] = instance.mes_12_4
         ws['Z34'] = instance.indicador_4
         ws['AF34'] = instance.unidad_medida_4
         ws['AI34'] = instance.meta_4
@@ -3492,6 +3676,18 @@ def ProyectosApiPostSave(sender, instance, **kwargs):
             ws['R35'] = instance.mes_5_5
         if instance.mes_6_5 != 0:
             ws['S35'] = instance.mes_6_5
+        if instance.mes_7_5 != 0:
+            ws['T35'] = instance.mes_7_5
+        if instance.mes_8_5 != 0:
+            ws['U35'] = instance.mes_8_5
+        if instance.mes_9_5 != 0:
+            ws['V35'] = instance.mes_9_5
+        if instance.mes_10_5 != 0:
+            ws['W35'] = instance.mes_10_5
+        if instance.mes_11_5 != 0:
+            ws['X35'] = instance.mes_11_5
+        if instance.mes_12_5 != 0:
+            ws['Y35'] = instance.mes_12_5
         ws['Z35'] = instance.indicador_5
         ws['AF35'] = instance.unidad_medida_5
         ws['AI35'] = instance.meta_5
@@ -3514,6 +3710,18 @@ def ProyectosApiPostSave(sender, instance, **kwargs):
             ws['R36'] = instance.mes_5_6
         if instance.mes_6_6 != 0:
             ws['S36'] = instance.mes_6_6
+        if instance.mes_7_6 != 0:
+            ws['T36'] = instance.mes_7_6
+        if instance.mes_8_6 != 0:
+            ws['U36'] = instance.mes_8_6
+        if instance.mes_9_6 != 0:
+            ws['V36'] = instance.mes_9_6
+        if instance.mes_10_6 != 0:
+            ws['W36'] = instance.mes_10_6
+        if instance.mes_11_6 != 0:
+            ws['X36'] = instance.mes_11_6
+        if instance.mes_12_6 != 0:
+            ws['Y36'] = instance.mes_12_6
         ws['Z36'] = instance.indicador_6
         ws['AF36'] = instance.unidad_medida_6
         ws['AI36'] = instance.meta_6
@@ -3536,6 +3744,18 @@ def ProyectosApiPostSave(sender, instance, **kwargs):
             ws['R37'] = instance.mes_5_7
         if instance.mes_6_7 != 0:
             ws['S37'] = instance.mes_6_7
+        if instance.mes_7_7 != 0:
+            ws['T37'] = instance.mes_7_7
+        if instance.mes_8_7 != 0:
+            ws['U37'] = instance.mes_8_7
+        if instance.mes_9_7 != 0:
+            ws['V37'] = instance.mes_9_7
+        if instance.mes_10_7 != 0:
+            ws['W37'] = instance.mes_10_7
+        if instance.mes_11_7 != 0:
+            ws['X37'] = instance.mes_11_7
+        if instance.mes_12_7 != 0:
+            ws['Y37'] = instance.mes_12_7
         ws['Z37'] = instance.indicador_7
         ws['AF37'] = instance.unidad_medida_7
         ws['AI37'] = instance.meta_7
@@ -3558,6 +3778,18 @@ def ProyectosApiPostSave(sender, instance, **kwargs):
             ws['R38'] = instance.mes_5_8
         if instance.mes_6_8 != 0:
             ws['S38'] = instance.mes_6_8
+        if instance.mes_7_8 != 0:
+            ws['T38'] = instance.mes_7_8
+        if instance.mes_8_8 != 0:
+            ws['U38'] = instance.mes_8_8
+        if instance.mes_9_8 != 0:
+            ws['V38'] = instance.mes_9_8
+        if instance.mes_10_8 != 0:
+            ws['W38'] = instance.mes_10_8
+        if instance.mes_11_8 != 0:
+            ws['X38'] = instance.mes_11_8
+        if instance.mes_12_8 != 0:
+            ws['Y38'] = instance.mes_12_8
         ws['Z38'] = instance.indicador_8
         ws['AF38'] = instance.unidad_medida_8
         ws['AI38'] = instance.meta_8
@@ -3580,6 +3812,18 @@ def ProyectosApiPostSave(sender, instance, **kwargs):
             ws['R39'] = instance.mes_5_9
         if instance.mes_6_9 != 0:
             ws['S39'] = instance.mes_6_9
+        if instance.mes_7_9 != 0:
+            ws['T39'] = instance.mes_7_9
+        if instance.mes_8_9 != 0:
+            ws['U39'] = instance.mes_8_9
+        if instance.mes_9_9 != 0:
+            ws['V39'] = instance.mes_9_9
+        if instance.mes_10_9 != 0:
+            ws['W39'] = instance.mes_10_9
+        if instance.mes_11_9 != 0:
+            ws['X39'] = instance.mes_11_9
+        if instance.mes_12_9 != 0:
+            ws['Y39'] = instance.mes_12_9
         ws['Z39'] = instance.indicador_9
         ws['AF39'] = instance.unidad_medida_9
         ws['AI39'] = instance.meta_9
@@ -3602,6 +3846,18 @@ def ProyectosApiPostSave(sender, instance, **kwargs):
             ws['R40'] = instance.mes_5_10
         if instance.mes_6_10 != 0:
             ws['S40'] = instance.mes_6_10
+        if instance.mes_7_10 != 0:
+            ws['T40'] = instance.mes_7_10
+        if instance.mes_8_10 != 0:
+            ws['U40'] = instance.mes_8_10
+        if instance.mes_9_10 != 0:
+            ws['V40'] = instance.mes_9_10
+        if instance.mes_10_10 != 0:
+            ws['W40'] = instance.mes_10_10
+        if instance.mes_11_10 != 0:
+            ws['X40'] = instance.mes_11_10
+        if instance.mes_12_10 != 0:
+            ws['Y40'] = instance.mes_12_10
         ws['Z40'] = instance.indicador_10
         ws['AF40'] = instance.unidad_medida_10
         ws['AI40'] = instance.meta_10
@@ -3647,12 +3903,17 @@ def ProyectosApiPostSave(sender, instance, **kwargs):
         ws['AJ63'] = instance.cedula_funcionario
 
 
+        ws['C57'] = f"Anexo 1: {instance.anexo_1}"
+        ws['C58'] = f"Anexo 2: {instance.anexo_2}"
+        ws['AA57'] = f"Anexo 3: {instance.anexo_3}"
+        ws['AA58'] = f"Anexo 4: {instance.anexo_4}"
+
 
         ws = wb.get_sheet_by_name('Plan de inversion')
         #logo_sican = Image(settings.STATICFILES_DIRS[0] + '/img/logo_prosperidad_2.png') #size=(400, 85))
 
-        #logo_sican.width = 410
-        #logo_sican.height = 81
+        #logo_sican.width = 420
+        #logo_sican.height = 82
 
         #ws.add_image(logo_sican)
 
@@ -3679,70 +3940,135 @@ def ProyectosApiPostSave(sender, instance, **kwargs):
         except:
             pass
         else:
-            productos = len(productos_list)
-
-
-            for i in range(0,200 - productos):
-                ws.delete_rows(10)
 
             i = 1
 
+            if len(productos_list) > 1:
+                ws.insert_rows(11, amount=len(productos_list)-1)
+
+
             for product in productos_list:
-                ws[f'A{9+i}'] = i
+
+                ws.row_dimensions[9 + i].height = 50
+
+                ws[f'A{9+i}'].value = i
+                ws[f'A{9+i}']._style = copy(ws[f'A10']._style)
 
                 try:
-                    ws[f'B{9+i}'] = product['name']
+                    ws.merge_cells(f'B{9+i}:F{9+i}')
+                    ws[f'B{9+i}'].value = product['name']
+                    ws[f'B{9+i}']._style = copy(ws[f'B10']._style)
+                    ws[f'C{9+i}']._style = copy(ws[f'C10']._style)
+                    ws[f'D{9+i}']._style = copy(ws[f'D10']._style)
+                    ws[f'E{9+i}']._style = copy(ws[f'E10']._style)
+                    ws[f'F{9+i}']._style = copy(ws[f'F10']._style)
+
                 except:
                     pass
 
 
                 try:
-                    ws[f'G{9+i}'] = product['description']
+                    ws.merge_cells(f'G{9 + i}:L{9 + i}')
+                    ws[f'G{9+i}'].value = product['description']
+                    ws[f'G{9+i}']._style = copy(ws[f'G10']._style)
+                    ws[f'H{9 + i}']._style = copy(ws[f'H10']._style)
+                    ws[f'I{9 + i}']._style = copy(ws[f'I10']._style)
+                    ws[f'J{9 + i}']._style = copy(ws[f'J10']._style)
+                    ws[f'K{9 + i}']._style = copy(ws[f'K10']._style)
+                    ws[f'L{9 + i}']._style = copy(ws[f'L10']._style)
+
                 except:
                     pass
 
 
 
                 try:
-                    ws[f'M{9+i}'] = product['unit_of_measurement']
+                    ws[f'M{9+i}'].value = product['unit_of_measurement']
+                    ws[f'M{9 + i}']._style = copy(ws[f'M10']._style)
                 except:
                     pass
 
 
                 try:
-                    ws[f'N{9+i}'] = int(product['count'])
+                    ws[f'N{9+i}'].value = int(product['count']['count_IRACA']) + int(product['count']['count_Others']) + int(product['count']['count_Community'])
+                    ws[f'N{9 + i}']._style = copy(ws[f'N10']._style)
                 except:
                     pass
 
 
                 try:
-                    ws[f'P{9+i}'] = int(product['price']) * int(product['count'])
+                    ws[f'O{9+i}'].value = int(product['price'])
+                    ws[f'O{9 + i}']._style = copy(ws[f'O10']._style)
+                except:
+                    pass
+
+
+                try:
+                    ws[f'P{9+i}'].value = int(product['price']) * (int(product['count']['count_IRACA']) + int(product['count']['count_Others']) + int(product['count']['count_Community']))
+                    ws[f'P{9 + i}']._style = copy(ws[f'P10']._style)
+                except:
+                    pass
+
+
+                try:
+                    ws[f'Q{9+i}'].value = int(product['count']['count_IRACA'])
+                    ws[f'Q{9 + i}']._style = copy(ws[f'Q10']._style)
+                except:
+                    pass
+
+
+                try:
+                    ws[f'R{9+i}'].value = int(product['price']) * int(product['count']['count_IRACA'])
+                    ws[f'R{9 + i}']._style = copy(ws[f'R10']._style)
+                except:
+                    pass
+
+
+
+
+
+                try:
+                    ws[f'S{9+i}'].value = int(product['count']['count_Community'])
+                    ws[f'S{9 + i}']._style = copy(ws[f'S10']._style)
+                except:
+                    pass
+
+
+                try:
+                    ws[f'T{9+i}'].value = int(product['price']) * int(product['count']['count_Community'])
+                    ws[f'T{9 + i}']._style = copy(ws[f'T10']._style)
                 except:
                     pass
 
 
 
                 try:
-                    ws[f'O{9+i}'] = int(product['price'])
+                    ws[f'U{9+i}'].value = int(product['count']['count_Others'])
+                    ws[f'U{9 + i}']._style = copy(ws[f'U10']._style)
+                except:
+                    pass
+
+
+                try:
+                    ws[f'V{9+i}'].value = int(product['price']) * int(product['count']['count_Others'])
+                    ws[f'V{9 + i}']._style = copy(ws[f'V10']._style)
                 except:
                     pass
 
                 i += 1
 
 
-            try:
-                ws[f'P{9+i}'] = int(instance.json['data']['budget_used'])
-            except:
-                pass
+            ws.row_dimensions[9 + i].height = 50
 
+            ws[f'P{9+i}'] = f"=SUM(P10:P{8+i})"
+            ws[f'R{9+i}'] = f"=SUM(R10:R{8+i})"
+            ws[f'T{9+i}'] = f"=SUM(T10:T{8+i})"
+            ws[f'V{9+i}'] = f"=SUM(V10:V{8+i})"
 
+            ws.row_dimensions[10 + i].height = 20
 
-            try:
-                ws[f'P{11+i}'] = int(instance.json['data']['budget_used']) / int(instance.json['data']['homes'])
-            except:
-                pass
-
-
+            ws.row_dimensions[11 + i].height = 50
+            ws[f'R{11+i}'] = f"=R{9+i}/V6"
 
 
 

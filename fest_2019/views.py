@@ -239,17 +239,34 @@ class MisProyectosUpdateView(LoginRequiredMixin,
         return super(MisProyectosUpdateView, self).get_context_data(**kwargs)
 
 
-    def form_valid(self, form):
-        self.object = form.save()
-        return super(MisProyectosUpdateView, self).form_valid(form)
-
-
-    def form_invalid(self, form):
-        return super(MisProyectosUpdateView, self).form_invalid(form)
-
 
     def get_initial(self):
         return {'pk':self.kwargs['pk']}
+
+
+
+class MisProyectosHogaresView(LoginRequiredMixin,
+                           MultiplePermissionsRequiredMixin,
+                           TemplateView):
+
+    permissions = {
+        "all": [
+            "usuarios.fest_2019.ver",
+            "usuarios.fest_2019.misproyectos.ver",
+        ]
+    }
+    login_url = settings.LOGIN_URL
+    template_name = 'fest_2019/misproyectos/hogares.html'
+
+
+    def get_context_data(self, **kwargs):
+        proyecto = models.ProyectosApi.objects.get(id=self.kwargs['pk'])
+        kwargs['title'] = "Mis proyectos"
+        kwargs['proyecto'] = proyecto
+        storage = get_messages(self.request)
+        for message in storage:
+            kwargs['success'] = message
+        return super(MisProyectosHogaresView,self).get_context_data(**kwargs)
 
 
 

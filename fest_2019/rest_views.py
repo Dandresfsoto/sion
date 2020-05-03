@@ -57,8 +57,8 @@ class ProyectosApiRetrieveView(mixins.RetrieveModelMixin,
 
 class MisProyectosListApi(BaseDatatableView):
     model = models.ProyectosApi
-    columns = ['id','creation','nombre_proyecto','numero_hogares','valor', 'file']
-    order_columns = ['id','creation','nombre_proyecto','numero_hogares','valor', 'file']
+    columns = ['id','creation','tipo_proyecto','codigo_proyecto','nombre_proyecto','municipio','numero_hogares','valor', 'file']
+    order_columns = ['id','creation','tipo_proyecto','codigo_proyecto','nombre_proyecto','municipio','numero_hogares','valor', 'file']
 
     def get_initial_queryset(self):
 
@@ -101,6 +101,14 @@ class MisProyectosListApi(BaseDatatableView):
 
             return ret
 
+        elif column == 'municipio':
+            municipio = ''
+
+            if row.municipio != None:
+                municipio = f'{row.municipio.departamento.nombre}, {row.municipio.nombre}'
+
+            return municipio
+
         elif column == 'creation':
             return timezone.localtime(row.creation).strftime('%d de %B del %Y a las %I:%M:%S %p')
 
@@ -118,6 +126,14 @@ class MisProyectosListApi(BaseDatatableView):
             else:
                 ret = ''
 
+            return ret
+
+        elif column == 'numero_hogares':
+            ret = '<div class="center-align">' \
+                      '<a href="hogares/{0}" class="tooltipped edit-table" data-position="top" data-delay="50" data-tooltip="{1}">' \
+                            '<b>{2}</b>' \
+                      '</a>' \
+                  '</div>'.format(row.id, 'Ver hogares del proyecto',row.numero_hogares)
             return ret
 
         else:
