@@ -44,6 +44,7 @@ block container_principal
             thead
                 tr
                     th Editar
+                    th Flujo de caja
                     th Creación
                     th Tipo
                     th Código
@@ -55,11 +56,12 @@ block container_principal
             tbody
                 tr
                     td Editar
+                    td Flujo de caja
                     td Creación
                     td Tipo
                     td Código
                     td Nombre proyecto
-                    th Municipio
+                    td Municipio
                     td Hogares
                     td Valor
                     td Excel
@@ -76,8 +78,8 @@ block body_script_auth
                 searching: true,
                 processing: true,
                 serverSide: true,
-                order: [[ 1, "desc" ]],
-                columnDefs: [{"orderable": false, "targets": [0,2]}],
+                order: [[ 2, "desc" ]],
+                columnDefs: [{"orderable": false, "targets": [0,1]}],
                 ajax: "{{ url_datatable }}",
                 language: {
                     url: "//cdn.datatables.net/plug-ins/1.10.8/i18n/Spanish.json"

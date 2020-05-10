@@ -245,6 +245,43 @@ class MisProyectosUpdateView(LoginRequiredMixin,
 
 
 
+class MisProyectosFlujoUpdateView(LoginRequiredMixin,
+                                  MultiplePermissionsRequiredMixin,
+                                  UpdateView):
+
+    login_url = settings.LOGIN_URL
+    template_name = 'fest_2019/misproyectos/flujo_caja.html'
+    form_class = forms.FlujoCajaForm
+    success_url = "../../"
+    model = models.ProyectosApi
+
+    def get_permission_required(self, request=None):
+        permissions = {
+            "all": [
+                "usuarios.fest_2019.ver",
+                "usuarios.fest_2019.misproyectos.editar",
+            ]
+        }
+        return permissions
+
+    def get_context_data(self, **kwargs):
+        proyecto = models.ProyectosApi.objects.get(id = self.kwargs['pk'])
+        kwargs['title'] = "Mis proyectos"
+        kwargs['breadcrumb_active'] = f"{proyecto.nombre_proyecto}"
+        kwargs['meses'] = int(proyecto.duracion)
+        kwargs['flujo_caja'] = json.dumps(proyecto.flujo_caja)
+        storage = get_messages(self.request)
+        for message in storage:
+            kwargs['success'] = message
+        return super(MisProyectosFlujoUpdateView, self).get_context_data(**kwargs)
+
+
+
+    def get_initial(self):
+        return {'pk':self.kwargs['pk']}
+
+
+
 class MisProyectosHogaresView(LoginRequiredMixin,
                            MultiplePermissionsRequiredMixin,
                            TemplateView):

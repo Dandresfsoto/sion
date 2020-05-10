@@ -57,8 +57,8 @@ class ProyectosApiRetrieveView(mixins.RetrieveModelMixin,
 
 class MisProyectosListApi(BaseDatatableView):
     model = models.ProyectosApi
-    columns = ['id','creation','tipo_proyecto','codigo_proyecto','nombre_proyecto','municipio','numero_hogares','valor', 'file']
-    order_columns = ['id','creation','tipo_proyecto','codigo_proyecto','nombre_proyecto','municipio','numero_hogares','valor', 'file']
+    columns = ['id','objetivo_general','creation','tipo_proyecto','codigo_proyecto','nombre_proyecto','municipio','numero_hogares','valor', 'file']
+    order_columns = ['id','objetivo_general','creation','tipo_proyecto','codigo_proyecto','nombre_proyecto','municipio','numero_hogares','valor', 'file']
 
     def get_initial_queryset(self):
 
@@ -73,7 +73,7 @@ class MisProyectosListApi(BaseDatatableView):
             ]
         }
 
-        return self.model.objects.all()
+        return self.model.objects.filter(json__documento = str(self.request.user.cedula))
 
     def filter_queryset(self, qs):
         search = self.request.GET.get(u'search[value]', None)
@@ -89,7 +89,7 @@ class MisProyectosListApi(BaseDatatableView):
             ret = ''
             if self.request.user.has_perms(self.permissions.get('editar')):
                 ret = '<div class="center-align">' \
-                           '<a href="editar/{0}" class="tooltipped edit-table" data-position="top" data-delay="50" data-tooltip="Editar ruta {1}">' \
+                           '<a href="editar/{0}" class="tooltipped edit-table" data-position="top" data-delay="50" data-tooltip="Editar proyecto {1}">' \
                                 '<i class="material-icons">edit</i>' \
                            '</a>' \
                        '</div>'.format(row.id,'')
@@ -97,6 +97,22 @@ class MisProyectosListApi(BaseDatatableView):
             else:
                 ret = '<div class="center-align">' \
                            '<i class="material-icons">edit</i>' \
+                       '</div>'.format(row.id,'')
+
+            return ret
+
+        elif column == 'objetivo_general':
+            ret = ''
+            if self.request.user.has_perms(self.permissions.get('editar')):
+                ret = '<div class="center-align">' \
+                           '<a href="flujo/{0}" class="tooltipped edit-table" data-position="top" data-delay="50" data-tooltip="Editar flujo de caja {1}">' \
+                                '<i class="material-icons">monetization_on</i>' \
+                           '</a>' \
+                       '</div>'.format(row.id,'')
+
+            else:
+                ret = '<div class="center-align">' \
+                           '<i class="material-icons">monetization_on</i>' \
                        '</div>'.format(row.id,'')
 
             return ret

@@ -7,6 +7,7 @@ urlpatterns = [
     path('misproyectos/', views.MisProyectosListView.as_view()),
     path('misproyectos/editar/<int:pk>/', views.MisProyectosUpdateView.as_view()),
     path('misproyectos/hogares/<int:pk>/', views.MisProyectosHogaresView.as_view()),
+    path('misproyectos/flujo/<int:pk>/', views.MisProyectosFlujoUpdateView.as_view()),
 
     path('bd/', views.HogaresListView.as_view()),
     path('bd/crear/', views.HogaresCreateView.as_view()),

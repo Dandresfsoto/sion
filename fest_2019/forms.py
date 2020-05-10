@@ -6378,3 +6378,37 @@ class FichaProyectoForm(forms.ModelForm):
             'mes_11_10': 'Mes 11',
             'mes_12_10': 'Mes 12',
         }
+
+class FlujoCajaForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super(FlujoCajaForm, self).__init__(*args, **kwargs)
+
+
+        self.helper = FormHelper(self)
+        self.helper.layout = Layout(
+
+            Row(
+                Column(
+                    'flujo_caja',
+                    css_class='s12'
+                )
+            ),
+            Row(
+                Column(
+                    Div(
+                        Submit(
+                            'submit',
+                            'Guardar',
+                            css_class='button-submit'
+                        ),
+                        css_class="right-align"
+                    ),
+                    css_class="s12"
+                ),
+            )
+        )
+
+    class Meta:
+        model = models.ProyectosApi
+        fields = ['flujo_caja']
