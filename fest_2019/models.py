@@ -4325,55 +4325,55 @@ def ProyectosApiPostSave(sender, instance, **kwargs):
                 i += 1
 
 
-        if len(egresos) >= 1:
+            if len(egresos) >= 1:
 
-            celda_egresos = 18 + i
+                celda_egresos = 18 + i
 
-            ws[f'C{18 + i}'] = f"=SUM(C{18+j}:C{17 + i})"
-            ws[f'D{18 + i}'] = f"=SUM(D{18+j}:D{17 + i})"
-            ws[f'E{18 + i}'] = f"=SUM(E{18+j}:E{17 + i})"
-            ws[f'F{18 + i}'] = f"=SUM(F{18+j}:F{17 + i})"
-            ws[f'G{18 + i}'] = f"=SUM(G{18+j}:G{17 + i})"
-            ws[f'H{18 + i}'] = f"=SUM(H{18+j}:H{17 + i})"
-            ws[f'I{18 + i}'] = f"=SUM(I{18+j}:I{17 + i})"
-            ws[f'J{18 + i}'] = f"=SUM(J{18+j}:J{17 + i})"
-            ws[f'K{18 + i}'] = f"=SUM(K{18+j}:K{17 + i})"
-            ws[f'L{18 + i}'] = f"=SUM(L{18+j}:L{17 + i})"
-            ws[f'M{18 + i}'] = f"=SUM(M{18+j}:M{17 + i})"
-            ws[f'N{18 + i}'] = f"=SUM(N{18+j}:N{17 + i})"
+                ws[f'C{18 + i}'] = f"=SUM(C{18+j}:C{17 + i})"
+                ws[f'D{18 + i}'] = f"=SUM(D{18+j}:D{17 + i})"
+                ws[f'E{18 + i}'] = f"=SUM(E{18+j}:E{17 + i})"
+                ws[f'F{18 + i}'] = f"=SUM(F{18+j}:F{17 + i})"
+                ws[f'G{18 + i}'] = f"=SUM(G{18+j}:G{17 + i})"
+                ws[f'H{18 + i}'] = f"=SUM(H{18+j}:H{17 + i})"
+                ws[f'I{18 + i}'] = f"=SUM(I{18+j}:I{17 + i})"
+                ws[f'J{18 + i}'] = f"=SUM(J{18+j}:J{17 + i})"
+                ws[f'K{18 + i}'] = f"=SUM(K{18+j}:K{17 + i})"
+                ws[f'L{18 + i}'] = f"=SUM(L{18+j}:L{17 + i})"
+                ws[f'M{18 + i}'] = f"=SUM(M{18+j}:M{17 + i})"
+                ws[f'N{18 + i}'] = f"=SUM(N{18+j}:N{17 + i})"
 
-            ws[f'C{19 + i}'] = f"=+(C{celda_ingresos}-C{celda_egresos})+C12"
-            ws[f'D{19 + i}'] = f"=+(D{celda_ingresos}-D{celda_egresos})+D12"
-            ws[f'E{19 + i}'] = f"=+(E{celda_ingresos}-E{celda_egresos})+E12"
-            ws[f'F{19 + i}'] = f"=+(F{celda_ingresos}-F{celda_egresos})+F12"
-            ws[f'G{19 + i}'] = f"=+(G{celda_ingresos}-G{celda_egresos})+G12"
-            ws[f'H{19 + i}'] = f"=+(H{celda_ingresos}-H{celda_egresos})+H12"
-            ws[f'I{19 + i}'] = f"=+(I{celda_ingresos}-I{celda_egresos})+I12"
-            ws[f'J{19 + i}'] = f"=+(J{celda_ingresos}-J{celda_egresos})+J12"
-            ws[f'K{19 + i}'] = f"=+(K{celda_ingresos}-K{celda_egresos})+K12"
-            ws[f'L{19 + i}'] = f"=+(L{celda_ingresos}-L{celda_egresos})+L12"
-            ws[f'M{19 + i}'] = f"=+(M{celda_ingresos}-M{celda_egresos})+M12"
-            ws[f'N{19 + i}'] = f"=+(N{celda_ingresos}-N{celda_egresos})+N12"
+                ws[f'C{19 + i}'] = f"=+(C{celda_ingresos}-C{celda_egresos})+C12"
+                ws[f'D{19 + i}'] = f"=+(D{celda_ingresos}-D{celda_egresos})+D12"
+                ws[f'E{19 + i}'] = f"=+(E{celda_ingresos}-E{celda_egresos})+E12"
+                ws[f'F{19 + i}'] = f"=+(F{celda_ingresos}-F{celda_egresos})+F12"
+                ws[f'G{19 + i}'] = f"=+(G{celda_ingresos}-G{celda_egresos})+G12"
+                ws[f'H{19 + i}'] = f"=+(H{celda_ingresos}-H{celda_egresos})+H12"
+                ws[f'I{19 + i}'] = f"=+(I{celda_ingresos}-I{celda_egresos})+I12"
+                ws[f'J{19 + i}'] = f"=+(J{celda_ingresos}-J{celda_egresos})+J12"
+                ws[f'K{19 + i}'] = f"=+(K{celda_ingresos}-K{celda_egresos})+K12"
+                ws[f'L{19 + i}'] = f"=+(L{celda_ingresos}-L{celda_egresos})+L12"
+                ws[f'M{19 + i}'] = f"=+(M{celda_ingresos}-M{celda_egresos})+M12"
+                ws[f'N{19 + i}'] = f"=+(N{celda_ingresos}-N{celda_egresos})+N12"
 
-            celda_disponible = 19 + i
+                celda_disponible = 19 + i
 
-        else:
-            celda_egresos = 20
-            celda_disponible = 21
+            else:
+                celda_egresos = 20
+                celda_disponible = 21
 
 
-        ws[f'C12'] = instance.valor.amount
-        ws[f'D12'] = f"=+C{celda_disponible}"
-        ws[f'E12'] = f"=+D{celda_disponible}"
-        ws[f'F12'] = f"=+E{celda_disponible}"
-        ws[f'G12'] = f"=+F{celda_disponible}"
-        ws[f'H12'] = f"=+G{celda_disponible}"
-        ws[f'I12'] = f"=+H{celda_disponible}"
-        ws[f'J12'] = f"=+I{celda_disponible}"
-        ws[f'K12'] = f"=+J{celda_disponible}"
-        ws[f'L12'] = f"=+K{celda_disponible}"
-        ws[f'M12'] = f"=+L{celda_disponible}"
-        ws[f'N12'] = f"=+M{celda_disponible}"
+            ws[f'C12'] = instance.valor.amount
+            ws[f'D12'] = f"=+C{celda_disponible}"
+            ws[f'E12'] = f"=+D{celda_disponible}"
+            ws[f'F12'] = f"=+E{celda_disponible}"
+            ws[f'G12'] = f"=+F{celda_disponible}"
+            ws[f'H12'] = f"=+G{celda_disponible}"
+            ws[f'I12'] = f"=+H{celda_disponible}"
+            ws[f'J12'] = f"=+I{celda_disponible}"
+            ws[f'K12'] = f"=+J{celda_disponible}"
+            ws[f'L12'] = f"=+K{celda_disponible}"
+            ws[f'M12'] = f"=+L{celda_disponible}"
+            ws[f'N12'] = f"=+M{celda_disponible}"
 
 
 
