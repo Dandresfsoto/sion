@@ -202,8 +202,19 @@ block body_script_auth
 
             var data = JSON.parse("{{ flujo_caja|escapejs }}")
 
-            app.flujo_caja.ingresos = data.ingresos
-            app.flujo_caja.egresos = data.egresos
+            if('ingresos' in data){
+                app.flujo_caja.ingresos = data.ingresos
+            }
+            else{
+                app.flujo_caja.ingresos = []
+            }
+
+
+            if ('egresos' in data) {
+                app.flujo_caja.egresos = data.egresos
+            } else {
+                app.flujo_caja.egresos = []
+            }
 
             $("#form_flujo_caja").submit(function (event) {
 
