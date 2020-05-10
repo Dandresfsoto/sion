@@ -1,7 +1,7 @@
 from .base import *
 from .base import env
 
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['iracaz1.com','localhost']
 
