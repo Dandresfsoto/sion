@@ -5646,6 +5646,103 @@ class PermisosCreateForm(forms.ModelForm):
         fields = ['user','rutas_ver','rutas_aprobar']
 
 
+
+class PermisosDepartamentosCreateForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super(PermisosDepartamentosCreateForm, self).__init__(*args, **kwargs)
+
+        self.helper = FormHelper(self)
+
+        self.helper.layout = Layout(
+
+            Row(
+                Fieldset(
+                    'Información del permiso',
+                )
+            ),
+            Row(
+                Column(
+                    Row(
+                        Column(
+                            'departamento',
+                            css_class='s12'
+                        )
+                    ),
+                    Row(
+                        Column(
+                            'users',
+                            css_class='s12'
+                        )
+                    ),
+                    css_class="s12"
+                ),
+            ),
+            Row(
+                Column(
+                    Div(
+                        Submit(
+                            'submit',
+                            'Guardar',
+                            css_class='button-submit'
+                        ),
+                        css_class="right-align"
+                    ),
+                    css_class="s12"
+                ),
+            )
+        )
+
+    class Meta:
+        model = models.PermisosCuentasDepartamentos
+        fields = ['users','departamento']
+
+
+class PermisosDepartamentosUpdateForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super(PermisosDepartamentosUpdateForm, self).__init__(*args, **kwargs)
+
+        self.helper = FormHelper(self)
+
+        self.helper.layout = Layout(
+
+            Row(
+                Fieldset(
+                    'Información del permiso',
+                )
+            ),
+            Row(
+                Column(
+                    Row(
+                        Column(
+                            'users',
+                            css_class='s12'
+                        )
+                    ),
+                    css_class="s12"
+                ),
+            ),
+            Row(
+                Column(
+                    Div(
+                        Submit(
+                            'submit',
+                            'Guardar',
+                            css_class='button-submit'
+                        ),
+                        css_class="right-align"
+                    ),
+                    css_class="s12"
+                ),
+            )
+        )
+
+    class Meta:
+        model = models.PermisosCuentasDepartamentos
+        fields = ['users']
+
+
 class ArchivoRarZipForm(forms.Form):
 
     rar_zip = forms.FileField(widget=forms.FileInput(attrs={'accept': 'application/zip,application/x-rar-compressed,application/x-7z-compressed'}))
@@ -6379,6 +6476,458 @@ class FichaProyectoForm(forms.ModelForm):
             'mes_12_10': 'Mes 12',
         }
 
+class FichaProyectoFullForm(forms.ModelForm):
+
+    def _clean_fields(self):
+        for name, field in self.fields.items():
+            # value_from_datadict() gets the data from the data dictionaries.
+            # Each widget type knows how to retrieve its own data, because some
+            # widgets split data over several HTML fields.
+            if name not in ['resguado_indigena_consejo_comunitario','nombre_comunidad']:
+                if field.disabled:
+                    value = self.get_initial_for_field(field, name)
+                else:
+                    value = field.widget.value_from_datadict(self.data, self.files, self.add_prefix(name))
+                try:
+                    if isinstance(field, FileField):
+                        initial = self.get_initial_for_field(field, name)
+                        value = field.clean(value, initial)
+                    else:
+                        value = field.clean(value)
+
+                    self.cleaned_data[name] = value
+                    if hasattr(self, 'clean_%s' % name):
+                        value = getattr(self, 'clean_%s' % name)()
+                        self.cleaned_data[name] = value
+                except ValidationError as e:
+                    self.add_error(name, e)
+            else:
+                value = field.widget.value_from_datadict(self.data, self.files, self.add_prefix(name))
+                if name == 'resguado_indigena_consejo_comunitario':
+                    if value != '' and value != None:
+                        self.cleaned_data[name] = ConsejosResguardosProyectosIraca.objects.get(id = value)
+                    else:
+                        self.cleaned_data[name] = None
+                else:
+                    if value != []:
+                        self.cleaned_data[name] = ComunidadesProyectosIraca.objects.filter(id__in = value)
+                    else:
+                        self.cleaned_data[name] = None
+
+    def __init__(self, *args, **kwargs):
+        super(FichaProyectoFullForm, self).__init__(*args, **kwargs)
+
+        ids_municipios = models.ConsejosResguardosProyectosIraca.objects.all().values_list('municipio__id',flat=True)
+
+        self.fields['municipio'].queryset = models.Municipios.objects.filter(id__in=ids_municipios)
+
+        if kwargs['instance'] is None:
+            self.fields['convenio'].initial = '213-19'
+            self.fields['resguado_indigena_consejo_comunitario'].queryset = models.ConsejosResguardosProyectosIraca.objects.none()
+            self.fields['nombre_comunidad'].queryset = models.ComunidadesProyectosIraca.objects.none()
+
+        else:
+            instance = kwargs['instance']
+            self.fields['convenio'].initial = '213-19'
+
+            self.fields['resguado_indigena_consejo_comunitario'].queryset = models.ConsejosResguardosProyectosIraca.objects.none()
+
+            if instance.municipio != None:
+                self.fields['resguado_indigena_consejo_comunitario'].queryset = models.ConsejosResguardosProyectosIraca.objects.filter(municipio = instance.municipio)
+
+            self.fields['nombre_comunidad'].queryset = models.ComunidadesProyectosIraca.objects.none()
+
+            if instance.resguado_indigena_consejo_comunitario != None:
+                self.fields['nombre_comunidad'].queryset = models.ComunidadesProyectosIraca.objects.filter(consejo_resguardo = instance.resguado_indigena_consejo_comunitario)
+
+
+    class Meta:
+        model = models.ProyectosApi
+        fields = ['convenio','codigo_proyecto','fecha_elaboracion','municipio','resguado_indigena_consejo_comunitario',
+                  'nombre_comunidad', 'nombre_representante',
+                  'numero_hogares','nombre_proyecto','linea','duracion','ubicacion_proyecto','producto_servicio','problema',
+                  'justificacion','criterios_socioculturales','objetivo_general','objetivo_especifico_1','objetivo_especifico_2',
+                  'objetivo_especifico_3',
+
+                  'actividad_1','mes_1_1','mes_2_1','mes_3_1','mes_4_1','mes_5_1','mes_6_1',
+                  'mes_7_1', 'mes_8_1', 'mes_9_1', 'mes_10_1', 'mes_11_1', 'mes_12_1',
+                  'indicador_1','unidad_medida_1','meta_1','medio_verificacion_1','observaciones_1',
+
+                  'actividad_2', 'mes_1_2', 'mes_2_2', 'mes_3_2', 'mes_4_2', 'mes_5_2', 'mes_6_2',
+                  'mes_7_2', 'mes_8_2', 'mes_9_2', 'mes_10_2', 'mes_11_2', 'mes_12_2',
+                  'indicador_2', 'unidad_medida_2', 'meta_2',
+                  'medio_verificacion_2', 'observaciones_2',
+
+                  'actividad_3', 'mes_1_3', 'mes_2_3', 'mes_3_3', 'mes_4_3', 'mes_5_3', 'mes_6_3',
+                  'mes_7_3', 'mes_8_3', 'mes_9_3', 'mes_10_3', 'mes_11_3', 'mes_12_3',
+                  'indicador_3', 'unidad_medida_3', 'meta_3',
+                  'medio_verificacion_3', 'observaciones_3',
+
+                   'actividad_4', 'mes_1_4', 'mes_2_4', 'mes_3_4', 'mes_4_4', 'mes_5_4', 'mes_6_4',
+                  'mes_7_4', 'mes_8_4', 'mes_9_4', 'mes_10_4', 'mes_11_4', 'mes_12_4',
+                  'indicador_4', 'unidad_medida_4', 'meta_4',
+                  'medio_verificacion_4', 'observaciones_4',
+
+                  'actividad_5', 'mes_1_5', 'mes_2_5', 'mes_3_5', 'mes_4_5', 'mes_5_5', 'mes_6_5',
+                  'mes_7_5', 'mes_8_5', 'mes_9_5', 'mes_10_5', 'mes_11_5', 'mes_12_5',
+                  'indicador_5', 'unidad_medida_5', 'meta_5',
+                  'medio_verificacion_5', 'observaciones_5',
+
+                  'actividad_6', 'mes_1_6', 'mes_2_6', 'mes_3_6', 'mes_4_6', 'mes_5_6', 'mes_6_6',
+                  'mes_7_6', 'mes_8_6', 'mes_9_6', 'mes_10_6', 'mes_11_6', 'mes_12_6',
+                  'indicador_6', 'unidad_medida_6', 'meta_6',
+                  'medio_verificacion_6', 'observaciones_6',
+
+                   'actividad_7', 'mes_1_7', 'mes_2_7', 'mes_3_7', 'mes_4_7', 'mes_5_7', 'mes_6_7',
+                  'mes_7_7', 'mes_8_7', 'mes_9_7', 'mes_10_7', 'mes_11_7', 'mes_12_7',
+                  'indicador_7', 'unidad_medida_7', 'meta_7',
+                  'medio_verificacion_7', 'observaciones_7',
+
+                  'actividad_8', 'mes_1_8', 'mes_2_8', 'mes_3_8', 'mes_4_8', 'mes_5_8', 'mes_6_8',
+                  'mes_7_8', 'mes_8_8', 'mes_9_8', 'mes_10_8', 'mes_11_8', 'mes_12_8',
+                  'indicador_8', 'unidad_medida_8', 'meta_8',
+                  'medio_verificacion_8', 'observaciones_8',
+
+                   'actividad_9', 'mes_1_9', 'mes_2_9', 'mes_3_9', 'mes_4_9', 'mes_5_9', 'mes_6_9',
+                  'mes_7_9', 'mes_8_9', 'mes_9_9', 'mes_10_9', 'mes_11_9', 'mes_12_9',
+                  'indicador_9', 'unidad_medida_9', 'meta_9',
+                  'medio_verificacion_9', 'observaciones_9',
+
+                  'actividad_10', 'mes_1_10', 'mes_2_10', 'mes_3_10', 'mes_4_10', 'mes_5_10', 'mes_6_10',
+                  'mes_7_10', 'mes_8_10', 'mes_9_10', 'mes_10_10', 'mes_11_10', 'mes_12_10',
+                  'indicador_10', 'unidad_medida_10', 'meta_10',
+                  'medio_verificacion_10', 'observaciones_10',
+
+                  'conservacion_manejo_ambiental', 'sustentabilidad', 'riesgos_acciones',
+
+                  'aliado_1', 'aporte_aliado_1', 'nombre_aliado_1', 'datos_contacto_aliado_1',
+                  'aliado_2', 'aporte_aliado_2', 'nombre_aliado_2', 'datos_contacto_aliado_2',
+                  'aliado_3', 'aporte_aliado_3', 'nombre_aliado_3', 'datos_contacto_aliado_3',
+                  'aliado_4', 'aporte_aliado_4', 'nombre_aliado_4', 'datos_contacto_aliado_4',
+
+                  'concepto_tecnico', 'anexo_1', 'anexo_2', 'anexo_3', 'anexo_4',
+
+                  'nombre_representante_consejo', 'cedula_representante_consejo', 'nombre_representante_comite',
+                  'cedula_representante_comite', 'nombre_funcionario', 'cedula_funcionario',
+
+                  'file2','file3','file4','file5',
+
+                  ]
+        widgets = {
+
+            'file2': forms.ClearableFileInput(attrs={'data-max-file-size': "10M"}),
+            'file3': forms.ClearableFileInput(attrs={'data-max-file-size': "10M"}),
+            'file4': forms.ClearableFileInput(attrs={'data-max-file-size': "10M"}),
+            'file5': forms.ClearableFileInput(attrs={'data-max-file-size': "10M"}),
+
+            'convenio': forms.TextInput(attrs={'autocomplete':'off'}),
+            'codigo_proyecto': forms.TextInput(attrs={'autocomplete':'off'}),
+            'fecha_elaboracion': forms.TextInput(attrs={'autocomplete': 'off'}),
+
+            'numero_hogares': forms.TextInput(attrs={'autocomplete': 'off','readonly':'readonly'}),
+
+            'nombre_representante': forms.TextInput(attrs={'autocomplete':'off'}),
+            'nombre_proyecto': forms.TextInput(attrs={'autocomplete':'off'}),
+            'linea': forms.TextInput(attrs={'autocomplete':'off'}),
+            'ubicacion_proyecto': forms.TextInput(attrs={'autocomplete':'off'}),
+            'producto_servicio': forms.TextInput(attrs={'autocomplete':'off'}),
+
+
+            'actividad_1': forms.TextInput(attrs={'autocomplete':'off','class':'materialize-textarea'}),
+            'indicador_1': forms.TextInput(attrs={'autocomplete':'off','class':'materialize-textarea'}),
+            'meta_1': forms.TextInput(attrs={'readonly':'readonly'}),
+            'unidad_medida_1': forms.TextInput(attrs={'autocomplete':'off'}),
+            'medio_verificacion_1': forms.TextInput(attrs={'autocomplete':'off','class':'materialize-textarea'}),
+            'observaciones_1': forms.TextInput(attrs={'autocomplete':'off','class':'materialize-textarea'}),
+
+            'actividad_2': forms.TextInput(attrs={'autocomplete': 'off','class':'materialize-textarea'}),
+            'indicador_2': forms.TextInput(attrs={'autocomplete': 'off','class':'materialize-textarea'}),
+            'meta_2': forms.TextInput(attrs={'readonly': 'readonly'}),
+            'unidad_medida_2': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'medio_verificacion_2': forms.TextInput(attrs={'autocomplete': 'off','class':'materialize-textarea'}),
+            'observaciones_2': forms.TextInput(attrs={'autocomplete': 'off','class':'materialize-textarea'}),
+
+            'actividad_3': forms.TextInput(attrs={'autocomplete': 'off','class':'materialize-textarea'}),
+            'indicador_3': forms.TextInput(attrs={'autocomplete': 'off','class':'materialize-textarea'}),
+            'meta_3': forms.TextInput(attrs={'readonly': 'readonly'}),
+            'unidad_medida_3': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'medio_verificacion_3': forms.TextInput(attrs={'autocomplete': 'off','class':'materialize-textarea'}),
+            'observaciones_3': forms.TextInput(attrs={'autocomplete': 'off','class':'materialize-textarea'}),
+
+            'actividad_4': forms.TextInput(attrs={'autocomplete': 'off','class':'materialize-textarea'}),
+            'indicador_4': forms.TextInput(attrs={'autocomplete': 'off','class':'materialize-textarea'}),
+            'meta_4': forms.TextInput(attrs={'readonly': 'readonly'}),
+            'unidad_medida_4': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'medio_verificacion_4': forms.TextInput(attrs={'autocomplete': 'off','class':'materialize-textarea'}),
+            'observaciones_4': forms.TextInput(attrs={'autocomplete': 'off','class':'materialize-textarea'}),
+
+            'actividad_5': forms.TextInput(attrs={'autocomplete': 'off','class':'materialize-textarea'}),
+            'indicador_5': forms.TextInput(attrs={'autocomplete': 'off','class':'materialize-textarea'}),
+            'meta_5': forms.TextInput(attrs={'readonly': 'readonly'}),
+            'unidad_medida_5': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'medio_verificacion_5': forms.TextInput(attrs={'autocomplete': 'off','class':'materialize-textarea'}),
+            'observaciones_5': forms.TextInput(attrs={'autocomplete': 'off','class':'materialize-textarea'}),
+
+            'actividad_6': forms.TextInput(attrs={'autocomplete': 'off','class':'materialize-textarea'}),
+            'indicador_6': forms.TextInput(attrs={'autocomplete': 'off','class':'materialize-textarea'}),
+            'meta_6': forms.TextInput(attrs={'readonly': 'readonly'}),
+            'unidad_medida_6': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'medio_verificacion_6': forms.TextInput(attrs={'autocomplete': 'off','class':'materialize-textarea'}),
+            'observaciones_6': forms.TextInput(attrs={'autocomplete': 'off','class':'materialize-textarea'}),
+
+            'actividad_7': forms.TextInput(attrs={'autocomplete': 'off','class':'materialize-textarea'}),
+            'indicador_7': forms.TextInput(attrs={'autocomplete': 'off','class':'materialize-textarea'}),
+            'meta_7': forms.TextInput(attrs={'readonly': 'readonly'}),
+            'unidad_medida_7': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'medio_verificacion_7': forms.TextInput(attrs={'autocomplete': 'off','class':'materialize-textarea'}),
+            'observaciones_7': forms.TextInput(attrs={'autocomplete': 'off','class':'materialize-textarea'}),
+
+            'actividad_8': forms.TextInput(attrs={'autocomplete': 'off','class':'materialize-textarea'}),
+            'indicador_8': forms.TextInput(attrs={'autocomplete': 'off','class':'materialize-textarea'}),
+            'meta_8': forms.TextInput(attrs={'readonly': 'readonly'}),
+            'unidad_medida_8': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'medio_verificacion_8': forms.TextInput(attrs={'autocomplete': 'off','class':'materialize-textarea'}),
+            'observaciones_8': forms.TextInput(attrs={'autocomplete': 'off','class':'materialize-textarea'}),
+
+            'actividad_9': forms.TextInput(attrs={'autocomplete': 'off','class':'materialize-textarea'}),
+            'indicador_9': forms.TextInput(attrs={'autocomplete': 'off','class':'materialize-textarea'}),
+            'meta_9': forms.TextInput(attrs={'readonly': 'readonly'}),
+            'unidad_medida_9': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'medio_verificacion_9': forms.TextInput(attrs={'autocomplete': 'off','class':'materialize-textarea'}),
+            'observaciones_9': forms.TextInput(attrs={'autocomplete': 'off','class':'materialize-textarea'}),
+
+            'actividad_10': forms.TextInput(attrs={'autocomplete': 'off','class':'materialize-textarea'}),
+            'indicador_10': forms.TextInput(attrs={'autocomplete': 'off','class':'materialize-textarea'}),
+            'meta_10': forms.TextInput(attrs={'readonly': 'readonly'}),
+            'unidad_medida_10': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'medio_verificacion_10': forms.TextInput(attrs={'autocomplete': 'off','class':'materialize-textarea'}),
+            'observaciones_10': forms.TextInput(attrs={'autocomplete': 'off','class':'materialize-textarea'}),
+
+
+            'conservacion_manejo_ambiental': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'sustentabilidad': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'riesgos_acciones': forms.TextInput(attrs={'autocomplete': 'off'}),
+
+
+            'anexo_1': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'anexo_2': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'anexo_3': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'anexo_4': forms.TextInput(attrs={'autocomplete': 'off'}),
+
+
+
+
+
+            'nombre_representante_consejo': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'nombre_representante_comite': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'nombre_funcionario': forms.TextInput(attrs={'autocomplete': 'off'}),
+
+
+
+            'aliado_1': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'aporte_aliado_1': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'nombre_aliado_1': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'datos_contacto_aliado_1': forms.TextInput(attrs={'autocomplete': 'off'}),
+
+            'aliado_2': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'aporte_aliado_2': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'nombre_aliado_2': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'datos_contacto_aliado_2': forms.TextInput(attrs={'autocomplete': 'off'}),
+
+            'aliado_3': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'aporte_aliado_3': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'nombre_aliado_3': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'datos_contacto_aliado_3': forms.TextInput(attrs={'autocomplete': 'off'}),
+
+            'aliado_4': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'aporte_aliado_4': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'nombre_aliado_4': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'datos_contacto_aliado_4': forms.TextInput(attrs={'autocomplete': 'off'}),
+
+
+
+            'concepto_tecnico': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'cedula_representante_comite': forms.TextInput(attrs={'autocomplete': 'off'}),
+            'cedula_funcionario': forms.TextInput(attrs={'autocomplete': 'off'}),
+
+
+
+
+            'objetivo_especifico_1': forms.TextInput(attrs={'autocomplete':'off'}),
+            'objetivo_especifico_2': forms.TextInput(attrs={'autocomplete':'off'}),
+            'objetivo_especifico_3': forms.TextInput(attrs={'autocomplete':'off'}),
+
+            'duracion': forms.Select(choices=[('','----------'),('1','1 mes'),('2','2 meses'),('3','3 meses'),('4','4 meses'),('5','5 meses'),('6','6 meses'),('7','7 meses'),('8','8 meses'),('9','9 meses'),('10','10 meses'),('11','11 meses'),('12','12 meses')]),
+            'problema': forms.Textarea(attrs={'class':'materialize-textarea'}),
+            'justificacion': forms.Textarea(attrs={'class':'materialize-textarea'}),
+            'criterios_socioculturales': forms.Textarea(attrs={'class':'materialize-textarea'}),
+            'objetivo_general': forms.Textarea(attrs={'class':'materialize-textarea'}),
+
+            'cedula_representante_consejo': forms.NumberInput(attrs={'autocomplete': 'off'}),
+        }
+
+        labels = {
+            'fecha_elaboracion': 'Fecha de elaboración',
+            'resguado_indigena_consejo_comunitario': 'Consejo(s) / Resguardo(s)',
+            'nombre_comunidad' : 'Comunidad (es)',
+            'numero_hogares':'No. Hogares Beneficiarios',
+            'nombre_proyecto':'Nombre del Proyecto',
+            'linea':'Linea',
+            'duracion':'Duración',
+            'ubicacion_proyecto':'Ubicación del Proyecto',
+            'producto_servicio':'Producto/Servicio',
+
+            'aliado_1': 'Aliado 1',
+            'aporte_aliado_1': 'Aporte del aliado 1',
+            'nombre_aliado_1': 'Nombre del aliado 1',
+            'datos_contacto_aliado_1': 'Datos de contacto aliado 1',
+
+            'aliado_2': 'Aliado 2',
+            'aporte_aliado_2': 'Aporte del aliado 2',
+            'nombre_aliado_2': 'Nombre del aliado 2',
+            'datos_contacto_aliado_2': 'Datos de contacto aliado 2',
+
+            'aliado_3': 'Aliado 3',
+            'aporte_aliado_3': 'Aporte del aliado 3',
+            'nombre_aliado_3': 'Nombre del aliado 3',
+            'datos_contacto_aliado_3': 'Datos de contacto aliado 3',
+
+            'aliado_4': 'Aliado 4',
+            'aporte_aliado_4': 'Aporte del aliado 4',
+            'nombre_aliado_4': 'Nombre del aliado 4',
+            'datos_contacto_aliado_4': 'Datos de contacto aliado 4',
+
+            'mes_1_1': 'Mes 1',
+            'mes_2_1': 'Mes 2',
+            'mes_3_1': 'Mes 3',
+            'mes_4_1': 'Mes 4',
+            'mes_5_1': 'Mes 5',
+            'mes_6_1': 'Mes 6',
+            'mes_7_1': 'Mes 7',
+            'mes_8_1': 'Mes 8',
+            'mes_9_1': 'Mes 9',
+            'mes_10_1': 'Mes 10',
+            'mes_11_1': 'Mes 11',
+            'mes_12_1': 'Mes 12',
+
+            'mes_1_2': 'Mes 1',
+            'mes_2_2': 'Mes 2',
+            'mes_3_2': 'Mes 3',
+            'mes_4_2': 'Mes 4',
+            'mes_5_2': 'Mes 5',
+            'mes_6_2': 'Mes 6',
+            'mes_7_2': 'Mes 7',
+            'mes_8_2': 'Mes 8',
+            'mes_9_2': 'Mes 9',
+            'mes_10_2': 'Mes 10',
+            'mes_11_2': 'Mes 11',
+            'mes_12_2': 'Mes 12',
+
+            'mes_1_3': 'Mes 1',
+            'mes_2_3': 'Mes 2',
+            'mes_3_3': 'Mes 3',
+            'mes_4_3': 'Mes 4',
+            'mes_5_3': 'Mes 5',
+            'mes_6_3': 'Mes 6',
+            'mes_7_3': 'Mes 7',
+            'mes_8_3': 'Mes 8',
+            'mes_9_3': 'Mes 9',
+            'mes_10_3': 'Mes 10',
+            'mes_11_3': 'Mes 11',
+            'mes_12_3': 'Mes 12',
+
+            'mes_1_4': 'Mes 1',
+            'mes_2_4': 'Mes 2',
+            'mes_3_4': 'Mes 3',
+            'mes_4_4': 'Mes 4',
+            'mes_5_4': 'Mes 5',
+            'mes_6_4': 'Mes 6',
+            'mes_7_4': 'Mes 7',
+            'mes_8_4': 'Mes 8',
+            'mes_9_4': 'Mes 9',
+            'mes_10_4': 'Mes 10',
+            'mes_11_4': 'Mes 11',
+            'mes_12_4': 'Mes 12',
+
+            'mes_1_5': 'Mes 1',
+            'mes_2_5': 'Mes 2',
+            'mes_3_5': 'Mes 3',
+            'mes_4_5': 'Mes 4',
+            'mes_5_5': 'Mes 5',
+            'mes_6_5': 'Mes 6',
+            'mes_7_5': 'Mes 7',
+            'mes_8_5': 'Mes 8',
+            'mes_9_5': 'Mes 9',
+            'mes_10_5': 'Mes 10',
+            'mes_11_5': 'Mes 11',
+            'mes_12_5': 'Mes 12',
+
+            'mes_1_6': 'Mes 1',
+            'mes_2_6': 'Mes 2',
+            'mes_3_6': 'Mes 3',
+            'mes_4_6': 'Mes 4',
+            'mes_5_6': 'Mes 5',
+            'mes_6_6': 'Mes 6',
+            'mes_7_6': 'Mes 7',
+            'mes_8_6': 'Mes 8',
+            'mes_9_6': 'Mes 9',
+            'mes_10_6': 'Mes 10',
+            'mes_11_6': 'Mes 11',
+            'mes_12_6': 'Mes 12',
+
+            'mes_1_7': 'Mes 1',
+            'mes_2_7': 'Mes 2',
+            'mes_3_7': 'Mes 3',
+            'mes_4_7': 'Mes 4',
+            'mes_5_7': 'Mes 5',
+            'mes_6_7': 'Mes 6',
+            'mes_7_7': 'Mes 7',
+            'mes_8_7': 'Mes 8',
+            'mes_9_7': 'Mes 9',
+            'mes_10_7': 'Mes 10',
+            'mes_11_7': 'Mes 11',
+            'mes_12_7': 'Mes 12',
+
+            'mes_1_8': 'Mes 1',
+            'mes_2_8': 'Mes 2',
+            'mes_3_8': 'Mes 3',
+            'mes_4_8': 'Mes 4',
+            'mes_5_8': 'Mes 5',
+            'mes_6_8': 'Mes 6',
+            'mes_7_8': 'Mes 7',
+            'mes_8_8': 'Mes 8',
+            'mes_9_8': 'Mes 9',
+            'mes_10_8': 'Mes 10',
+            'mes_11_8': 'Mes 11',
+            'mes_12_8': 'Mes 12',
+
+            'mes_1_9': 'Mes 1',
+            'mes_2_9': 'Mes 2',
+            'mes_3_9': 'Mes 3',
+            'mes_4_9': 'Mes 4',
+            'mes_5_9': 'Mes 5',
+            'mes_6_9': 'Mes 6',
+            'mes_7_9': 'Mes 7',
+            'mes_8_9': 'Mes 8',
+            'mes_9_9': 'Mes 9',
+            'mes_10_9': 'Mes 10',
+            'mes_11_9': 'Mes 11',
+            'mes_12_9': 'Mes 12',
+
+            'mes_1_10': 'Mes 1',
+            'mes_2_10': 'Mes 2',
+            'mes_3_10': 'Mes 3',
+            'mes_4_10': 'Mes 4',
+            'mes_5_10': 'Mes 5',
+            'mes_6_10': 'Mes 6',
+            'mes_7_10': 'Mes 7',
+            'mes_8_10': 'Mes 8',
+            'mes_9_10': 'Mes 9',
+            'mes_10_10': 'Mes 10',
+            'mes_11_10': 'Mes 11',
+            'mes_12_10': 'Mes 12',
+        }
+
 class FlujoCajaForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
@@ -6412,3 +6961,744 @@ class FlujoCajaForm(forms.ModelForm):
     class Meta:
         model = models.ProyectosApi
         fields = ['flujo_caja']
+
+class IdentificacionProyectosForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super(IdentificacionProyectosForm, self).__init__(*args, **kwargs)
+
+
+        self.helper = FormHelper(self)
+        self.helper.layout = Layout(
+            Row(
+                Fieldset(
+                    'IDENTIFICACIÓN Y PRIORIZACIÓN DE PROYECTOS CON ENFOQUE ÉTNICO',
+                )
+            ),
+            Row(
+                Column(
+                    HTML(
+                      """
+                      <p><strong>SISTEMAS TRADICIONALES DE PRODUCCIÓN PARA LA SEGURIDAD ALIMENTARIA</strong></p>
+                      """
+                    ),
+                    css_class='s12'
+                )
+            ),
+            Row(
+                Column(
+                    'problematica_1_1',
+                    css_class='s12 m6 l4'
+                ),
+                Column(
+                    'acciones_1_1',
+                    css_class='s12 m6 l4'
+                ),
+                Column(
+                    'proyectos_potenciales_1_1',
+                    css_class='s12 m6 l4'
+                )
+            ),
+            Row(
+                Column(
+                    'problematica_2_1',
+                    css_class='s12 m6 l4'
+                ),
+                Column(
+                    'acciones_2_1',
+                    css_class='s12 m6 l4'
+                ),
+                Column(
+                    'proyectos_potenciales_2_1',
+                    css_class='s12 m6 l4'
+                )
+            ),
+            Row(
+                Column(
+                    'problematica_3_1',
+                    css_class='s12 m6 l4'
+                ),
+                Column(
+                    'acciones_3_1',
+                    css_class='s12 m6 l4'
+                ),
+                Column(
+                    'proyectos_potenciales_3_1',
+                    css_class='s12 m6 l4'
+                )
+            ),
+            Row(
+                Column(
+                    'priorizacion_1_1',
+                    css_class='s12'
+                ),
+                Column(
+                    HTML(
+                        """
+                        <div style="margin-bottom:150px;"></div>
+                        """
+                    ),
+                    css_class='s12'
+                ),
+            ),
+            Row(
+                Column(
+                    'problematica_4_1',
+                    css_class='s12 m6 l4'
+                ),
+                Column(
+                    'acciones_4_1',
+                    css_class='s12 m6 l4'
+                ),
+                Column(
+                    'proyectos_potenciales_4_1',
+                    css_class='s12 m6 l4'
+                )
+            ),
+            Row(
+                Column(
+                    'problematica_5_1',
+                    css_class='s12 m6 l4'
+                ),
+                Column(
+                    'acciones_5_1',
+                    css_class='s12 m6 l4'
+                ),
+                Column(
+                    'proyectos_potenciales_5_1',
+                    css_class='s12 m6 l4'
+                )
+            ),
+            Row(
+                Column(
+                    'problematica_6_1',
+                    css_class='s12 m6 l4'
+                ),
+                Column(
+                    'acciones_6_1',
+                    css_class='s12 m6 l4'
+                ),
+                Column(
+                    'proyectos_potenciales_6_1',
+                    css_class='s12 m6 l4'
+                )
+            ),
+            Row(
+                Column(
+                    'priorizacion_2_1',
+                    css_class='s12'
+                ),
+                Column(
+                    HTML(
+                        """
+                        <div style="margin-bottom:150px;"></div>
+                        """
+                    ),
+                    css_class='s12'
+                ),
+            ),
+
+            Row(
+                Column(
+                    HTML(
+                        """
+                        <p><strong>PRACTICAS TRADICIONALES DE PRODUCCIÓN Y COMERCIALIZACIÓN PARA LA GENERACIÓN DE INGRESOS</strong></p>
+                        """
+                    ),
+                    css_class='s12'
+                )
+            ),
+            Row(
+                Column(
+                    'problematica_1_2',
+                    css_class='s12 m6 l4'
+                ),
+                Column(
+                    'acciones_1_2',
+                    css_class='s12 m6 l4'
+                ),
+                Column(
+                    'proyectos_potenciales_1_2',
+                    css_class='s12 m6 l4'
+                )
+            ),
+            Row(
+                Column(
+                    'problematica_2_2',
+                    css_class='s12 m6 l4'
+                ),
+                Column(
+                    'acciones_2_2',
+                    css_class='s12 m6 l4'
+                ),
+                Column(
+                    'proyectos_potenciales_2_2',
+                    css_class='s12 m6 l4'
+                )
+            ),
+            Row(
+                Column(
+                    'problematica_3_2',
+                    css_class='s12 m6 l4'
+                ),
+                Column(
+                    'acciones_3_2',
+                    css_class='s12 m6 l4'
+                ),
+                Column(
+                    'proyectos_potenciales_3_2',
+                    css_class='s12 m6 l4'
+                )
+            ),
+            Row(
+                Column(
+                    'priorizacion_1_2',
+                    css_class='s12'
+                ),
+                Column(
+                    HTML(
+                        """
+                        <div style="margin-bottom:150px;"></div>
+                        """
+                    ),
+                    css_class='s12'
+                ),
+            ),
+            Row(
+                Column(
+                    'problematica_4_2',
+                    css_class='s12 m6 l4'
+                ),
+                Column(
+                    'acciones_4_2',
+                    css_class='s12 m6 l4'
+                ),
+                Column(
+                    'proyectos_potenciales_4_2',
+                    css_class='s12 m6 l4'
+                )
+            ),
+            Row(
+                Column(
+                    'problematica_5_2',
+                    css_class='s12 m6 l4'
+                ),
+                Column(
+                    'acciones_5_2',
+                    css_class='s12 m6 l4'
+                ),
+                Column(
+                    'proyectos_potenciales_5_2',
+                    css_class='s12 m6 l4'
+                )
+            ),
+            Row(
+                Column(
+                    'problematica_6_2',
+                    css_class='s12 m6 l4'
+                ),
+                Column(
+                    'acciones_6_2',
+                    css_class='s12 m6 l4'
+                ),
+                Column(
+                    'proyectos_potenciales_6_2',
+                    css_class='s12 m6 l4'
+                )
+            ),
+            Row(
+                Column(
+                    'priorizacion_2_2',
+                    css_class='s12'
+                ),
+                Column(
+                    HTML(
+                        """
+                        <div style="margin-bottom:150px;"></div>
+                        """
+                    ),
+                    css_class='s12'
+                ),
+            ),
+
+            Row(
+                Column(
+                    HTML(
+                        """
+                        <p><strong>DIVERSIDAD CULTURAL, TRADICIONAL, ORGANIZACIÓN SOCIAL Y COMUNITARIA</strong></p>
+                        """
+                    ),
+                    css_class='s12'
+                )
+            ),
+            Row(
+                Column(
+                    'problematica_1_3',
+                    css_class='s12 m6 l4'
+                ),
+                Column(
+                    'acciones_1_3',
+                    css_class='s12 m6 l4'
+                ),
+                Column(
+                    'proyectos_potenciales_1_3',
+                    css_class='s12 m6 l4'
+                )
+            ),
+            Row(
+                Column(
+                    'problematica_2_3',
+                    css_class='s12 m6 l4'
+                ),
+                Column(
+                    'acciones_2_3',
+                    css_class='s12 m6 l4'
+                ),
+                Column(
+                    'proyectos_potenciales_2_3',
+                    css_class='s12 m6 l4'
+                )
+            ),
+            Row(
+                Column(
+                    'problematica_3_3',
+                    css_class='s12 m6 l4'
+                ),
+                Column(
+                    'acciones_3_3',
+                    css_class='s12 m6 l4'
+                ),
+                Column(
+                    'proyectos_potenciales_3_3',
+                    css_class='s12 m6 l4'
+                )
+            ),
+            Row(
+                Column(
+                    'priorizacion_1_3',
+                    css_class='s12'
+                ),
+                Column(
+                    HTML(
+                        """
+                        <div style="margin-bottom:150px;"></div>
+                        """
+                    ),
+                    css_class='s12'
+                ),
+            ),
+            Row(
+                Column(
+                    'problematica_4_3',
+                    css_class='s12 m6 l4'
+                ),
+                Column(
+                    'acciones_4_3',
+                    css_class='s12 m6 l4'
+                ),
+                Column(
+                    'proyectos_potenciales_4_3',
+                    css_class='s12 m6 l4'
+                )
+            ),
+            Row(
+                Column(
+                    'problematica_5_3',
+                    css_class='s12 m6 l4'
+                ),
+                Column(
+                    'acciones_5_3',
+                    css_class='s12 m6 l4'
+                ),
+                Column(
+                    'proyectos_potenciales_5_3',
+                    css_class='s12 m6 l4'
+                )
+            ),
+            Row(
+                Column(
+                    'problematica_6_3',
+                    css_class='s12 m6 l4'
+                ),
+                Column(
+                    'acciones_6_3',
+                    css_class='s12 m6 l4'
+                ),
+                Column(
+                    'proyectos_potenciales_6_3',
+                    css_class='s12 m6 l4'
+                )
+            ),
+            Row(
+                Column(
+                    'priorizacion_2_3',
+                    css_class='s12'
+                ),
+                Column(
+                    HTML(
+                        """
+                        <div style="margin-bottom:150px;"></div>
+                        """
+                    ),
+                    css_class='s12'
+                ),
+            ),
+
+
+
+            Row(
+                Column(
+                    Div(
+                        Submit(
+                            'submit',
+                            'Guardar',
+                            css_class='button-submit'
+                        ),
+                        css_class="right-align"
+                    ),
+                    css_class="s12"
+                ),
+            )
+        )
+
+    class Meta:
+        model = models.ProyectosApi
+        fields = [
+            'problematica_1_1', 'problematica_2_1', 'problematica_3_1', 'problematica_4_1', 'problematica_5_1', 'problematica_6_1',
+            'acciones_1_1', 'acciones_2_1', 'acciones_3_1', 'acciones_4_1', 'acciones_5_1', 'acciones_6_1',
+            'proyectos_potenciales_1_1', 'proyectos_potenciales_2_1', 'proyectos_potenciales_3_1', 'proyectos_potenciales_4_1', 'proyectos_potenciales_5_1', 'proyectos_potenciales_6_1',
+            'priorizacion_1_1', 'priorizacion_2_1',
+
+            'problematica_1_2', 'problematica_2_2', 'problematica_3_2', 'problematica_4_2', 'problematica_5_2','problematica_6_2',
+            'acciones_1_2', 'acciones_2_2', 'acciones_3_2', 'acciones_4_2', 'acciones_5_2', 'acciones_6_2',
+            'proyectos_potenciales_1_2', 'proyectos_potenciales_2_2', 'proyectos_potenciales_3_2','proyectos_potenciales_4_2', 'proyectos_potenciales_5_2', 'proyectos_potenciales_6_2',
+            'priorizacion_1_2', 'priorizacion_2_2',
+
+            'problematica_1_3', 'problematica_2_3', 'problematica_3_3', 'problematica_4_3', 'problematica_5_3','problematica_6_3',
+            'acciones_1_3', 'acciones_2_3', 'acciones_3_3', 'acciones_4_3', 'acciones_5_3', 'acciones_6_3',
+            'proyectos_potenciales_1_3', 'proyectos_potenciales_2_3', 'proyectos_potenciales_3_3','proyectos_potenciales_4_3', 'proyectos_potenciales_5_3', 'proyectos_potenciales_6_3',
+            'priorizacion_1_3', 'priorizacion_2_3',
+        ]
+        widgets = {
+            'problematica_1_1': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'problematica_2_1': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'problematica_3_1': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'problematica_4_1': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'problematica_5_1': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'problematica_6_1': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'acciones_1_1': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'acciones_2_1': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'acciones_3_1': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'acciones_4_1': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'acciones_5_1': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'acciones_6_1': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'proyectos_potenciales_1_1': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'proyectos_potenciales_2_1': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'proyectos_potenciales_3_1': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'proyectos_potenciales_4_1': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'proyectos_potenciales_5_1': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'proyectos_potenciales_6_1': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'priorizacion_1_1': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'priorizacion_2_1': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+
+            'problematica_1_2': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'problematica_2_2': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'problematica_3_2': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'problematica_4_2': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'problematica_5_2': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'problematica_6_2': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'acciones_1_2': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'acciones_2_2': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'acciones_3_2': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'acciones_4_2': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'acciones_5_2': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'acciones_6_2': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'proyectos_potenciales_1_2': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'proyectos_potenciales_2_2': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'proyectos_potenciales_3_2': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'proyectos_potenciales_4_2': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'proyectos_potenciales_5_2': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'proyectos_potenciales_6_2': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'priorizacion_1_2': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'priorizacion_2_2': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+
+            'problematica_1_3': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'problematica_2_3': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'problematica_3_3': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'problematica_4_3': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'problematica_5_3': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'problematica_6_3': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'acciones_1_3': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'acciones_2_3': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'acciones_3_3': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'acciones_4_3': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'acciones_5_3': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'acciones_6_3': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'proyectos_potenciales_1_3': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'proyectos_potenciales_2_3': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'proyectos_potenciales_3_3': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'proyectos_potenciales_4_3': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'proyectos_potenciales_5_3': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'proyectos_potenciales_6_3': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'priorizacion_1_3': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'priorizacion_2_3': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+        }
+        labels = {
+            'problematica_1_1' : 'Problematica',
+            'problematica_2_1' : 'Problematica',
+            'problematica_3_1' : 'Problematica',
+            'problematica_4_1' : 'Problematica',
+            'problematica_5_1' : 'Problematica',
+            'problematica_6_1' : 'Problematica',
+            'acciones_1_1' : 'Acciones',
+            'acciones_2_1' : 'Acciones',
+            'acciones_3_1' : 'Acciones',
+            'acciones_4_1' : 'Acciones',
+            'acciones_5_1' : 'Acciones',
+            'acciones_6_1' : 'Acciones',
+            'proyectos_potenciales_1_1' : 'Proyectos potenciales',
+            'proyectos_potenciales_2_1' : 'Proyectos potenciales',
+            'proyectos_potenciales_3_1' : 'Proyectos potenciales',
+            'proyectos_potenciales_4_1' : 'Proyectos potenciales',
+            'proyectos_potenciales_5_1' : 'Proyectos potenciales',
+            'proyectos_potenciales_6_1' : 'Proyectos potenciales',
+            'priorizacion_1_1' : 'Priorización de proyectos #1',
+            'priorizacion_2_1' : 'Priorización de proyectos #2',
+
+
+            'problematica_1_2': 'Problematica',
+            'problematica_2_2': 'Problematica',
+            'problematica_3_2': 'Problematica',
+            'problematica_4_2': 'Problematica',
+            'problematica_5_2': 'Problematica',
+            'problematica_6_2': 'Problematica',
+            'acciones_1_2': 'Acciones',
+            'acciones_2_2': 'Acciones',
+            'acciones_3_2': 'Acciones',
+            'acciones_4_2': 'Acciones',
+            'acciones_5_2': 'Acciones',
+            'acciones_6_2': 'Acciones',
+            'proyectos_potenciales_1_2': 'Proyectos potenciales',
+            'proyectos_potenciales_2_2': 'Proyectos potenciales',
+            'proyectos_potenciales_3_2': 'Proyectos potenciales',
+            'proyectos_potenciales_4_2': 'Proyectos potenciales',
+            'proyectos_potenciales_5_2': 'Proyectos potenciales',
+            'proyectos_potenciales_6_2': 'Proyectos potenciales',
+            'priorizacion_1_2': 'Priorización de proyectos #1',
+            'priorizacion_2_2': 'Priorización de proyectos #2',
+
+            'problematica_1_3': 'Problematica',
+            'problematica_2_3': 'Problematica',
+            'problematica_3_3': 'Problematica',
+            'problematica_4_3': 'Problematica',
+            'problematica_5_3': 'Problematica',
+            'problematica_6_3': 'Problematica',
+            'acciones_1_3': 'Acciones',
+            'acciones_2_3': 'Acciones',
+            'acciones_3_3': 'Acciones',
+            'acciones_4_3': 'Acciones',
+            'acciones_5_3': 'Acciones',
+            'acciones_6_3': 'Acciones',
+            'proyectos_potenciales_1_3': 'Proyectos potenciales',
+            'proyectos_potenciales_2_3': 'Proyectos potenciales',
+            'proyectos_potenciales_3_3': 'Proyectos potenciales',
+            'proyectos_potenciales_4_3': 'Proyectos potenciales',
+            'proyectos_potenciales_5_3': 'Proyectos potenciales',
+            'proyectos_potenciales_6_3': 'Proyectos potenciales',
+            'priorizacion_1_3': 'Priorización de proyectos #1',
+            'priorizacion_2_3': 'Priorización de proyectos #2',
+        }
+
+class VerificarProyectoForm(forms.Form):
+
+    estado = forms.ChoiceField(choices=[('','----------'),('Vo Bo profesional local','Vo Bo profesional local'),('Rechazo profesional local','Rechazo profesional local')])
+    observacion = forms.CharField(widget=forms.Textarea(attrs={'class': 'materialize-textarea'}))
+
+    def __init__(self, *args, **kwargs):
+        super(VerificarProyectoForm, self).__init__(*args, **kwargs)
+
+
+        self.helper = FormHelper(self)
+        self.helper.layout = Layout(
+
+            Row(
+                Fieldset(
+                    'Verificación profesional local',
+                )
+            ),
+            Row(
+                Column(
+                    'estado',
+                    css_class='s12'
+                )
+            ),
+            Row(
+                Column(
+                    'observacion',
+                    css_class='s12'
+                ),
+            ),
+
+            Row(
+                Column(
+                    Div(
+                        Submit(
+                            'submit',
+                            'Guardar',
+                            css_class='button-submit'
+                        ),
+                        css_class="right-align"
+                    ),
+                    css_class="s12"
+                ),
+            )
+        )
+
+class EstadoMonitoreoProyectoForm(forms.Form):
+
+    estado = forms.ChoiceField(choices=[('','----------'),('Vo Bo equipo monitoreo','Vo Bo equipo monitoreo'),('Rechazo equipo monitoreo','Rechazo equipo monitoreo')])
+    observacion = forms.CharField(widget=forms.Textarea(attrs={'class': 'materialize-textarea'}))
+
+    def __init__(self, *args, **kwargs):
+        super(EstadoMonitoreoProyectoForm, self).__init__(*args, **kwargs)
+
+
+        self.helper = FormHelper(self)
+        self.helper.layout = Layout(
+
+            Row(
+                Fieldset(
+                    'Verificación profesional local',
+                )
+            ),
+            Row(
+                Column(
+                    'estado',
+                    css_class='s12'
+                )
+            ),
+            Row(
+                Column(
+                    'observacion',
+                    css_class='s12'
+                ),
+            ),
+
+            Row(
+                Column(
+                    Div(
+                        Submit(
+                            'submit',
+                            'Guardar',
+                            css_class='button-submit'
+                        ),
+                        css_class="right-align"
+                    ),
+                    css_class="s12"
+                ),
+            )
+        )
+
+class EstadoEspecialistasProyectoForm(forms.Form):
+
+    estado = forms.ChoiceField(choices=[('','----------'),('Aprobado','Aprobado'),('Rechazo equipo especialistas','Rechazo equipo especialistas')])
+    observacion = forms.CharField(widget=forms.Textarea(attrs={'class': 'materialize-textarea'}))
+
+    def __init__(self, *args, **kwargs):
+        super(EstadoEspecialistasProyectoForm, self).__init__(*args, **kwargs)
+
+
+        self.helper = FormHelper(self)
+        self.helper.layout = Layout(
+
+            Row(
+                Fieldset(
+                    'Verificación profesional local',
+                )
+            ),
+            Row(
+                Column(
+                    'estado',
+                    css_class='s12'
+                )
+            ),
+            Row(
+                Column(
+                    'observacion',
+                    css_class='s12'
+                ),
+            ),
+
+            Row(
+                Column(
+                    Div(
+                        Submit(
+                            'submit',
+                            'Guardar',
+                            css_class='button-submit'
+                        ),
+                        css_class="right-align"
+                    ),
+                    css_class="s12"
+                ),
+            )
+        )
+
+class EstadoProyectoForm(forms.Form):
+
+    estado = forms.CharField()
+    observacion = forms.CharField(widget=forms.Textarea(attrs={'class': 'materialize-textarea'}))
+
+    def __init__(self, *args, **kwargs):
+        super(EstadoProyectoForm, self).__init__(*args, **kwargs)
+
+        proyecto = models.ProyectosApi.objects.get(id = self.initial['pk'])
+
+        if proyecto.estado in ["Cargado", "Rechazo profesional local"]:
+            self.fields['estado'].widget = forms.Select(choices=[('','----------'),('Enviado a revisión por profesional local','Enviado a revisión por profesional local')])
+
+        elif proyecto.estado in ["Rechazo equipo monitoreo"]:
+            self.fields['estado'].widget = forms.Select(choices=[('', '----------'), ('Enviado a revisión equipo monitoreo', 'Enviado a revisión equipo monitoreo')])
+
+        elif proyecto.estado in ["Rechazo equipo especialistas"]:
+            self.fields['estado'].widget = forms.Select(choices=[('', '----------'), ('Enviado a revisión especialistas', 'Enviado a revisión especialistas')])
+
+        else:
+            self.fields['estado'].widget = forms.Select(choices=[('', '----------')])
+
+
+        self.helper = FormHelper(self)
+        self.helper.layout = Layout(
+
+            Row(
+                Fieldset(
+                    'Verificación profesional local',
+                )
+            ),
+            Row(
+                Column(
+                    'estado',
+                    css_class='s12'
+                )
+            ),
+            Row(
+                Column(
+                    'observacion',
+                    css_class='s12'
+                ),
+            ),
+
+            Row(
+                Column(
+                    Div(
+                        Submit(
+                            'submit',
+                            'Guardar',
+                            css_class='button-submit'
+                        ),
+                        css_class="right-align"
+                    ),
+                    css_class="s12"
+                ),
+            )
+        )

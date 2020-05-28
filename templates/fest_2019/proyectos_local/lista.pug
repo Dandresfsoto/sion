@@ -31,7 +31,7 @@ block side_nav_container
 
 
                     li(class="bold waves-effect waves-light breadcrum-active")
-                        a(href="#") Mis proyectos
+                        a(href="#") Proyectos (Profesionales locales)
                             i(class="material-icons icon-sican") check_circle
 
                     div(class="divider divider-perfil")
@@ -43,9 +43,7 @@ block container_principal
         table(id="table",class="display responsive no-wrap table table-striped table-bordered",width="100%")
             thead
                 tr
-                    th Editar
-                    th Flujo de caja
-                    th Identificación de proyectos
+                    th Verificar
                     th Creación
                     th Tipo
                     th Código
@@ -58,9 +56,7 @@ block container_principal
                     th Observaciones
             tbody
                 tr
-                    td Editar
-                    td Flujo de caja
-                    td Identificación de proyectos
+                    td Verificar
                     td Creación
                     td Tipo
                     td Código
@@ -84,7 +80,7 @@ block body_script_auth
                 searching: true,
                 processing: true,
                 serverSide: true,
-                order: [[ 3, "desc" ]],
+                order: [[ 9, "desc" ]],
                 columnDefs: [{"orderable": false, "targets": [0,1,2]}],
                 ajax: "{{ url_datatable }}",
                 language: {

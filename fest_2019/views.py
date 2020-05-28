@@ -115,6 +115,16 @@ class Fest2019OptionsView(LoginRequiredMixin,
                 'sican_icon': 'apps',
                 'sican_description': 'Asignar permisos a usuarios para calificar rutas.'
             })
+        if self.request.user.has_perm('usuarios.fest_2019.permisos.ver'):
+            items.append({
+                'sican_categoria': 'Permisos proyectos',
+                'sican_color': 'orange darken-3',
+                'sican_order': 7,
+                'sican_url': 'permisos_proyectos/',
+                'sican_name': 'Permisos proyectos',
+                'sican_icon': 'apps',
+                'sican_description': 'Asignar permisos a usuarios para calificar proyectos.'
+            })
         """
         if self.request.user.has_perm('usuarios.fest_2019.soportes.ver'):
             items.append({
@@ -148,6 +158,39 @@ class Fest2019OptionsView(LoginRequiredMixin,
                 'sican_name': 'Mis proyectos',
                 'sican_icon': 'business_center',
                 'sican_description': 'Registro de proyectos'
+            })
+
+        if self.request.user.has_perm('usuarios.fest_2019.proyectos_local.ver'):
+            items.append({
+                'sican_categoria': 'Proyectos (Profesionales locales)',
+                'sican_color': 'red darken-3',
+                'sican_order': 10,
+                'sican_url': 'proyectos_local/',
+                'sican_name': 'Proyectos (Profesionales locales)',
+                'sican_icon': 'business_center',
+                'sican_description': 'Primer filtro para la verificación de proyectos'
+            })
+
+        if self.request.user.has_perm('usuarios.fest_2019.proyectos_monitoreo.ver'):
+            items.append({
+                'sican_categoria': 'Proyectos (Monitoreo y Evaluación)',
+                'sican_color': 'green darken-3',
+                'sican_order': 11,
+                'sican_url': 'proyectos_monitoreo/',
+                'sican_name': 'Proyectos (Monitoreo y Evaluación)',
+                'sican_icon': 'business_center',
+                'sican_description': 'Segundo filtro para la verificación de proyectos'
+            })
+
+        if self.request.user.has_perm('usuarios.fest_2019.proyectos_especialistas.ver'):
+            items.append({
+                'sican_categoria': 'Proyectos (Especialistas)',
+                'sican_color': 'blue-grey darken-4',
+                'sican_order': 11,
+                'sican_url': 'proyectos_especialistas/',
+                'sican_name': 'Proyectos (Especialistas)',
+                'sican_icon': 'business_center',
+                'sican_description': 'Filtro final para la verificación de proyectos'
             })
 
         """
@@ -218,6 +261,14 @@ class MisProyectosUpdateView(LoginRequiredMixin,
     success_url = "../../"
     model = models.ProyectosApi
 
+    def dispatch(self, request, *args, **kwargs):
+        proyecto = models.ProyectosApi.objects.get(id = self.kwargs['pk'])
+        if proyecto.json["documento"] != str(self.request.user.cedula):
+            return HttpResponseRedirect('../../')
+        if proyecto.estado not in ['Cargado', 'Rechazo profesional local', 'Rechazo equipo monitoreo','Rechazo equipo especialistas']:
+            return HttpResponseRedirect('../../')
+        return super(MisProyectosUpdateView, self).dispatch(request, *args, **kwargs)
+
     def get_permission_required(self, request=None):
         permissions = {
             "all": [
@@ -244,6 +295,60 @@ class MisProyectosUpdateView(LoginRequiredMixin,
         return {'pk':self.kwargs['pk']}
 
 
+class MisProyectosEstadoView(LoginRequiredMixin,
+                             MultiplePermissionsRequiredMixin,
+                             FormView):
+
+    login_url = settings.LOGIN_URL
+    template_name = 'fest_2019/misproyectos/estado.html'
+    form_class = forms.EstadoProyectoForm
+    success_url = "../../"
+
+    def dispatch(self, request, *args, **kwargs):
+        proyecto = models.ProyectosApi.objects.get(id = self.kwargs['pk'])
+        if proyecto.json["documento"] != str(self.request.user.cedula):
+            return HttpResponseRedirect('../../')
+
+        if proyecto.estado not in ["Cargado", "Rechazo profesional local","Rechazo equipo monitoreo",'Rechazo equipo especialistas']:
+            return HttpResponseRedirect('../../')
+
+        return super(MisProyectosEstadoView, self).dispatch(request, *args, **kwargs)
+
+    def get_permission_required(self, request=None):
+        permissions = {
+            "all": [
+                "usuarios.fest_2019.ver",
+                "usuarios.fest_2019.misproyectos.editar",
+            ]
+        }
+        return permissions
+
+    def get_context_data(self, **kwargs):
+        proyecto = models.ProyectosApi.objects.get(id = self.kwargs['pk'])
+        kwargs['title'] = "Mis proyectos"
+        kwargs['breadcrumb_active'] = f"{proyecto.nombre_proyecto}"
+        kwargs['proyecto'] = proyecto
+        storage = get_messages(self.request)
+        for message in storage:
+            kwargs['success'] = message
+        return super(MisProyectosEstadoView, self).get_context_data(**kwargs)
+
+
+    def form_valid(self, form):
+        models.ProyectosApi.objects.filter(id=self.kwargs['pk']).update(estado = form.cleaned_data['estado'], actualizar_app = False)
+        models.ObservacionesProyectosApi.objects.create(
+            proyecto=models.ProyectosApi.objects.get(id = self.kwargs['pk']),
+            user = self.request.user,
+            estado = form.cleaned_data['estado'],
+            descripcion = form.cleaned_data['observacion']
+        )
+        return super(MisProyectosEstadoView, self).form_valid(form)
+
+
+    def get_initial(self):
+        return {'pk': self.kwargs['pk']}
+
+
 
 class MisProyectosFlujoUpdateView(LoginRequiredMixin,
                                   MultiplePermissionsRequiredMixin,
@@ -254,6 +359,14 @@ class MisProyectosFlujoUpdateView(LoginRequiredMixin,
     form_class = forms.FlujoCajaForm
     success_url = "../../"
     model = models.ProyectosApi
+
+    def dispatch(self, request, *args, **kwargs):
+        proyecto = models.ProyectosApi.objects.get(id = self.kwargs['pk'])
+        if proyecto.json["documento"] != str(self.request.user.cedula):
+            return HttpResponseRedirect('../../')
+        if proyecto.estado not in ['Cargado', 'Rechazo profesional local', 'Rechazo equipo monitoreo','Rechazo equipo especialistas']:
+            return HttpResponseRedirect('../../')
+        return super(MisProyectosFlujoUpdateView, self).dispatch(request, *args, **kwargs)
 
     def get_permission_required(self, request=None):
         permissions = {
@@ -282,6 +395,82 @@ class MisProyectosFlujoUpdateView(LoginRequiredMixin,
 
 
 
+class MisProyectosIdentificacionUpdateView(LoginRequiredMixin,
+                                           MultiplePermissionsRequiredMixin,
+                                           UpdateView):
+
+    login_url = settings.LOGIN_URL
+    template_name = 'fest_2019/misproyectos/identificacion.html'
+    form_class = forms.IdentificacionProyectosForm
+    success_url = "../../"
+    model = models.ProyectosApi
+
+
+    def dispatch(self, request, *args, **kwargs):
+        proyecto = models.ProyectosApi.objects.get(id = self.kwargs['pk'])
+        if proyecto.json["documento"] != str(self.request.user.cedula):
+            return HttpResponseRedirect('../../')
+        if proyecto.estado not in ['Cargado', 'Rechazo profesional local', 'Rechazo equipo monitoreo','Rechazo equipo especialistas']:
+            return HttpResponseRedirect('../../')
+        return super(MisProyectosIdentificacionUpdateView, self).dispatch(request, *args, **kwargs)
+
+
+    def get_permission_required(self, request=None):
+        permissions = {
+            "all": [
+                "usuarios.fest_2019.ver",
+                "usuarios.fest_2019.misproyectos.editar",
+            ]
+        }
+        return permissions
+
+    def get_context_data(self, **kwargs):
+        proyecto = models.ProyectosApi.objects.get(id = self.kwargs['pk'])
+        kwargs['title'] = "Mis proyectos"
+        kwargs['breadcrumb_active'] = f"{proyecto.nombre_proyecto}"
+        storage = get_messages(self.request)
+        for message in storage:
+            kwargs['success'] = message
+        return super(MisProyectosIdentificacionUpdateView, self).get_context_data(**kwargs)
+
+
+
+    def get_initial(self):
+        return {'pk':self.kwargs['pk']}
+
+
+
+class MisProyectosObservacionesView(LoginRequiredMixin,
+                                    MultiplePermissionsRequiredMixin,
+                                    TemplateView):
+
+    login_url = settings.LOGIN_URL
+    template_name = 'fest_2019/misproyectos/observaciones.html'
+
+
+    def get_permission_required(self, request=None):
+        permissions = {
+            "all": [
+                "usuarios.fest_2019.ver",
+                "usuarios.fest_2019.misproyectos.editar",
+            ]
+        }
+        return permissions
+
+    def get_context_data(self, **kwargs):
+        proyecto = models.ProyectosApi.objects.get(id = self.kwargs['pk'])
+        kwargs['title'] = "Mis proyectos"
+        kwargs['breadcrumb_active'] = f"{proyecto.nombre_proyecto}"
+        kwargs['observaciones'] = proyecto.get_observaciones()
+        storage = get_messages(self.request)
+        for message in storage:
+            kwargs['success'] = message
+        return super(MisProyectosObservacionesView, self).get_context_data(**kwargs)
+
+
+
+
+
 class MisProyectosHogaresView(LoginRequiredMixin,
                            MultiplePermissionsRequiredMixin,
                            TemplateView):
@@ -305,6 +494,630 @@ class MisProyectosHogaresView(LoginRequiredMixin,
             kwargs['success'] = message
         return super(MisProyectosHogaresView,self).get_context_data(**kwargs)
 
+
+
+#----------------------------------------------------------------------------------
+
+class ProyectosLocalListView(LoginRequiredMixin,
+                             MultiplePermissionsRequiredMixin,
+                             TemplateView):
+
+    permissions = {
+        "all": [
+            "usuarios.fest_2019.ver",
+            "usuarios.fest_2019.proyectos_local.ver",
+        ]
+    }
+    login_url = settings.LOGIN_URL
+    template_name = 'fest_2019/proyectos_local/lista.html'
+
+
+    def get_context_data(self, **kwargs):
+        kwargs['title'] = "Proyectos (Profesionales locales)"
+        kwargs['url_datatable'] = '/rest/v1.0/fest_2019/proyectos_local/'
+        storage = get_messages(self.request)
+        for message in storage:
+            kwargs['success'] = message
+        return super(ProyectosLocalListView,self).get_context_data(**kwargs)
+
+
+class ProyectosLocalVerificarView(LoginRequiredMixin,
+                                  MultiplePermissionsRequiredMixin,
+                                  FormView):
+
+    login_url = settings.LOGIN_URL
+    template_name = 'fest_2019/proyectos_local/editar.html'
+    form_class = forms.VerificarProyectoForm
+    success_url = "../../"
+
+    def dispatch(self, request, *args, **kwargs):
+        proyecto = models.ProyectosApi.objects.get(id = self.kwargs['pk'])
+        departamentos_ids = models.PermisosCuentasDepartamentos.objects.filter(users=self.request.user).values_list('departamento__id', flat=True).distinct()
+
+        try:
+            id_departamento_proyecto = proyecto.municipio.departamento.id
+        except:
+            return HttpResponseRedirect('../../')
+        else:
+
+            if id_departamento_proyecto not in departamentos_ids:
+                return HttpResponseRedirect('../../')
+            if proyecto.estado not in ['Enviado a revisión por profesional local']:
+                return HttpResponseRedirect('../../')
+            return super(ProyectosLocalVerificarView, self).dispatch(request, *args, **kwargs)
+
+
+    def get_permission_required(self, request=None):
+        permissions = {
+            "all": [
+                "usuarios.fest_2019.ver",
+                "usuarios.fest_2019.proyectos_local.editar",
+            ]
+        }
+        return permissions
+
+    def get_context_data(self, **kwargs):
+        proyecto = models.ProyectosApi.objects.get(id = self.kwargs['pk'])
+        kwargs['title'] = "Mis proyectos"
+        kwargs['breadcrumb_active'] = f"{proyecto.nombre_proyecto}"
+        kwargs['proyecto'] = proyecto
+        storage = get_messages(self.request)
+        for message in storage:
+            kwargs['success'] = message
+        return super(ProyectosLocalVerificarView, self).get_context_data(**kwargs)
+
+
+    def form_valid(self, form):
+        models.ProyectosApi.objects.filter(id=self.kwargs['pk']).update(estado = form.cleaned_data['estado'])
+
+        if form.cleaned_data['estado'] == "Rechazo profesional local":
+            models.ProyectosApi.objects.filter(id=self.kwargs['pk']).update(actualizar_app = True)
+
+        models.ObservacionesProyectosApi.objects.create(
+            proyecto=models.ProyectosApi.objects.get(id = self.kwargs['pk']),
+            user = self.request.user,
+            estado = form.cleaned_data['estado'],
+            descripcion = form.cleaned_data['observacion']
+        )
+        return super(ProyectosLocalVerificarView, self).form_valid(form)
+
+
+class ProyectosLocalHogaresView(LoginRequiredMixin,
+                                MultiplePermissionsRequiredMixin,
+                                TemplateView):
+
+    permissions = {
+        "all": [
+            "usuarios.fest_2019.ver",
+            "usuarios.fest_2019.proyectos_local.ver",
+        ]
+    }
+    login_url = settings.LOGIN_URL
+    template_name = 'fest_2019/proyectos_local/hogares.html'
+
+
+    def get_context_data(self, **kwargs):
+        proyecto = models.ProyectosApi.objects.get(id=self.kwargs['pk'])
+        kwargs['title'] = "Proyectos (Profesionales locales)"
+        kwargs['proyecto'] = proyecto
+        storage = get_messages(self.request)
+        for message in storage:
+            kwargs['success'] = message
+        return super(ProyectosLocalHogaresView,self).get_context_data(**kwargs)
+
+
+class ProyectosLocalObservacionesView(LoginRequiredMixin,
+                                      MultiplePermissionsRequiredMixin,
+                                      TemplateView):
+
+    login_url = settings.LOGIN_URL
+    template_name = 'fest_2019/proyectos_local/observaciones.html'
+
+
+    def get_permission_required(self, request=None):
+        permissions = {
+            "all": [
+                "usuarios.fest_2019.ver",
+                "usuarios.fest_2019.proyectos_local.ver",
+            ]
+        }
+        return permissions
+
+    def get_context_data(self, **kwargs):
+        proyecto = models.ProyectosApi.objects.get(id = self.kwargs['pk'])
+        kwargs['title'] = "Proyectos (Profesionales locales)"
+        kwargs['breadcrumb_active'] = f"{proyecto.nombre_proyecto}"
+        kwargs['observaciones'] = proyecto.get_observaciones()
+        storage = get_messages(self.request)
+        for message in storage:
+            kwargs['success'] = message
+        return super(ProyectosLocalObservacionesView, self).get_context_data(**kwargs)
+
+
+#----------------------------------------------------------------------------------
+
+class ProyectosMonitoreoListView(LoginRequiredMixin,
+                                 MultiplePermissionsRequiredMixin,
+                                 TemplateView):
+
+    permissions = {
+        "all": [
+            "usuarios.fest_2019.ver",
+            "usuarios.fest_2019.proyectos_monitoreo.ver",
+        ]
+    }
+    login_url = settings.LOGIN_URL
+    template_name = 'fest_2019/proyectos_monitoreo/lista.html'
+
+
+    def get_context_data(self, **kwargs):
+        kwargs['title'] = "Proyectos (Monitoreo y Evaluación)"
+        kwargs['url_datatable'] = '/rest/v1.0/fest_2019/proyectos_monitoreo/'
+        kwargs['nombre_modulo'] = 'Proyectos (Monitoreo y Evaluación)'
+        storage = get_messages(self.request)
+        for message in storage:
+            kwargs['success'] = message
+        return super(ProyectosMonitoreoListView,self).get_context_data(**kwargs)
+
+
+class ProyectosMonitoreoUpdateView(LoginRequiredMixin,
+                                   MultiplePermissionsRequiredMixin,
+                                   UpdateView):
+
+    login_url = settings.LOGIN_URL
+    template_name = 'fest_2019/proyectos_monitoreo/editar.html'
+    form_class = forms.FichaProyectoFullForm
+    success_url = "../../"
+    model = models.ProyectosApi
+
+    def dispatch(self, request, *args, **kwargs):
+        proyecto = models.ProyectosApi.objects.get(id = self.kwargs['pk'])
+
+        if proyecto.estado not in ['Vo Bo profesional local', 'Enviado a revisión equipo monitoreo']:
+            return HttpResponseRedirect('../../')
+        return super(ProyectosMonitoreoUpdateView, self).dispatch(request, *args, **kwargs)
+
+
+    def get_permission_required(self, request=None):
+        permissions = {
+            "all": [
+                "usuarios.fest_2019.ver",
+                "usuarios.fest_2019.proyectos_monitoreo.editar",
+            ]
+        }
+        return permissions
+
+    def get_context_data(self, **kwargs):
+        proyecto = models.ProyectosApi.objects.get(id = self.kwargs['pk'])
+        kwargs['title'] = "Proyectos (Monitoreo y Evaluación)"
+        kwargs['breadcrumb_active'] = f"{proyecto.nombre_proyecto}"
+        kwargs['url_carga_consejos'] = '/rest/v1.0/usuarios/cargar/consejos/'
+        kwargs['url_carga_comunidades'] = '/rest/v1.0/usuarios/cargar/comunidades/'
+        kwargs['nombre_modulo'] = 'Proyectos (Monitoreo y Evaluación)'
+        storage = get_messages(self.request)
+        for message in storage:
+            kwargs['success'] = message
+        return super(ProyectosMonitoreoUpdateView, self).get_context_data(**kwargs)
+
+
+
+    def get_initial(self):
+        return {'pk':self.kwargs['pk']}
+
+
+class ProyectosMonitoreoFlujoUpdateView(LoginRequiredMixin,
+                                        MultiplePermissionsRequiredMixin,
+                                        UpdateView):
+
+    login_url = settings.LOGIN_URL
+    template_name = 'fest_2019/proyectos_monitoreo/flujo_caja.html'
+    form_class = forms.FlujoCajaForm
+    success_url = "../../"
+    model = models.ProyectosApi
+
+    def dispatch(self, request, *args, **kwargs):
+        proyecto = models.ProyectosApi.objects.get(id = self.kwargs['pk'])
+
+        if proyecto.estado not in ['Vo Bo profesional local', 'Enviado a revisión equipo monitoreo']:
+            return HttpResponseRedirect('../../')
+        return super(ProyectosMonitoreoFlujoUpdateView, self).dispatch(request, *args, **kwargs)
+
+    def get_permission_required(self, request=None):
+        permissions = {
+            "all": [
+                "usuarios.fest_2019.ver",
+                "usuarios.fest_2019.proyectos_monitoreo.editar",
+            ]
+        }
+        return permissions
+
+    def get_context_data(self, **kwargs):
+        proyecto = models.ProyectosApi.objects.get(id = self.kwargs['pk'])
+        kwargs['title'] = "Proyectos (Monitoreo y Evaluación)"
+        kwargs['breadcrumb_active'] = f"{proyecto.nombre_proyecto}"
+        kwargs['meses'] = int(proyecto.duracion)
+        kwargs['flujo_caja'] = json.dumps(proyecto.flujo_caja)
+        kwargs['nombre_modulo'] = 'Proyectos (Monitoreo y Evaluación)'
+        storage = get_messages(self.request)
+        for message in storage:
+            kwargs['success'] = message
+        return super(ProyectosMonitoreoFlujoUpdateView, self).get_context_data(**kwargs)
+
+
+
+    def get_initial(self):
+        return {'pk':self.kwargs['pk']}
+
+
+class ProyectosMonitoreoIdentificacionUpdateView(LoginRequiredMixin,
+                                                 MultiplePermissionsRequiredMixin,
+                                                 UpdateView):
+
+    login_url = settings.LOGIN_URL
+    template_name = 'fest_2019/proyectos_monitoreo/identificacion.html'
+    form_class = forms.IdentificacionProyectosForm
+    success_url = "../../"
+    model = models.ProyectosApi
+
+    def dispatch(self, request, *args, **kwargs):
+        proyecto = models.ProyectosApi.objects.get(id = self.kwargs['pk'])
+
+        if proyecto.estado not in ['Vo Bo profesional local', 'Enviado a revisión equipo monitoreo']:
+            return HttpResponseRedirect('../../')
+        return super(ProyectosMonitoreoIdentificacionUpdateView, self).dispatch(request, *args, **kwargs)
+
+    def get_permission_required(self, request=None):
+        permissions = {
+            "all": [
+                "usuarios.fest_2019.ver",
+                "usuarios.fest_2019.proyectos_monitoreo.editar",
+            ]
+        }
+        return permissions
+
+    def get_context_data(self, **kwargs):
+        proyecto = models.ProyectosApi.objects.get(id = self.kwargs['pk'])
+        kwargs['title'] = "Proyectos (Monitoreo y Evaluación)"
+        kwargs['breadcrumb_active'] = f"{proyecto.nombre_proyecto}"
+        kwargs['nombre_modulo'] = 'Proyectos (Monitoreo y Evaluación)'
+        storage = get_messages(self.request)
+        for message in storage:
+            kwargs['success'] = message
+        return super(ProyectosMonitoreoIdentificacionUpdateView, self).get_context_data(**kwargs)
+
+
+
+    def get_initial(self):
+        return {'pk':self.kwargs['pk']}
+
+
+class ProyectosMonitoreoObservacionesView(LoginRequiredMixin,
+                                          MultiplePermissionsRequiredMixin,
+                                          TemplateView):
+
+    login_url = settings.LOGIN_URL
+    template_name = 'fest_2019/proyectos_monitoreo/observaciones.html'
+
+
+    def get_permission_required(self, request=None):
+        permissions = {
+            "all": [
+                "usuarios.fest_2019.ver",
+                "usuarios.fest_2019.proyectos_monitoreo.editar",
+            ]
+        }
+        return permissions
+
+    def get_context_data(self, **kwargs):
+        proyecto = models.ProyectosApi.objects.get(id = self.kwargs['pk'])
+        kwargs['title'] = "Proyectos (Monitoreo y Evaluación)"
+        kwargs['breadcrumb_active'] = f"{proyecto.nombre_proyecto}"
+        kwargs['observaciones'] = proyecto.get_observaciones()
+        kwargs['nombre_modulo'] = 'Proyectos (Monitoreo y Evaluación)'
+        storage = get_messages(self.request)
+        for message in storage:
+            kwargs['success'] = message
+        return super(ProyectosMonitoreoObservacionesView, self).get_context_data(**kwargs)
+
+
+
+class ProyectosMonitoreoEstadoView(LoginRequiredMixin,
+                                   MultiplePermissionsRequiredMixin,
+                                   FormView):
+
+    login_url = settings.LOGIN_URL
+    template_name = 'fest_2019/proyectos_monitoreo/estado.html'
+    form_class = forms.EstadoMonitoreoProyectoForm
+    success_url = "../../"
+
+    def dispatch(self, request, *args, **kwargs):
+        proyecto = models.ProyectosApi.objects.get(id = self.kwargs['pk'])
+
+        if proyecto.estado not in ['Vo Bo profesional local','Enviado a revisión equipo monitoreo']:
+            return HttpResponseRedirect('../../')
+        return super(ProyectosMonitoreoEstadoView, self).dispatch(request, *args, **kwargs)
+
+    def get_permission_required(self, request=None):
+        permissions = {
+            "all": [
+                "usuarios.fest_2019.ver",
+                "usuarios.fest_2019.proyectos_monitoreo.editar",
+            ]
+        }
+        return permissions
+
+    def get_context_data(self, **kwargs):
+        proyecto = models.ProyectosApi.objects.get(id = self.kwargs['pk'])
+        kwargs['title'] = "Proyectos (Monitoreo y Evaluación)"
+        kwargs['breadcrumb_active'] = f"{proyecto.nombre_proyecto}"
+        kwargs['nombre_modulo'] = 'Proyectos (Monitoreo y Evaluación)'
+        kwargs['proyecto'] = proyecto
+        storage = get_messages(self.request)
+        for message in storage:
+            kwargs['success'] = message
+        return super(ProyectosMonitoreoEstadoView, self).get_context_data(**kwargs)
+
+
+    def form_valid(self, form):
+        models.ProyectosApi.objects.filter(id=self.kwargs['pk']).update(estado = form.cleaned_data['estado'], actualizar_app = False)
+
+        if form.cleaned_data['estado'] == "Rechazo equipo monitoreo":
+            models.ProyectosApi.objects.filter(id=self.kwargs['pk']).update(actualizar_app = True)
+
+        models.ObservacionesProyectosApi.objects.create(
+            proyecto=models.ProyectosApi.objects.get(id = self.kwargs['pk']),
+            user = self.request.user,
+            estado = form.cleaned_data['estado'],
+            descripcion = form.cleaned_data['observacion']
+        )
+        return super(ProyectosMonitoreoEstadoView, self).form_valid(form)
+
+
+    def get_initial(self):
+        return {'pk': self.kwargs['pk']}
+
+
+#----------------------------------------------------------------------------------
+
+class ProyectosEspecialistasListView(LoginRequiredMixin,
+                                 MultiplePermissionsRequiredMixin,
+                                 TemplateView):
+
+    permissions = {
+        "all": [
+            "usuarios.fest_2019.ver",
+            "usuarios.fest_2019.proyectos_especialistas.ver",
+        ]
+    }
+    login_url = settings.LOGIN_URL
+    template_name = 'fest_2019/proyectos_especialistas/lista.html'
+
+
+    def get_context_data(self, **kwargs):
+        kwargs['title'] = "Proyectos (Especialistas)"
+        kwargs['url_datatable'] = '/rest/v1.0/fest_2019/proyectos_especialistas/'
+        kwargs['nombre_modulo'] = 'Proyectos (Especialistas)'
+        storage = get_messages(self.request)
+        for message in storage:
+            kwargs['success'] = message
+        return super(ProyectosEspecialistasListView,self).get_context_data(**kwargs)
+
+
+class ProyectosEspecialistasUpdateView(LoginRequiredMixin,
+                                   MultiplePermissionsRequiredMixin,
+                                   UpdateView):
+
+    login_url = settings.LOGIN_URL
+    template_name = 'fest_2019/proyectos_especialistas/editar.html'
+    form_class = forms.FichaProyectoFullForm
+    success_url = "../../"
+    model = models.ProyectosApi
+
+    def dispatch(self, request, *args, **kwargs):
+        proyecto = models.ProyectosApi.objects.get(id = self.kwargs['pk'])
+
+        if proyecto.estado not in ['Vo Bo equipo monitoreo', 'Enviado a revisión especialistas']:
+            return HttpResponseRedirect('../../')
+        return super(ProyectosEspecialistasUpdateView, self).dispatch(request, *args, **kwargs)
+
+
+    def get_permission_required(self, request=None):
+        permissions = {
+            "all": [
+                "usuarios.fest_2019.ver",
+                "usuarios.fest_2019.proyectos_especialistas.editar",
+            ]
+        }
+        return permissions
+
+    def get_context_data(self, **kwargs):
+        proyecto = models.ProyectosApi.objects.get(id = self.kwargs['pk'])
+        kwargs['title'] = "Proyectos (Especialistas)"
+        kwargs['breadcrumb_active'] = f"{proyecto.nombre_proyecto}"
+        kwargs['url_carga_consejos'] = '/rest/v1.0/usuarios/cargar/consejos/'
+        kwargs['url_carga_comunidades'] = '/rest/v1.0/usuarios/cargar/comunidades/'
+        kwargs['nombre_modulo'] = 'Proyectos (Especialistas)'
+        storage = get_messages(self.request)
+        for message in storage:
+            kwargs['success'] = message
+        return super(ProyectosEspecialistasUpdateView, self).get_context_data(**kwargs)
+
+
+
+    def get_initial(self):
+        return {'pk':self.kwargs['pk']}
+
+
+class ProyectosEspecialistasFlujoUpdateView(LoginRequiredMixin,
+                                        MultiplePermissionsRequiredMixin,
+                                        UpdateView):
+
+    login_url = settings.LOGIN_URL
+    template_name = 'fest_2019/proyectos_especialistas/flujo_caja.html'
+    form_class = forms.FlujoCajaForm
+    success_url = "../../"
+    model = models.ProyectosApi
+
+    def dispatch(self, request, *args, **kwargs):
+        proyecto = models.ProyectosApi.objects.get(id = self.kwargs['pk'])
+
+        if proyecto.estado not in ['Vo Bo equipo monitoreo', 'Enviado a revisión especialistas']:
+            return HttpResponseRedirect('../../')
+        return super(ProyectosEspecialistasFlujoUpdateView, self).dispatch(request, *args, **kwargs)
+
+    def get_permission_required(self, request=None):
+        permissions = {
+            "all": [
+                "usuarios.fest_2019.ver",
+                "usuarios.fest_2019.proyectos_especialistas.editar",
+            ]
+        }
+        return permissions
+
+    def get_context_data(self, **kwargs):
+        proyecto = models.ProyectosApi.objects.get(id = self.kwargs['pk'])
+        kwargs['title'] = "Proyectos (Especialistas)"
+        kwargs['breadcrumb_active'] = f"{proyecto.nombre_proyecto}"
+        kwargs['meses'] = int(proyecto.duracion)
+        kwargs['flujo_caja'] = json.dumps(proyecto.flujo_caja)
+        kwargs['nombre_modulo'] = 'Proyectos (Especialistas)'
+        storage = get_messages(self.request)
+        for message in storage:
+            kwargs['success'] = message
+        return super(ProyectosEspecialistasFlujoUpdateView, self).get_context_data(**kwargs)
+
+
+
+    def get_initial(self):
+        return {'pk':self.kwargs['pk']}
+
+
+class ProyectosEspecialistasIdentificacionUpdateView(LoginRequiredMixin,
+                                                 MultiplePermissionsRequiredMixin,
+                                                 UpdateView):
+
+    login_url = settings.LOGIN_URL
+    template_name = 'fest_2019/proyectos_especialistas/identificacion.html'
+    form_class = forms.IdentificacionProyectosForm
+    success_url = "../../"
+    model = models.ProyectosApi
+
+    def dispatch(self, request, *args, **kwargs):
+        proyecto = models.ProyectosApi.objects.get(id = self.kwargs['pk'])
+
+        if proyecto.estado not in ['Vo Bo equipo monitoreo', 'Enviado a revisión especialistas']:
+            return HttpResponseRedirect('../../')
+        return super(ProyectosEspecialistasIdentificacionUpdateView, self).dispatch(request, *args, **kwargs)
+
+    def get_permission_required(self, request=None):
+        permissions = {
+            "all": [
+                "usuarios.fest_2019.ver",
+                "usuarios.fest_2019.proyectos_especialistas.editar",
+            ]
+        }
+        return permissions
+
+    def get_context_data(self, **kwargs):
+        proyecto = models.ProyectosApi.objects.get(id = self.kwargs['pk'])
+        kwargs['title'] = "Proyectos (Especialistas)"
+        kwargs['breadcrumb_active'] = f"{proyecto.nombre_proyecto}"
+        kwargs['nombre_modulo'] = 'Proyectos (Especialistas)'
+        storage = get_messages(self.request)
+        for message in storage:
+            kwargs['success'] = message
+        return super(ProyectosEspecialistasIdentificacionUpdateView, self).get_context_data(**kwargs)
+
+
+
+    def get_initial(self):
+        return {'pk':self.kwargs['pk']}
+
+
+class ProyectosEspecialistasObservacionesView(LoginRequiredMixin,
+                                          MultiplePermissionsRequiredMixin,
+                                          TemplateView):
+
+    login_url = settings.LOGIN_URL
+    template_name = 'fest_2019/proyectos_especialistas/observaciones.html'
+
+
+    def get_permission_required(self, request=None):
+        permissions = {
+            "all": [
+                "usuarios.fest_2019.ver",
+                "usuarios.fest_2019.proyectos_especialistas.editar",
+            ]
+        }
+        return permissions
+
+    def get_context_data(self, **kwargs):
+        proyecto = models.ProyectosApi.objects.get(id = self.kwargs['pk'])
+        kwargs['title'] = "Proyectos (Especialistas)"
+        kwargs['breadcrumb_active'] = f"{proyecto.nombre_proyecto}"
+        kwargs['observaciones'] = proyecto.get_observaciones()
+        kwargs['nombre_modulo'] = 'Proyectos (Especialistas)'
+        storage = get_messages(self.request)
+        for message in storage:
+            kwargs['success'] = message
+        return super(ProyectosEspecialistasObservacionesView, self).get_context_data(**kwargs)
+
+
+
+class ProyectosEspecialistasEstadoView(LoginRequiredMixin,
+                                   MultiplePermissionsRequiredMixin,
+                                   FormView):
+
+    login_url = settings.LOGIN_URL
+    template_name = 'fest_2019/proyectos_especialistas/estado.html'
+    form_class = forms.EstadoEspecialistasProyectoForm
+    success_url = "../../"
+
+    def dispatch(self, request, *args, **kwargs):
+        proyecto = models.ProyectosApi.objects.get(id = self.kwargs['pk'])
+
+        if proyecto.estado not in ['Vo Bo equipo monitoreo', 'Enviado a revisión especialistas']:
+            return HttpResponseRedirect('../../')
+        return super(ProyectosEspecialistasEstadoView, self).dispatch(request, *args, **kwargs)
+
+    def get_permission_required(self, request=None):
+        permissions = {
+            "all": [
+                "usuarios.fest_2019.ver",
+                "usuarios.fest_2019.proyectos_especialistas.editar",
+            ]
+        }
+        return permissions
+
+    def get_context_data(self, **kwargs):
+        proyecto = models.ProyectosApi.objects.get(id = self.kwargs['pk'])
+        kwargs['title'] = "Proyectos (Especialistas)"
+        kwargs['breadcrumb_active'] = f"{proyecto.nombre_proyecto}"
+        kwargs['nombre_modulo'] = 'Proyectos (Especialistas)'
+        kwargs['proyecto'] = proyecto
+        storage = get_messages(self.request)
+        for message in storage:
+            kwargs['success'] = message
+        return super(ProyectosEspecialistasEstadoView, self).get_context_data(**kwargs)
+
+
+    def form_valid(self, form):
+        models.ProyectosApi.objects.filter(id=self.kwargs['pk']).update(estado = form.cleaned_data['estado'], actualizar_app = False)
+
+        if form.cleaned_data['estado'] == "Rechazo equipo especialistas":
+            models.ProyectosApi.objects.filter(id=self.kwargs['pk']).update(actualizar_app = True)
+
+        models.ObservacionesProyectosApi.objects.create(
+            proyecto=models.ProyectosApi.objects.get(id = self.kwargs['pk']),
+            user = self.request.user,
+            estado = form.cleaned_data['estado'],
+            descripcion = form.cleaned_data['observacion']
+        )
+        return super(ProyectosEspecialistasEstadoView, self).form_valid(form)
+
+
+    def get_initial(self):
+        return {'pk': self.kwargs['pk']}
 
 
 #-------------------------------------- BD ----------------------------------------
@@ -3319,6 +4132,88 @@ class PermisosUpdateView(LoginRequiredMixin,
         kwargs['url_usuarios'] = '/rest/v1.0/fest_2019/permisos/autocomplete/usuarios/'
         kwargs['url_rutas'] = '/rest/v1.0/fest_2019/permisos/autocomplete/rutas/'
         return super(PermisosUpdateView,self).get_context_data(**kwargs)
+
+    def get_initial(self):
+        return {'pk':self.kwargs['pk']}
+
+#----------------------------- PERMISOS PROYECTOS ---------------------------------
+
+class PermisosProyectosListView(LoginRequiredMixin,
+                                MultiplePermissionsRequiredMixin,
+                                TemplateView):
+
+    login_url = settings.LOGIN_URL
+    template_name = 'fest_2019/permisos_proyectos/lista.html'
+    permissions = {
+        "all": [
+            "usuarios.fest_2019.ver",
+            "usuarios.fest_2019.permisos.ver"
+        ],
+        "crear": [
+            "usuarios.fest_2019.ver",
+            "usuarios.fest_2019.permisos.ver",
+            "usuarios.fest_2019.permisos.crear"
+        ]
+    }
+
+
+    def get_context_data(self, **kwargs):
+        kwargs['title'] = "PERMISOS PROYECTOS"
+        kwargs['permiso_crear'] = self.request.user.has_perms(self.permissions['crear'])
+        kwargs['url_datatable'] = '/rest/v1.0/fest_2019/permisos_proyectos/'
+        return super(PermisosProyectosListView,self).get_context_data(**kwargs)
+
+class PermisosProyectosCreateView(LoginRequiredMixin,
+                                  MultiplePermissionsRequiredMixin,
+                                  CreateView):
+
+    login_url = settings.LOGIN_URL
+    template_name = 'fest_2019/permisos_proyectos/crear.html'
+    form_class = forms.PermisosDepartamentosCreateForm
+    model = models.PermisosCuentasDepartamentos
+    success_url = "../"
+
+    def get_permission_required(self, request=None):
+        permissions = {
+            "all": [
+                "usuarios.fest_2019.ver",
+                "usuarios.fest_2019.permisos.ver",
+                "usuarios.fest_2019.permisos.crear"
+            ]
+        }
+        return permissions
+
+
+
+    def get_context_data(self, **kwargs):
+        kwargs['title'] = "PERMISOS PROYECTOS"
+        return super(PermisosProyectosCreateView,self).get_context_data(**kwargs)
+
+class PermisosProyectosUpdateView(LoginRequiredMixin,
+                                  MultiplePermissionsRequiredMixin,
+                                  UpdateView):
+
+    login_url = settings.LOGIN_URL
+    template_name = 'fest_2019/permisos_proyectos/editar.html'
+    form_class = forms.PermisosDepartamentosUpdateForm
+    model = models.PermisosCuentasDepartamentos
+    success_url = "../../"
+
+    def get_permission_required(self, request=None):
+        permissions = {
+            "all": [
+                "usuarios.fest_2019.ver",
+                "usuarios.fest_2019.permisos.ver",
+                "usuarios.fest_2019.permisos.editar"
+            ]
+        }
+        return permissions
+
+
+
+    def get_context_data(self, **kwargs):
+        kwargs['title'] = "PERMISOS PROYECTOS"
+        return super(PermisosProyectosUpdateView,self).get_context_data(**kwargs)
 
     def get_initial(self):
         return {'pk':self.kwargs['pk']}

@@ -9,6 +9,9 @@ urlpatterns = [
 
 
     path('misproyectos/', rest_views.MisProyectosListApi.as_view()),
+    path('proyectos_local/', rest_views.ProyectosLocalListApi.as_view()),
+    path('proyectos_monitoreo/', rest_views.ProyectosMonitoreoListApi.as_view()),
+    path('proyectos_especialistas/', rest_views.ProyectosEspecialistasListApi.as_view()),
 
 
     path('bd/', rest_views.HogaresListApi.as_view()),
@@ -96,6 +99,7 @@ urlpatterns = [
     #----------------------------------- PERMISOS ------------------------------------
 
     path('permisos/', rest_views.PermisosListApi.as_view()),
+    path('permisos_proyectos/', rest_views.PermisosProyectosListApi.as_view()),
 
 
     #----------------------------------- SOPORTES ------------------------------------

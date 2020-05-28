@@ -1062,6 +1062,17 @@ class PermisosCuentasRutas(models.Model):
 
 
 
+class PermisosCuentasDepartamentos(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, unique=True, editable=False)
+    users = models.ManyToManyField(User, blank=True)
+    departamento = models.OneToOneField(Departamentos, on_delete=models.DO_NOTHING)
+
+    def __str__(self):
+        return self.departamento.nombre
+
+
+
+
 
 class Cortes(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, unique=True, editable=False)
@@ -3030,6 +3041,86 @@ class ProyectosApi(models.Model):
 
     flujo_caja = JSONField(default=dict)
 
+    estado = models.CharField(max_length=200, default='Cargado')
+
+    actualizar_app = models.BooleanField(default=True)
+
+    problematica_1_1 = models.TextField(blank=True, null=True)
+    problematica_2_1 = models.TextField(blank=True, null=True)
+    problematica_3_1 = models.TextField(blank=True, null=True)
+    problematica_4_1 = models.TextField(blank=True, null=True)
+    problematica_5_1 = models.TextField(blank=True, null=True)
+    problematica_6_1 = models.TextField(blank=True, null=True)
+
+    acciones_1_1 = models.TextField(blank=True, null=True)
+    acciones_2_1 = models.TextField(blank=True, null=True)
+    acciones_3_1 = models.TextField(blank=True, null=True)
+    acciones_4_1 = models.TextField(blank=True, null=True)
+    acciones_5_1 = models.TextField(blank=True, null=True)
+    acciones_6_1 = models.TextField(blank=True, null=True)
+
+    proyectos_potenciales_1_1 = models.TextField(blank=True, null=True)
+    proyectos_potenciales_2_1 = models.TextField(blank=True, null=True)
+    proyectos_potenciales_3_1 = models.TextField(blank=True, null=True)
+    proyectos_potenciales_4_1 = models.TextField(blank=True, null=True)
+    proyectos_potenciales_5_1 = models.TextField(blank=True, null=True)
+    proyectos_potenciales_6_1 = models.TextField(blank=True, null=True)
+
+    priorizacion_1_1 = models.TextField(blank=True, null=True)
+    priorizacion_2_1 = models.TextField(blank=True, null=True)
+
+    problematica_1_2 = models.TextField(blank=True, null=True)
+    problematica_2_2 = models.TextField(blank=True, null=True)
+    problematica_3_2 = models.TextField(blank=True, null=True)
+    problematica_4_2 = models.TextField(blank=True, null=True)
+    problematica_5_2 = models.TextField(blank=True, null=True)
+    problematica_6_2 = models.TextField(blank=True, null=True)
+
+    acciones_1_2 = models.TextField(blank=True, null=True)
+    acciones_2_2 = models.TextField(blank=True, null=True)
+    acciones_3_2 = models.TextField(blank=True, null=True)
+    acciones_4_2 = models.TextField(blank=True, null=True)
+    acciones_5_2 = models.TextField(blank=True, null=True)
+    acciones_6_2 = models.TextField(blank=True, null=True)
+
+    proyectos_potenciales_1_2 = models.TextField(blank=True, null=True)
+    proyectos_potenciales_2_2 = models.TextField(blank=True, null=True)
+    proyectos_potenciales_3_2 = models.TextField(blank=True, null=True)
+    proyectos_potenciales_4_2 = models.TextField(blank=True, null=True)
+    proyectos_potenciales_5_2 = models.TextField(blank=True, null=True)
+    proyectos_potenciales_6_2 = models.TextField(blank=True, null=True)
+
+    priorizacion_1_2 = models.TextField(blank=True, null=True)
+    priorizacion_2_2 = models.TextField(blank=True, null=True)
+
+
+
+    problematica_1_3 = models.TextField(blank=True, null=True)
+    problematica_2_3 = models.TextField(blank=True, null=True)
+    problematica_3_3 = models.TextField(blank=True, null=True)
+    problematica_4_3 = models.TextField(blank=True, null=True)
+    problematica_5_3 = models.TextField(blank=True, null=True)
+    problematica_6_3 = models.TextField(blank=True, null=True)
+
+    acciones_1_3 = models.TextField(blank=True, null=True)
+    acciones_2_3 = models.TextField(blank=True, null=True)
+    acciones_3_3 = models.TextField(blank=True, null=True)
+    acciones_4_3 = models.TextField(blank=True, null=True)
+    acciones_5_3 = models.TextField(blank=True, null=True)
+    acciones_6_3 = models.TextField(blank=True, null=True)
+
+    proyectos_potenciales_1_3 = models.TextField(blank=True, null=True)
+    proyectos_potenciales_2_3 = models.TextField(blank=True, null=True)
+    proyectos_potenciales_3_3 = models.TextField(blank=True, null=True)
+    proyectos_potenciales_4_3 = models.TextField(blank=True, null=True)
+    proyectos_potenciales_5_3 = models.TextField(blank=True, null=True)
+    proyectos_potenciales_6_3 = models.TextField(blank=True, null=True)
+
+    priorizacion_1_3 = models.TextField(blank=True, null=True)
+    priorizacion_2_3 = models.TextField(blank=True, null=True)
+
+
+
     convenio = models.TextField(default='213-19')
     codigo_proyecto = models.TextField(blank=True, null=True)
     fecha_elaboracion = models.DateField(blank=True, null=True)
@@ -3411,6 +3502,35 @@ class ProyectosApi(models.Model):
         return nombre[:-2]
 
 
+    def get_observaciones(self):
+        return ObservacionesProyectosApi.objects.filter(proyecto = self).order_by("-creation")
+
+
+    def agregar_observacion(self, user, estado, descripcion):
+        obs = ObservacionesProyectosApi.objects.create(proyecto=self, user = user, estado = estado, descripcion = descripcion)
+        return obs
+
+
+class ObservacionesProyectosApi(models.Model):
+    proyecto = models.ForeignKey(ProyectosApi, on_delete=models.DO_NOTHING)
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True)
+    creation = models.DateTimeField(auto_now_add=True)
+    estado = models.CharField(max_length=200)
+    descripcion = models.TextField()
+
+    def get_day(self):
+        return self.creation.astimezone(settings_time_zone).strftime('%d')
+
+    def get_hora(self):
+        return self.creation.astimezone(settings_time_zone).strftime('%I:%M:%S %p')
+
+    def get_mes(self):
+        meses = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC']
+        mes = int(self.creation.astimezone(settings_time_zone).strftime('%m')) - 1
+        return meses[mes]
+
+
+
 @receiver(post_save, sender=ProyectosApi)
 def ProyectosApiPostSave(sender, instance, **kwargs):
 
@@ -3458,45 +3578,129 @@ def ProyectosApiPostSave(sender, instance, **kwargs):
 
         post_save.disconnect(ProyectosApiPostSave, sender=ProyectosApi)
 
-        instance.valor = valor
-        instance.convenio = convenio
-        instance.tipo_proyecto = tipo_proyecto
-        instance.codigo_proyecto = codigo_proyecto
-        instance.fecha_elaboracion = fecha_elaboracion
-        instance.nombre_representante = nombre_representante
-        instance.numero_hogares = numero_hogares
-        instance.nombre_proyecto = nombre_proyecto
-        instance.linea = linea
-        instance.duracion = duracion
-        instance.ubicacion_proyecto = ubicacion_proyecto
-        instance.producto_servicio = producto_servicio
-        instance.problema = problema
-        instance.justificacion = justificacion
-        instance.criterios_socioculturales = criterios_socioculturales
-        instance.objetivo_general = objetivo_general
-        instance.objetivo_especifico_1 = objetivo_especifico_1
-        instance.objetivo_especifico_2 = objetivo_especifico_2
-        instance.objetivo_especifico_3 = objetivo_especifico_3
+        if instance.actualizar_app:
 
-        instance.conservacion_manejo_ambiental = conservacion_manejo_ambiental
-        instance.sustentabilidad = sustentabilidad
-        instance.riesgos_acciones = riesgos_acciones
+            instance.valor = valor
+            instance.convenio = convenio
+            instance.tipo_proyecto = tipo_proyecto
+            instance.codigo_proyecto = codigo_proyecto
+            instance.fecha_elaboracion = fecha_elaboracion
+            instance.nombre_representante = nombre_representante
+            instance.numero_hogares = numero_hogares
+            instance.nombre_proyecto = nombre_proyecto
+            instance.linea = linea
+            instance.duracion = duracion
+            instance.ubicacion_proyecto = ubicacion_proyecto
+            instance.producto_servicio = producto_servicio
+            instance.problema = problema
+            instance.justificacion = justificacion
+            instance.criterios_socioculturales = criterios_socioculturales
+            instance.objetivo_general = objetivo_general
+            instance.objetivo_especifico_1 = objetivo_especifico_1
+            instance.objetivo_especifico_2 = objetivo_especifico_2
+            instance.objetivo_especifico_3 = objetivo_especifico_3
 
-        instance.nombre_representante_consejo = nombre_representante_consejo
-        instance.cedula_representante_consejo = cedula_representante_consejo
+            instance.conservacion_manejo_ambiental = conservacion_manejo_ambiental
+            instance.sustentabilidad = sustentabilidad
+            instance.riesgos_acciones = riesgos_acciones
 
-        instance.nombre_representante_comite = nombre_representante_comite
-        instance.cedula_representante_comite = cedula_representante_comite
+            instance.nombre_representante_consejo = nombre_representante_consejo
+            instance.cedula_representante_consejo = cedula_representante_consejo
 
-        instance.nombre_funcionario = nombre_funcionario
-        instance.cedula_funcionario = cedula_funcionario
+            instance.nombre_representante_comite = nombre_representante_comite
+            instance.cedula_representante_comite = cedula_representante_comite
 
-        instance.save()
+            instance.nombre_funcionario = nombre_funcionario
+            instance.cedula_funcionario = cedula_funcionario
+
+            instance.save()
 
 
         output = BytesIO()
 
         wb = openpyxl.load_workbook(filename=settings.STATICFILES_DIRS[0] + '/documentos/ficha_proyecto.xlsx')
+
+        ws = wb.get_sheet_by_name('IDENTIFICACION PROYECTOS')
+
+
+        ws['B7'] = instance.problematica_1_1
+        ws['B8'] = instance.problematica_2_1
+        ws['B9'] = instance.problematica_3_1
+        ws['B10'] = instance.problematica_4_1
+        ws['B11'] = instance.problematica_5_1
+        ws['B12'] = instance.problematica_6_1
+
+        ws['C7'] = instance.acciones_1_1
+        ws['C8'] = instance.acciones_2_1
+        ws['C9'] = instance.acciones_3_1
+        ws['C10'] = instance.acciones_4_1
+        ws['C11'] = instance.acciones_5_1
+        ws['C12'] = instance.acciones_6_1
+
+        ws['D7'] = instance.proyectos_potenciales_1_1
+        ws['D8'] = instance.proyectos_potenciales_2_1
+        ws['D9'] = instance.proyectos_potenciales_3_1
+        ws['D10'] = instance.proyectos_potenciales_4_1
+        ws['D11'] = instance.proyectos_potenciales_5_1
+        ws['D12'] = instance.proyectos_potenciales_6_1
+
+        ws['E7'] = instance.priorizacion_1_1
+        ws['E10'] = instance.priorizacion_2_1
+
+
+
+        ws['B13'] = instance.problematica_1_2
+        ws['B14'] = instance.problematica_2_2
+        ws['B15'] = instance.problematica_3_2
+        ws['B16'] = instance.problematica_4_2
+        ws['B17'] = instance.problematica_5_2
+        ws['B18'] = instance.problematica_6_2
+
+        ws['C13'] = instance.acciones_1_2
+        ws['C14'] = instance.acciones_2_2
+        ws['C15'] = instance.acciones_3_2
+        ws['C16'] = instance.acciones_4_2
+        ws['C17'] = instance.acciones_5_2
+        ws['C18'] = instance.acciones_6_2
+
+        ws['D13'] = instance.proyectos_potenciales_1_2
+        ws['D14'] = instance.proyectos_potenciales_2_2
+        ws['D15'] = instance.proyectos_potenciales_3_2
+        ws['D16'] = instance.proyectos_potenciales_4_2
+        ws['D17'] = instance.proyectos_potenciales_5_2
+        ws['D18'] = instance.proyectos_potenciales_6_2
+
+        ws['E13'] = instance.priorizacion_1_2
+        ws['E16'] = instance.priorizacion_2_2
+
+
+
+        ws['B19'] = instance.problematica_1_3
+        ws['B20'] = instance.problematica_2_3
+        ws['B21'] = instance.problematica_3_3
+        ws['B22'] = instance.problematica_4_3
+        ws['B23'] = instance.problematica_5_3
+        ws['B24'] = instance.problematica_6_3
+
+        ws['C19'] = instance.acciones_1_3
+        ws['C20'] = instance.acciones_2_3
+        ws['C21'] = instance.acciones_3_3
+        ws['C22'] = instance.acciones_4_3
+        ws['C23'] = instance.acciones_5_3
+        ws['C24'] = instance.acciones_6_3
+
+        ws['D19'] = instance.proyectos_potenciales_1_3
+        ws['D20'] = instance.proyectos_potenciales_2_3
+        ws['D21'] = instance.proyectos_potenciales_3_3
+        ws['D22'] = instance.proyectos_potenciales_4_3
+        ws['D23'] = instance.proyectos_potenciales_5_3
+        ws['D24'] = instance.proyectos_potenciales_6_3
+
+        ws['E19'] = instance.priorizacion_1_3
+        ws['E22'] = instance.priorizacion_2_3
+
+
+
         ws = wb.get_sheet_by_name('Ficha de proyecto')
 
         ws['G6'] = instance.convenio

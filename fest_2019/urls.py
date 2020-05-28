@@ -6,8 +6,35 @@ urlpatterns = [
 
     path('misproyectos/', views.MisProyectosListView.as_view()),
     path('misproyectos/editar/<int:pk>/', views.MisProyectosUpdateView.as_view()),
+    path('misproyectos/estado/<int:pk>/', views.MisProyectosEstadoView.as_view()),
     path('misproyectos/hogares/<int:pk>/', views.MisProyectosHogaresView.as_view()),
     path('misproyectos/flujo/<int:pk>/', views.MisProyectosFlujoUpdateView.as_view()),
+    path('misproyectos/identificacion/<int:pk>/', views.MisProyectosIdentificacionUpdateView.as_view()),
+    path('misproyectos/observaciones/<int:pk>/', views.MisProyectosObservacionesView.as_view()),
+
+
+
+    path('proyectos_local/', views.ProyectosLocalListView.as_view()),
+    path('proyectos_local/verificar/<int:pk>/', views.ProyectosLocalVerificarView.as_view()),
+    path('proyectos_local/hogares/<int:pk>/', views.ProyectosLocalHogaresView.as_view()),
+    path('proyectos_local/observaciones/<int:pk>/', views.ProyectosLocalObservacionesView.as_view()),
+
+
+    path('proyectos_monitoreo/', views.ProyectosMonitoreoListView.as_view()),
+    path('proyectos_monitoreo/editar/<int:pk>/', views.ProyectosMonitoreoUpdateView.as_view()),
+    path('proyectos_monitoreo/flujo/<int:pk>/', views.ProyectosMonitoreoFlujoUpdateView.as_view()),
+    path('proyectos_monitoreo/identificacion/<int:pk>/', views.ProyectosMonitoreoIdentificacionUpdateView.as_view()),
+    path('proyectos_monitoreo/observaciones/<int:pk>/', views.ProyectosMonitoreoObservacionesView.as_view()),
+    path('proyectos_monitoreo/estado/<int:pk>/', views.ProyectosMonitoreoEstadoView.as_view()),
+
+
+    path('proyectos_especialistas/', views.ProyectosEspecialistasListView.as_view()),
+    path('proyectos_especialistas/editar/<int:pk>/', views.ProyectosEspecialistasUpdateView.as_view()),
+    path('proyectos_especialistas/flujo/<int:pk>/', views.ProyectosEspecialistasFlujoUpdateView.as_view()),
+    path('proyectos_especialistas/identificacion/<int:pk>/', views.ProyectosEspecialistasIdentificacionUpdateView.as_view()),
+    path('proyectos_especialistas/observaciones/<int:pk>/', views.ProyectosEspecialistasObservacionesView.as_view()),
+    path('proyectos_especialistas/estado/<int:pk>/', views.ProyectosEspecialistasEstadoView.as_view()),
+
 
     path('bd/', views.HogaresListView.as_view()),
     path('bd/crear/', views.HogaresCreateView.as_view()),
@@ -151,6 +178,13 @@ urlpatterns = [
     path('permisos/', views.PermisosListView.as_view()),
     path('permisos/crear/', views.PermisosCreateView.as_view()),
     path('permisos/editar/<uuid:pk>/', views.PermisosUpdateView.as_view()),
+
+
+#------------------------------------- PERMISOS -------------------------------------
+
+    path('permisos_proyectos/', views.PermisosProyectosListView.as_view()),
+    path('permisos_proyectos/crear/', views.PermisosProyectosCreateView.as_view()),
+    path('permisos_proyectos/editar/<uuid:pk>/', views.PermisosProyectosUpdateView.as_view()),
 
 
     #------------------------------------- SOPORTES -------------------------------------
