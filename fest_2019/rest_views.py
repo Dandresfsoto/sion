@@ -13,7 +13,7 @@ from uuid import UUID
 from django.db.models import Q
 from rest_framework import mixins, generics, status
 from rest_framework.permissions import AllowAny
-from.serializers import ProyectosApiSerializer
+from.serializers import ProyectosApiSerializer, GeoreferenciacionApiSerializer
 
 
 class ProyectosApiView(mixins.CreateModelMixin,
@@ -56,6 +56,49 @@ class ProyectosApiRetrieveView(mixins.RetrieveModelMixin,
 
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)
+
+
+
+
+class GeoreferenciacionApiView(mixins.CreateModelMixin,
+                               generics.GenericAPIView):
+
+    serializer_class = GeoreferenciacionApiSerializer
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
+
+
+
+
+class GeoreferenciacionApiListView(mixins.ListModelMixin,
+                                   generics.GenericAPIView):
+
+    serializer_class = GeoreferenciacionApiSerializer
+    permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        return models.GeoreferenciacionApi.objects.filter(json__documento = str(self.kwargs['cedula']))
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+
+
+class GeoreferenciacionApiRetrieveView(mixins.RetrieveModelMixin,
+                                       generics.GenericAPIView):
+
+    serializer_class = GeoreferenciacionApiSerializer
+    permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        return models.GeoreferenciacionApi.objects.filter(json__documento = str(self.kwargs['cedula']))
+
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
+
+
 
 
 

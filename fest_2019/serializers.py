@@ -1,6 +1,14 @@
 from rest_framework import serializers
-from .models import ProyectosApi
+from .models import ProyectosApi, GeoreferenciacionApi
 from usuarios.models import User
+
+
+class GeoreferenciacionApiSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = GeoreferenciacionApi
+        fields = ['id','json']
+        read_only_fields = ['id']
 
 
 class ProyectosApiSerializer(serializers.ModelSerializer):

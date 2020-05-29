@@ -23,6 +23,8 @@ class LoginRequiredMiddleware(MiddlewareMixin):
 
                     if 'rest' in path_split and 'v1.0' in path_split and 'fest_2019' in path_split and 'proyectos_api' in path_split and 'rest' in path_split and 'rest' in path_split:
                         pass
+                    elif 'rest' in path_split and 'v1.0' in path_split and 'fest_2019' in path_split and 'georeferenciacion_api' in path_split and 'rest' in path_split and 'rest' in path_split:
+                        pass
                     else:
                         return redirect(settings.LOGIN_URL)
         else:

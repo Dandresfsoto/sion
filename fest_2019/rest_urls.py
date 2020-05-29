@@ -7,6 +7,10 @@ urlpatterns = [
     path('proyectos_api/<int:cedula>/<int:pk>/', rest_views.ProyectosApiRetrieveView.as_view()),
 
 
+    path('georeferenciacion_api/', rest_views.GeoreferenciacionApiView.as_view()),
+    path('georeferenciacion_api/<int:cedula>/', rest_views.GeoreferenciacionApiListView.as_view()),
+    path('georeferenciacion_api/<int:cedula>/<int:pk>/', rest_views.GeoreferenciacionApiRetrieveView.as_view()),
+
 
     path('misproyectos/', rest_views.MisProyectosListApi.as_view()),
     path('proyectos_local/', rest_views.ProyectosLocalListApi.as_view()),

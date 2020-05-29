@@ -3030,6 +3030,19 @@ class Contactos(models.Model):
         return self.nombres
 
 
+
+class GeoreferenciacionApi(models.Model):
+    json = JSONField(default=dict)
+
+    def __str__(self):
+        try:
+            name = f"Gestor: {self.json['documento']}"
+        except:
+            name = str(self.id)
+        return name
+
+
+
 def upload_dinamic_ficha_proyecto(instance, filename):
     return '/'.join(['IRACA', 'Proyectos', str(instance.id), filename])
 
