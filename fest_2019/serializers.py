@@ -11,6 +11,26 @@ class GeoreferenciacionApiSerializer(serializers.ModelSerializer):
         read_only_fields = ['id']
 
 
+    def create(self, validated_data):
+
+        if validated_data['json']['data']['isSynchronized'] == False:
+            validated_data['json']['data']['isSynchronized'] = True
+
+        try:
+            documento_gestor = validated_data['json']['documento']
+        except:
+            instance = GeoreferenciacionApi.objects.create(**validated_data)
+        else:
+            query = GeoreferenciacionApi.objects.filter(json__documento=documento_gestor,json__data__document = validated_data['json']['data']['document'])
+            if query.count() > 0:
+                query.update(**validated_data)
+                instance = query[0]
+            else:
+                instance = GeoreferenciacionApi.objects.create(**validated_data)
+
+        return instance
+
+
 class ProyectosApiSerializer(serializers.ModelSerializer):
 
     class Meta:
