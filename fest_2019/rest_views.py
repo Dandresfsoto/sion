@@ -136,7 +136,7 @@ class MiGeoreferenciacionListApi(BaseDatatableView):
                 timezone.localtime(item.creation).strftime('%d de %B del %Y a las %I:%M:%S %p'),
                 item.json['data']['position']['coords']['latitude'],
                 item.json['data']['position']['coords']['longitude'],
-                item.json['data']['position']['coords']['altitude'],
+                f"{int(item.json['data']['position']['coords']['altitude'])}",
                 f"{int(item.json['data']['position']['coords']['accuracy'])} metros",
                 '<i class="material-icons" style="color:#00a833">check_circle</i>' if not item.json['data']['position']['mocked'] else '<i class="material-icons" style="color:#f00">cancel</i>',
                 f"<div class='center-align'><a target='_blank' href='https://www.google.com/maps/@{item.json['data']['position']['coords']['latitude']},{item.json['data']['position']['coords']['longitude']}' class='tooltipped edit-table' data-position='top' data-delay='50' data-tooltip='Ver en el mapa'><i class='material-icons'>map</i></a></div>"
