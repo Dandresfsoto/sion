@@ -31,7 +31,7 @@ block side_nav_container
 
 
                     li(class="bold waves-effect waves-light breadcrum-active")
-                        a(href="#") {{ nombre_modulo | truncatechars:22 }}
+                        a(href="#") Mi georeferenciación
                             i(class="material-icons icon-sican") check_circle
 
                     div(class="divider divider-perfil")
@@ -43,34 +43,28 @@ block container_principal
         table(id="table",class="display responsive no-wrap table table-striped table-bordered",width="100%")
             thead
                 tr
-                    th Editar
-                    th Flujo de caja
-                    th Identificación de proyectos
+                    th Documento
+                    th Nombres
+                    th Apellidos
                     th Creación
-                    th Tipo
-                    th Código
-                    th Nombre proyecto
-                    th Municipio
-                    th Hogares
-                    th Valor
-                    th Excel
-                    th Estado
-                    th Observaciones
+                    th Latitud
+                    th Longitud
+                    th Altitud
+                    th Precisión
+                    th Validez
+                    th Mapa
             tbody
                 tr
-                    td Editar
-                    td Flujo de caja
-                    td Identificación de proyectos
+                    td Documento
+                    td Nombres
+                    td Apellidos
                     td Creación
-                    td Tipo
-                    td Código
-                    td Nombre proyecto
-                    td Municipio
-                    td Hogares
-                    td Valor
-                    td Excel
-                    td Estado
-                    td Observaciones
+                    td Latitud
+                    td Longitud
+                    td Altitud
+                    td Precisión
+                    td Validez
+                    td Mapa
 
 
 block body_script_auth
@@ -84,8 +78,8 @@ block body_script_auth
                 searching: true,
                 processing: true,
                 serverSide: true,
-                order: [[ 11, "desc" ]],
-                columnDefs: [{"orderable": false, "targets": [0,1,2]}],
+                order: [[ 3, "desc" ]],
+                columnDefs: [{"orderable": false, "targets": [0,1,2,4,5,6,7,8,9]}],
                 ajax: "{{ url_datatable }}",
                 language: {
                     url: "//cdn.datatables.net/plug-ins/1.10.8/i18n/Spanish.json"

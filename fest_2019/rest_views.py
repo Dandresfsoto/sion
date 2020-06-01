@@ -102,6 +102,53 @@ class GeoreferenciacionApiRetrieveView(mixins.RetrieveModelMixin,
 
 
 
+class MiGeoreferenciacionListApi(BaseDatatableView):
+    model = models.GeoreferenciacionApi
+    columns = ['id','id','id','creation']
+    order_columns = ['id','id','id','creation']
+
+    def get_initial_queryset(self):
+
+        self.permissions = {
+            "ver": [
+                "usuarios.fest_2019.ver",
+                "usuarios.fest_2019.migeoreferenciacion.ver",
+            ]
+        }
+
+        return self.model.objects.filter(json__documento = str(self.request.user.cedula))
+
+    def filter_queryset(self, qs):
+        search = self.request.GET.get(u'search[value]', None)
+        if search:
+            q = Q(json__data__document__icontains=search) | Q(json__data__name__icontains=search) | \
+                Q(json__data__lastName__icontains=search)
+            qs = qs.filter(q)
+        return qs
+
+    def prepare_results(self, qs):
+        data = []
+        for item in qs:
+            data.append([
+                item.json['data']['document'],
+                item.json['data']['name'],
+                item.json['data']['lastName'],
+                timezone.localtime(item.creation).strftime('%d de %B del %Y a las %I:%M:%S %p'),
+                item.json['data']['position']['coords']['latitude'],
+                item.json['data']['position']['coords']['longitude'],
+                item.json['data']['position']['coords']['altitude'],
+                f"{int(item.json['data']['position']['coords']['accuracy'])} metros",
+                '<i class="material-icons" style="color:#00a833">check_circle</i>' if not item.json['data']['position']['mocked'] else '<i class="material-icons" style="color:#f00">cancel</i>',
+                f"<div class='center-align'><a target='_blank' href='https://www.google.com/maps/@{item.json['data']['position']['coords']['latitude']},{item.json['data']['position']['coords']['longitude']}' class='tooltipped edit-table' data-position='top' data-delay='50' data-tooltip='Ver en el mapa'><i class='material-icons'>map</i></a></div>"
+            ])
+        return data
+
+
+
+
+
+
+
 class MisProyectosListApi(BaseDatatableView):
     model = models.ProyectosApi
     columns = ['id','objetivo_general','convenio','creation','tipo_proyecto','codigo_proyecto','nombre_proyecto','municipio','numero_hogares','valor', 'file', 'estado', 'problematica_1_1']
@@ -276,7 +323,7 @@ class MisProyectosListApi(BaseDatatableView):
 
 
 
-
+"""
 class ProyectosLocalListApi(BaseDatatableView):
     model = models.ProyectosApi
     columns = ['id','creation','tipo_proyecto','codigo_proyecto','nombre_proyecto','municipio','numero_hogares','valor', 'file', 'estado', 'problematica_1_1']
@@ -388,8 +435,178 @@ class ProyectosLocalListApi(BaseDatatableView):
 
         else:
             return super(ProyectosLocalListApi, self).render_column(row, column)
+"""
 
 
+class ProyectosLocalListApi(BaseDatatableView):
+    model = models.ProyectosApi
+    columns = ['id','objetivo_general','convenio','creation','tipo_proyecto','codigo_proyecto','nombre_proyecto','municipio','numero_hogares','valor', 'file', 'estado', 'problematica_1_1']
+    order_columns = ['id','objetivo_general','convenio','creation','tipo_proyecto','codigo_proyecto','nombre_proyecto','municipio','numero_hogares','valor', 'file', 'estado', 'problematica_1_1']
+
+    def get_initial_queryset(self):
+
+        self.permissions = {
+            "ver": [
+                "usuarios.fest_2019.ver",
+                "usuarios.fest_2019.proyectos_local.ver",
+            ],
+            "editar": [
+                "usuarios.fest_2019.ver",
+                "usuarios.fest_2019.proyectos_local.editar",
+            ]
+        }
+        departamentos_ids = models.PermisosCuentasDepartamentos.objects.filter(users = self.request.user).values_list('departamento__id',flat=True).distinct()
+        return self.model.objects.filter(municipio__departamento__id__in = departamentos_ids)
+
+    def filter_queryset(self, qs):
+        search = self.request.GET.get(u'search[value]', None)
+        if search:
+            q = Q(nombre__icontains=search) | Q(contrato__contratista__cedula__icontains=search) | \
+                Q(contrato__contratista__nombres__icontains=search) | Q(contrato__contratista__apellidos__icontains=search)
+            qs = qs.filter(q)
+        return qs
+
+    def render_column(self, row, column):
+
+        if column == 'id':
+            ret = ''
+
+            estados_permitidos = ['Enviado a revisión por profesional local']
+
+            if self.request.user.has_perms(self.permissions.get('editar')) and row.estado in estados_permitidos:
+                ret = '<div class="center-align">' \
+                           '<a href="editar/{0}" class="tooltipped edit-table" data-position="top" data-delay="50" data-tooltip="Editar proyecto {1}">' \
+                                '<i class="material-icons">edit</i>' \
+                           '</a>' \
+                       '</div>'.format(row.id,'')
+
+            else:
+                ret = '<div class="center-align">' \
+                           '<i class="material-icons">edit</i>' \
+                       '</div>'.format(row.id,'')
+
+            return ret
+
+        elif column == 'objetivo_general':
+            ret = ''
+
+            estados_permitidos = ['Enviado a revisión por profesional local']
+
+            if self.request.user.has_perms(self.permissions.get('editar')) and row.estado in estados_permitidos:
+                ret = '<div class="center-align">' \
+                           '<a href="flujo/{0}" class="tooltipped edit-table" data-position="top" data-delay="50" data-tooltip="Editar flujo de caja {1}">' \
+                                '<i class="material-icons">monetization_on</i>' \
+                           '</a>' \
+                       '</div>'.format(row.id,'')
+
+            else:
+                ret = '<div class="center-align">' \
+                           '<i class="material-icons">monetization_on</i>' \
+                       '</div>'.format(row.id,'')
+
+            return ret
+
+
+        elif column == 'convenio':
+            ret = ''
+
+            estados_permitidos = ['Enviado a revisión por profesional local']
+
+            if self.request.user.has_perms(self.permissions.get('editar')) and row.estado in estados_permitidos:
+                ret = '<div class="center-align">' \
+                           '<a href="identificacion/{0}" class="tooltipped edit-table" data-position="top" data-delay="50" data-tooltip="Editar identificacion de proyectos {1}">' \
+                                '<i class="material-icons">chrome_reader_mode</i>' \
+                           '</a>' \
+                       '</div>'.format(row.id,'')
+
+            else:
+                ret = '<div class="center-align">' \
+                           '<i class="material-icons">chrome_reader_mode</i>' \
+                       '</div>'.format(row.id,'')
+
+            return ret
+
+
+        elif column == 'problematica_1_1':
+
+            ret = '<div class="center-align">' \
+                       '<a href="observaciones/{0}" class="tooltipped edit-table" data-position="top" data-delay="50" data-tooltip="Ver las observaciones del proyecto {1}">' \
+                            '<i class="material-icons">chat</i>' \
+                       '</a>' \
+                   '</div>'.format(row.id,'')
+
+            return ret
+
+
+        elif column == 'estado':
+
+            estados_permitidos = ['Enviado a revisión por profesional local']
+
+            if row.estado in estados_permitidos:
+
+                ret = '<div class="center-align">' \
+                           '<a href="estado/{0}" class="tooltipped edit-table" data-position="top" data-delay="50" data-tooltip="Actualizar estado del proyecto">' \
+                                '<b>{1}</b>' \
+                           '</a>' \
+                       '</div>'.format(row.id,row.estado)
+
+            else:
+
+                ret = '<div class="center-align">' \
+                            '<b>{1}</b>' \
+                       '</div>'.format(row.id,row.estado)
+
+            return ret
+
+
+        elif column == 'municipio':
+            municipio = ''
+
+            if row.municipio != None:
+                municipio = f'{row.municipio.departamento.nombre}, {row.municipio.nombre}'
+
+            return municipio
+
+        elif column == 'creation':
+
+            fecha = timezone.localtime(row.creation).strftime('%d de %B del %Y a las %I:%M:%S %p')
+
+            if row.actualizar_app:
+
+                ret = '<span>{0}</span><a href="#" class="tooltipped edit-table" data-position="top" data-delay="50" data-tooltip="Este proyecto se puede actualizar desde la app movil">' \
+                            '<i class="material-icons">system_update</i>' \
+                        '</a>'.format(fecha)
+            else:
+                ret = fecha
+
+            return ret
+
+
+        elif column == 'valor':
+            return '<div class="center-align">$ {:20,.2f}</div>'.format(row.valor.amount)
+
+        elif column == 'file':
+            if row.url_file() != None:
+                ret = '<div class="center-align">' \
+                            '<a href="{0}" class="tooltipped edit-table" data-position="top" data-delay="50" data-tooltip="{1}">' \
+                                '<i class="material-icons">insert_drive_file</i>' \
+                            '</a>' \
+                      '</div>'.format(row.url_file(),'Descargar archivo')
+            else:
+                ret = ''
+
+            return ret
+
+        elif column == 'numero_hogares':
+            ret = '<div class="center-align">' \
+                      '<a href="hogares/{0}" class="tooltipped edit-table" data-position="top" data-delay="50" data-tooltip="{1}">' \
+                            '<b>{2}</b>' \
+                      '</a>' \
+                  '</div>'.format(row.id, 'Ver hogares del proyecto',row.numero_hogares)
+            return ret
+
+        else:
+            return super(ProyectosLocalListApi, self).render_column(row, column)
 
 
 

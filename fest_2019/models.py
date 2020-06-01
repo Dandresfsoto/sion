@@ -3032,6 +3032,7 @@ class Contactos(models.Model):
 
 
 class GeoreferenciacionApi(models.Model):
+    creation = models.DateTimeField(auto_now_add=True)
     json = JSONField(default=dict)
 
     def __str__(self):
@@ -3131,6 +3132,30 @@ class ProyectosApi(models.Model):
 
     priorizacion_1_3 = models.TextField(blank=True, null=True)
     priorizacion_2_3 = models.TextField(blank=True, null=True)
+
+    problematica_1_4 = models.TextField(blank=True, null=True)
+    problematica_2_4 = models.TextField(blank=True, null=True)
+    problematica_3_4 = models.TextField(blank=True, null=True)
+    problematica_4_4 = models.TextField(blank=True, null=True)
+    problematica_5_4 = models.TextField(blank=True, null=True)
+    problematica_6_4 = models.TextField(blank=True, null=True)
+
+    acciones_1_4 = models.TextField(blank=True, null=True)
+    acciones_2_4 = models.TextField(blank=True, null=True)
+    acciones_3_4 = models.TextField(blank=True, null=True)
+    acciones_4_4 = models.TextField(blank=True, null=True)
+    acciones_5_4 = models.TextField(blank=True, null=True)
+    acciones_6_4 = models.TextField(blank=True, null=True)
+
+    proyectos_potenciales_1_4 = models.TextField(blank=True, null=True)
+    proyectos_potenciales_2_4 = models.TextField(blank=True, null=True)
+    proyectos_potenciales_3_4 = models.TextField(blank=True, null=True)
+    proyectos_potenciales_4_4 = models.TextField(blank=True, null=True)
+    proyectos_potenciales_5_4 = models.TextField(blank=True, null=True)
+    proyectos_potenciales_6_4 = models.TextField(blank=True, null=True)
+
+    priorizacion_1_4 = models.TextField(blank=True, null=True)
+    priorizacion_2_4 = models.TextField(blank=True, null=True)
 
 
 
@@ -3711,6 +3736,30 @@ def ProyectosApiPostSave(sender, instance, **kwargs):
 
         ws['E19'] = instance.priorizacion_1_3
         ws['E22'] = instance.priorizacion_2_3
+
+        ws['B25'] = instance.problematica_1_4
+        ws['B26'] = instance.problematica_2_4
+        ws['B27'] = instance.problematica_3_4
+        ws['B28'] = instance.problematica_4_4
+        ws['B29'] = instance.problematica_5_4
+        ws['B30'] = instance.problematica_6_4
+
+        ws['C25'] = instance.acciones_1_4
+        ws['C26'] = instance.acciones_2_4
+        ws['C27'] = instance.acciones_3_4
+        ws['C28'] = instance.acciones_4_4
+        ws['C29'] = instance.acciones_5_4
+        ws['C30'] = instance.acciones_6_4
+
+        ws['D25'] = instance.proyectos_potenciales_1_4
+        ws['D26'] = instance.proyectos_potenciales_2_4
+        ws['D27'] = instance.proyectos_potenciales_3_4
+        ws['D28'] = instance.proyectos_potenciales_4_4
+        ws['D29'] = instance.proyectos_potenciales_5_4
+        ws['D30'] = instance.proyectos_potenciales_6_4
+
+        ws['E25'] = instance.priorizacion_1_4
+        ws['E28'] = instance.priorizacion_2_4
 
 
 

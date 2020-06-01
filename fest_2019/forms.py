@@ -7344,6 +7344,129 @@ class IdentificacionProyectosForm(forms.ModelForm):
                 ),
             ),
 
+            Row(
+                Column(
+                    HTML(
+                        """
+                        <p><strong>FINANCIAMIENTO COMPLEMENTARIO</strong></p>
+                        """
+                    ),
+                    css_class='s12'
+                )
+            ),
+            Row(
+                Column(
+                    'problematica_1_4',
+                    css_class='s12 m6 l4'
+                ),
+                Column(
+                    'acciones_1_4',
+                    css_class='s12 m6 l4'
+                ),
+                Column(
+                    'proyectos_potenciales_1_4',
+                    css_class='s12 m6 l4'
+                )
+            ),
+            Row(
+                Column(
+                    'problematica_2_4',
+                    css_class='s12 m6 l4'
+                ),
+                Column(
+                    'acciones_2_4',
+                    css_class='s12 m6 l4'
+                ),
+                Column(
+                    'proyectos_potenciales_2_4',
+                    css_class='s12 m6 l4'
+                )
+            ),
+            Row(
+                Column(
+                    'problematica_3_4',
+                    css_class='s12 m6 l4'
+                ),
+                Column(
+                    'acciones_3_4',
+                    css_class='s12 m6 l4'
+                ),
+                Column(
+                    'proyectos_potenciales_3_4',
+                    css_class='s12 m6 l4'
+                )
+            ),
+            Row(
+                Column(
+                    'priorizacion_1_4',
+                    css_class='s12'
+                ),
+                Column(
+                    HTML(
+                        """
+                        <div style="margin-bottom:150px;"></div>
+                        """
+                    ),
+                    css_class='s12'
+                ),
+            ),
+            Row(
+                Column(
+                    'problematica_4_4',
+                    css_class='s12 m6 l4'
+                ),
+                Column(
+                    'acciones_4_4',
+                    css_class='s12 m6 l4'
+                ),
+                Column(
+                    'proyectos_potenciales_4_4',
+                    css_class='s12 m6 l4'
+                )
+            ),
+            Row(
+                Column(
+                    'problematica_5_4',
+                    css_class='s12 m6 l4'
+                ),
+                Column(
+                    'acciones_5_4',
+                    css_class='s12 m6 l4'
+                ),
+                Column(
+                    'proyectos_potenciales_5_4',
+                    css_class='s12 m6 l4'
+                )
+            ),
+            Row(
+                Column(
+                    'problematica_6_4',
+                    css_class='s12 m6 l4'
+                ),
+                Column(
+                    'acciones_6_4',
+                    css_class='s12 m6 l4'
+                ),
+                Column(
+                    'proyectos_potenciales_6_4',
+                    css_class='s12 m6 l4'
+                )
+            ),
+            Row(
+                Column(
+                    'priorizacion_2_4',
+                    css_class='s12'
+                ),
+                Column(
+                    HTML(
+                        """
+                        <div style="margin-bottom:150px;"></div>
+                        """
+                    ),
+                    css_class='s12'
+                ),
+            ),
+
 
 
             Row(
@@ -7378,6 +7501,11 @@ class IdentificacionProyectosForm(forms.ModelForm):
             'acciones_1_3', 'acciones_2_3', 'acciones_3_3', 'acciones_4_3', 'acciones_5_3', 'acciones_6_3',
             'proyectos_potenciales_1_3', 'proyectos_potenciales_2_3', 'proyectos_potenciales_3_3','proyectos_potenciales_4_3', 'proyectos_potenciales_5_3', 'proyectos_potenciales_6_3',
             'priorizacion_1_3', 'priorizacion_2_3',
+
+            'problematica_1_4', 'problematica_2_4', 'problematica_3_4', 'problematica_4_4', 'problematica_5_4','problematica_6_4',
+            'acciones_1_4', 'acciones_2_4', 'acciones_3_4', 'acciones_4_4', 'acciones_5_4', 'acciones_6_4',
+            'proyectos_potenciales_1_4', 'proyectos_potenciales_2_4', 'proyectos_potenciales_3_4','proyectos_potenciales_4_4', 'proyectos_potenciales_5_4', 'proyectos_potenciales_6_4',
+            'priorizacion_1_4', 'priorizacion_2_4',
         ]
         widgets = {
             'problematica_1_1': forms.Textarea(attrs={'class': 'materialize-textarea'}),
@@ -7442,6 +7570,27 @@ class IdentificacionProyectosForm(forms.ModelForm):
             'proyectos_potenciales_6_3': forms.Textarea(attrs={'class': 'materialize-textarea'}),
             'priorizacion_1_3': forms.Textarea(attrs={'class': 'materialize-textarea'}),
             'priorizacion_2_3': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+
+            'problematica_1_4': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'problematica_2_4': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'problematica_3_4': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'problematica_4_4': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'problematica_5_4': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'problematica_6_4': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'acciones_1_4': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'acciones_2_4': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'acciones_3_4': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'acciones_4_4': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'acciones_5_4': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'acciones_6_4': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'proyectos_potenciales_1_4': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'proyectos_potenciales_2_4': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'proyectos_potenciales_3_4': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'proyectos_potenciales_4_4': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'proyectos_potenciales_5_4': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'proyectos_potenciales_6_4': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'priorizacion_1_4': forms.Textarea(attrs={'class': 'materialize-textarea'}),
+            'priorizacion_2_4': forms.Textarea(attrs={'class': 'materialize-textarea'}),
         }
         labels = {
             'problematica_1_1' : 'Problematica',
@@ -7507,6 +7656,27 @@ class IdentificacionProyectosForm(forms.ModelForm):
             'proyectos_potenciales_6_3': 'Proyectos potenciales',
             'priorizacion_1_3': 'Priorización de proyectos #1',
             'priorizacion_2_3': 'Priorización de proyectos #2',
+
+            'problematica_1_4': 'Problematica',
+            'problematica_2_4': 'Problematica',
+            'problematica_3_4': 'Problematica',
+            'problematica_4_4': 'Problematica',
+            'problematica_5_4': 'Problematica',
+            'problematica_6_4': 'Problematica',
+            'acciones_1_4': 'Acciones',
+            'acciones_2_4': 'Acciones',
+            'acciones_3_4': 'Acciones',
+            'acciones_4_4': 'Acciones',
+            'acciones_5_4': 'Acciones',
+            'acciones_6_4': 'Acciones',
+            'proyectos_potenciales_1_4': 'Proyectos potenciales',
+            'proyectos_potenciales_2_4': 'Proyectos potenciales',
+            'proyectos_potenciales_3_4': 'Proyectos potenciales',
+            'proyectos_potenciales_4_4': 'Proyectos potenciales',
+            'proyectos_potenciales_5_4': 'Proyectos potenciales',
+            'proyectos_potenciales_6_4': 'Proyectos potenciales',
+            'priorizacion_1_4': 'Priorización de proyectos #1',
+            'priorizacion_2_4': 'Priorización de proyectos #2',
         }
 
 class VerificarProyectoForm(forms.Form):
@@ -7568,7 +7738,7 @@ class EstadoMonitoreoProyectoForm(forms.Form):
 
             Row(
                 Fieldset(
-                    'Verificación profesional local',
+                    'Verificación profesional de monitoreo y evaluación',
                 )
             ),
             Row(
@@ -7613,7 +7783,7 @@ class EstadoEspecialistasProyectoForm(forms.Form):
 
             Row(
                 Fieldset(
-                    'Verificación profesional local',
+                    'Verificación equipo de especialistas',
                 )
             ),
             Row(

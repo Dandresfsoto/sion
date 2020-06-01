@@ -193,6 +193,17 @@ class Fest2019OptionsView(LoginRequiredMixin,
                 'sican_description': 'Filtro final para la verificación de proyectos'
             })
 
+        if self.request.user.has_perm('usuarios.fest_2019.migeoreferenciacion.ver'):
+            items.append({
+                'sican_categoria': 'Mi georeferenciación',
+                'sican_color': 'brown darken-3',
+                'sican_order': 12,
+                'sican_url': 'migeoreferenciacion/',
+                'sican_name': 'Mi georeferenciación',
+                'sican_icon': 'map',
+                'sican_description': 'Georeferenciación de hogares con la app GeoDatabase'
+            })
+
         """
         if self.request.user.has_perm('usuarios.fest_2019.ruteo.ver'):
             items.append({
@@ -227,6 +238,32 @@ class Fest2019OptionsView(LoginRequiredMixin,
         return super(Fest2019OptionsView,self).get_context_data(**kwargs)
 
 #----------------------------------------------------------------------------------
+
+class MiGeoreferenciacionListView(LoginRequiredMixin,
+                           MultiplePermissionsRequiredMixin,
+                           TemplateView):
+
+    permissions = {
+        "all": [
+            "usuarios.fest_2019.ver",
+            "usuarios.fest_2019.migeoreferenciacion.ver",
+        ]
+    }
+    login_url = settings.LOGIN_URL
+    template_name = 'fest_2019/migeoreferenciacion/lista.html'
+
+
+    def get_context_data(self, **kwargs):
+        kwargs['title'] = "Mi Georeferenciación"
+        kwargs['url_datatable'] = '/rest/v1.0/fest_2019/migeoreferenciacion/'
+        storage = get_messages(self.request)
+        for message in storage:
+            kwargs['success'] = message
+        return super(MiGeoreferenciacionListView,self).get_context_data(**kwargs)
+
+
+#----------------------------------------------------------------------------------
+
 
 class MisProyectosListView(LoginRequiredMixin,
                            MultiplePermissionsRequiredMixin,
@@ -515,10 +552,142 @@ class ProyectosLocalListView(LoginRequiredMixin,
     def get_context_data(self, **kwargs):
         kwargs['title'] = "Proyectos (Profesionales locales)"
         kwargs['url_datatable'] = '/rest/v1.0/fest_2019/proyectos_local/'
+        kwargs['nombre_modulo'] = 'Proyectos (Profesionales locales)'
         storage = get_messages(self.request)
         for message in storage:
             kwargs['success'] = message
         return super(ProyectosLocalListView,self).get_context_data(**kwargs)
+
+
+class ProyectosLocalUpdateView(LoginRequiredMixin,
+                                   MultiplePermissionsRequiredMixin,
+                                   UpdateView):
+
+    login_url = settings.LOGIN_URL
+    template_name = 'fest_2019/proyectos_local/editar.html'
+    form_class = forms.FichaProyectoFullForm
+    success_url = "../../"
+    model = models.ProyectosApi
+
+    def dispatch(self, request, *args, **kwargs):
+        proyecto = models.ProyectosApi.objects.get(id = self.kwargs['pk'])
+
+        if proyecto.estado not in ['Enviado a revisión por profesional local']:
+            return HttpResponseRedirect('../../')
+        return super(ProyectosLocalUpdateView, self).dispatch(request, *args, **kwargs)
+
+
+    def get_permission_required(self, request=None):
+        permissions = {
+            "all": [
+                "usuarios.fest_2019.ver",
+                "usuarios.fest_2019.proyectos_local.editar",
+            ]
+        }
+        return permissions
+
+    def get_context_data(self, **kwargs):
+        proyecto = models.ProyectosApi.objects.get(id = self.kwargs['pk'])
+        kwargs['title'] = "Proyectos (Profesionales locales)"
+        kwargs['breadcrumb_active'] = f"{proyecto.nombre_proyecto}"
+        kwargs['url_carga_consejos'] = '/rest/v1.0/usuarios/cargar/consejos/'
+        kwargs['url_carga_comunidades'] = '/rest/v1.0/usuarios/cargar/comunidades/'
+        kwargs['nombre_modulo'] = 'Proyectos (Profesionales locales)'
+        storage = get_messages(self.request)
+        for message in storage:
+            kwargs['success'] = message
+        return super(ProyectosLocalUpdateView, self).get_context_data(**kwargs)
+
+
+
+    def get_initial(self):
+        return {'pk':self.kwargs['pk']}
+
+
+class ProyectosLocalFlujoUpdateView(LoginRequiredMixin,
+                                        MultiplePermissionsRequiredMixin,
+                                        UpdateView):
+
+    login_url = settings.LOGIN_URL
+    template_name = 'fest_2019/proyectos_local/flujo_caja.html'
+    form_class = forms.FlujoCajaForm
+    success_url = "../../"
+    model = models.ProyectosApi
+
+    def dispatch(self, request, *args, **kwargs):
+        proyecto = models.ProyectosApi.objects.get(id = self.kwargs['pk'])
+
+        if proyecto.estado not in ['Enviado a revisión por profesional local']:
+            return HttpResponseRedirect('../../')
+        return super(ProyectosLocalFlujoUpdateView, self).dispatch(request, *args, **kwargs)
+
+    def get_permission_required(self, request=None):
+        permissions = {
+            "all": [
+                "usuarios.fest_2019.ver",
+                "usuarios.fest_2019.proyectos_local.editar",
+            ]
+        }
+        return permissions
+
+    def get_context_data(self, **kwargs):
+        proyecto = models.ProyectosApi.objects.get(id = self.kwargs['pk'])
+        kwargs['title'] = "Proyectos (Profesionales locales)"
+        kwargs['breadcrumb_active'] = f"{proyecto.nombre_proyecto}"
+        kwargs['meses'] = int(proyecto.duracion)
+        kwargs['flujo_caja'] = json.dumps(proyecto.flujo_caja)
+        kwargs['nombre_modulo'] = 'Proyectos (Profesionales locales)'
+        storage = get_messages(self.request)
+        for message in storage:
+            kwargs['success'] = message
+        return super(ProyectosLocalFlujoUpdateView, self).get_context_data(**kwargs)
+
+
+
+    def get_initial(self):
+        return {'pk':self.kwargs['pk']}
+
+
+class ProyectosLocalIdentificacionUpdateView(LoginRequiredMixin,
+                                                 MultiplePermissionsRequiredMixin,
+                                                 UpdateView):
+
+    login_url = settings.LOGIN_URL
+    template_name = 'fest_2019/proyectos_local/identificacion.html'
+    form_class = forms.IdentificacionProyectosForm
+    success_url = "../../"
+    model = models.ProyectosApi
+
+    def dispatch(self, request, *args, **kwargs):
+        proyecto = models.ProyectosApi.objects.get(id = self.kwargs['pk'])
+
+        if proyecto.estado not in ['Enviado a revisión por profesional local']:
+            return HttpResponseRedirect('../../')
+        return super(ProyectosLocalIdentificacionUpdateView, self).dispatch(request, *args, **kwargs)
+
+    def get_permission_required(self, request=None):
+        permissions = {
+            "all": [
+                "usuarios.fest_2019.ver",
+                "usuarios.fest_2019.proyectos_local.editar",
+            ]
+        }
+        return permissions
+
+    def get_context_data(self, **kwargs):
+        proyecto = models.ProyectosApi.objects.get(id = self.kwargs['pk'])
+        kwargs['title'] = "Proyectos (Profesionales locales)"
+        kwargs['breadcrumb_active'] = f"{proyecto.nombre_proyecto}"
+        kwargs['nombre_modulo'] = 'Proyectos (Profesionales locales)'
+        storage = get_messages(self.request)
+        for message in storage:
+            kwargs['success'] = message
+        return super(ProyectosLocalIdentificacionUpdateView, self).get_context_data(**kwargs)
+
+
+
+    def get_initial(self):
+        return {'pk':self.kwargs['pk']}
 
 
 class ProyectosLocalVerificarView(LoginRequiredMixin,
@@ -526,7 +695,7 @@ class ProyectosLocalVerificarView(LoginRequiredMixin,
                                   FormView):
 
     login_url = settings.LOGIN_URL
-    template_name = 'fest_2019/proyectos_local/editar.html'
+    template_name = 'fest_2019/proyectos_local/estado.html'
     form_class = forms.VerificarProyectoForm
     success_url = "../../"
 
@@ -558,7 +727,8 @@ class ProyectosLocalVerificarView(LoginRequiredMixin,
 
     def get_context_data(self, **kwargs):
         proyecto = models.ProyectosApi.objects.get(id = self.kwargs['pk'])
-        kwargs['title'] = "Mis proyectos"
+        kwargs['title'] = "Proyectos (Profesionales locales)"
+        kwargs['nombre_modulo'] = 'Proyectos (Profesionales locales)'
         kwargs['breadcrumb_active'] = f"{proyecto.nombre_proyecto}"
         kwargs['proyecto'] = proyecto
         storage = get_messages(self.request)
@@ -877,6 +1047,32 @@ class ProyectosMonitoreoEstadoView(LoginRequiredMixin,
         return {'pk': self.kwargs['pk']}
 
 
+
+class ProyectosMonitoreoHogaresView(LoginRequiredMixin,
+                                MultiplePermissionsRequiredMixin,
+                                TemplateView):
+
+    permissions = {
+        "all": [
+            "usuarios.fest_2019.ver",
+            "usuarios.fest_2019.proyectos_monitoreo.ver",
+        ]
+    }
+    login_url = settings.LOGIN_URL
+    template_name = 'fest_2019/proyectos_monitoreo/hogares.html'
+
+
+    def get_context_data(self, **kwargs):
+        proyecto = models.ProyectosApi.objects.get(id=self.kwargs['pk'])
+        kwargs['title'] = "Proyectos (Monitoreo y Evaluación)"
+        kwargs['nombre_modulo'] = 'Proyectos (Monitoreo y Evaluación)'
+        kwargs['proyecto'] = proyecto
+        storage = get_messages(self.request)
+        for message in storage:
+            kwargs['success'] = message
+        return super(ProyectosMonitoreoHogaresView,self).get_context_data(**kwargs)
+
+
 #----------------------------------------------------------------------------------
 
 class ProyectosEspecialistasListView(LoginRequiredMixin,
@@ -1118,6 +1314,32 @@ class ProyectosEspecialistasEstadoView(LoginRequiredMixin,
 
     def get_initial(self):
         return {'pk': self.kwargs['pk']}
+
+
+
+class ProyectosEspecialistasHogaresView(LoginRequiredMixin,
+                                MultiplePermissionsRequiredMixin,
+                                TemplateView):
+
+    permissions = {
+        "all": [
+            "usuarios.fest_2019.ver",
+            "usuarios.fest_2019.proyectos_especialistas.ver",
+        ]
+    }
+    login_url = settings.LOGIN_URL
+    template_name = 'fest_2019/proyectos_especialistas/hogares.html'
+
+
+    def get_context_data(self, **kwargs):
+        proyecto = models.ProyectosApi.objects.get(id=self.kwargs['pk'])
+        kwargs['title'] = "Proyectos (Especialistas)"
+        kwargs['nombre_modulo'] = 'Proyectos (Especialistas)'
+        kwargs['proyecto'] = proyecto
+        storage = get_messages(self.request)
+        for message in storage:
+            kwargs['success'] = message
+        return super(ProyectosEspecialistasHogaresView,self).get_context_data(**kwargs)
 
 
 #-------------------------------------- BD ----------------------------------------

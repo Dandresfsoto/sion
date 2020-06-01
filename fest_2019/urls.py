@@ -4,6 +4,9 @@ from fest_2019 import views
 urlpatterns = [
     path('', views.Fest2019OptionsView.as_view()),
 
+
+    path('migeoreferenciacion/', views.MiGeoreferenciacionListView.as_view()),
+
     path('misproyectos/', views.MisProyectosListView.as_view()),
     path('misproyectos/editar/<int:pk>/', views.MisProyectosUpdateView.as_view()),
     path('misproyectos/estado/<int:pk>/', views.MisProyectosEstadoView.as_view()),
@@ -15,7 +18,10 @@ urlpatterns = [
 
 
     path('proyectos_local/', views.ProyectosLocalListView.as_view()),
-    path('proyectos_local/verificar/<int:pk>/', views.ProyectosLocalVerificarView.as_view()),
+    path('proyectos_local/editar/<int:pk>/', views.ProyectosLocalUpdateView.as_view()),
+    path('proyectos_local/flujo/<int:pk>/', views.ProyectosLocalFlujoUpdateView.as_view()),
+    path('proyectos_local/identificacion/<int:pk>/', views.ProyectosLocalIdentificacionUpdateView.as_view()),
+    path('proyectos_local/estado/<int:pk>/', views.ProyectosLocalVerificarView.as_view()),
     path('proyectos_local/hogares/<int:pk>/', views.ProyectosLocalHogaresView.as_view()),
     path('proyectos_local/observaciones/<int:pk>/', views.ProyectosLocalObservacionesView.as_view()),
 
@@ -26,6 +32,7 @@ urlpatterns = [
     path('proyectos_monitoreo/identificacion/<int:pk>/', views.ProyectosMonitoreoIdentificacionUpdateView.as_view()),
     path('proyectos_monitoreo/observaciones/<int:pk>/', views.ProyectosMonitoreoObservacionesView.as_view()),
     path('proyectos_monitoreo/estado/<int:pk>/', views.ProyectosMonitoreoEstadoView.as_view()),
+    path('proyectos_monitoreo/hogares/<int:pk>/', views.ProyectosMonitoreoHogaresView.as_view()),
 
 
     path('proyectos_especialistas/', views.ProyectosEspecialistasListView.as_view()),
@@ -34,6 +41,7 @@ urlpatterns = [
     path('proyectos_especialistas/identificacion/<int:pk>/', views.ProyectosEspecialistasIdentificacionUpdateView.as_view()),
     path('proyectos_especialistas/observaciones/<int:pk>/', views.ProyectosEspecialistasObservacionesView.as_view()),
     path('proyectos_especialistas/estado/<int:pk>/', views.ProyectosEspecialistasEstadoView.as_view()),
+    path('proyectos_especialistas/hogares/<int:pk>/', views.ProyectosEspecialistasHogaresView.as_view()),
 
 
     path('bd/', views.HogaresListView.as_view()),
