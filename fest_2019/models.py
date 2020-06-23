@@ -3578,26 +3578,13 @@ def ProyectosApiPostSave(sender, instance, **kwargs):
         numero_hogares = 0
 
         for linea in instance.json['data']['lines']:
-            try:
-                valor_iraca = linea['budgetIRACAUsed']
-            except:
-                valor_iraca = 0
 
 
-            try:
-                valor_comunidades = linea['budgedCommunity']
-            except:
-                valor_comunidades = 0
+            for producto in linea['supplies']:
+
+                valor += float(producto["price"]) * (float(producto["count"]["countIRACA"]) + float(producto["count"]["countOthers"]) + float(producto["count"]["countCommunity"]))
 
 
-
-            try:
-                valor_otros = linea['budgedOthers']
-            except:
-                valor_otros = 0
-
-
-            valor += valor_iraca + valor_comunidades + valor_otros
 
             try:
                 homes_linea = int(linea['homes'])
@@ -4278,7 +4265,7 @@ def ProyectosApiPostSave(sender, instance, **kwargs):
                         pass
 
                     try:
-                        ws[f'M{9 + i}'].value = product['unit_of_measurement']
+                        ws[f'M{9 + i}'].value = product['unitOfMeasurement']
                         ws[f'M{9 + i}']._style = copy(ws[f'M10']._style)
                     except:
                         pass
@@ -4508,142 +4495,131 @@ def ProyectosApiPostSave(sender, instance, **kwargs):
 
                     # ws.row_dimensions[14 + i].height = 50
 
-                    ws[f'B{18 + i}'].value = egreso['description']
-                    ws[f'B{18 + i}']._style = copy(ws[f'B{18 + j}']._style)
+                    ws[f'B{19 + i}'].value = egreso['description']
+                    ws[f'B{19 + i}']._style = copy(ws[f'B{19 + j}']._style)
 
                     try:
-                        ws[f'C{18 + i}'].value = egreso['meses'][0]['value']
+                        ws[f'C{19 + i}'].value = egreso['meses'][0]['value']
                     except:
-                        ws[f'C{18 + i}'].value = 0
+                        ws[f'C{19 + i}'].value = 0
 
-                    ws[f'C{18 + i}']._style = copy(ws[f'C{18 + j}']._style)
+                    ws[f'C{19 + i}']._style = copy(ws[f'C{19 + j}']._style)
 
                     try:
-                        ws[f'D{18 + i}'].value = egreso['meses'][1]['value']
+                        ws[f'D{19 + i}'].value = egreso['meses'][1]['value']
                     except:
-                        ws[f'D{18 + i}'].value = 0
+                        ws[f'D{19 + i}'].value = 0
 
-                    ws[f'D{18 + i}']._style = copy(ws[f'D{18 + j}']._style)
+                    ws[f'D{19 + i}']._style = copy(ws[f'D{19 + j}']._style)
 
                     try:
-                        ws[f'E{18 + i}'].value = egreso['meses'][2]['value']
+                        ws[f'E{19 + i}'].value = egreso['meses'][2]['value']
                     except:
-                        ws[f'E{18 + i}'].value = 0
+                        ws[f'E{19 + i}'].value = 0
 
-                    ws[f'E{18 + i}']._style = copy(ws[f'E{18 + j}']._style)
-
-                    try:
-                        ws[f'F{18 + i}'].value = egreso['meses'][3]['value']
-                    except:
-                        ws[f'F{18 + i}'].value = 0
-                    ws[f'F{18 + i}']._style = copy(ws[f'F{18 + j}']._style)
+                    ws[f'E{19 + i}']._style = copy(ws[f'E{19 + j}']._style)
 
                     try:
-                        ws[f'G{18 + i}'].value = egreso['meses'][4]['value']
+                        ws[f'F{19 + i}'].value = egreso['meses'][3]['value']
                     except:
-                        ws[f'G{18 + i}'].value = 0
-                    ws[f'G{18 + i}']._style = copy(ws[f'G{18 + j}']._style)
+                        ws[f'F{19 + i}'].value = 0
+                    ws[f'F{19 + i}']._style = copy(ws[f'F{19 + j}']._style)
 
                     try:
-                        ws[f'H{18 + i}'].value = egreso['meses'][5]['value']
+                        ws[f'G{19 + i}'].value = egreso['meses'][4]['value']
                     except:
-                        ws[f'H{18 + i}'].value = 0
-                    ws[f'H{18 + i}']._style = copy(ws[f'H{18 + j}']._style)
+                        ws[f'G{19 + i}'].value = 0
+                    ws[f'G{19 + i}']._style = copy(ws[f'G{19 + j}']._style)
 
                     try:
-                        ws[f'I{18 + i}'].value = egreso['meses'][6]['value']
+                        ws[f'H{19 + i}'].value = egreso['meses'][5]['value']
                     except:
-                        ws[f'I{18 + i}'].value = 0
-                    ws[f'I{18 + i}']._style = copy(ws[f'I{18 + j}']._style)
+                        ws[f'H{19 + i}'].value = 0
+                    ws[f'H{19 + i}']._style = copy(ws[f'H{19 + j}']._style)
 
                     try:
-                        ws[f'J{18 + i}'].value = egreso['meses'][7]['value']
+                        ws[f'I{19 + i}'].value = egreso['meses'][6]['value']
                     except:
-                        ws[f'J{18 + i}'].value = 0
-                    ws[f'J{18 + i}']._style = copy(ws[f'J{18 + j}']._style)
+                        ws[f'I{19 + i}'].value = 0
+                    ws[f'I{19 + i}']._style = copy(ws[f'I{19 + j}']._style)
 
                     try:
-                        ws[f'K{18 + i}'].value = egreso['meses'][8]['value']
+                        ws[f'J{19 + i}'].value = egreso['meses'][7]['value']
                     except:
-                        ws[f'K{18 + i}'].value = 0
-                    ws[f'K{18 + i}']._style = copy(ws[f'K{18 + j}']._style)
+                        ws[f'J{19 + i}'].value = 0
+                    ws[f'J{19 + i}']._style = copy(ws[f'J{19 + j}']._style)
 
                     try:
-                        ws[f'L{18 + i}'].value = egreso['meses'][9]['value']
+                        ws[f'K{19 + i}'].value = egreso['meses'][8]['value']
                     except:
-                        ws[f'L{18 + i}'].value = 0
-                    ws[f'L{18 + i}']._style = copy(ws[f'L{18 + j}']._style)
+                        ws[f'K{19 + i}'].value = 0
+                    ws[f'K{19 + i}']._style = copy(ws[f'K{19 + j}']._style)
 
                     try:
-                        ws[f'M{18 + i}'].value = egreso['meses'][10]['value']
+                        ws[f'L{19 + i}'].value = egreso['meses'][9]['value']
                     except:
-                        ws[f'M{18 + i}'].value = 0
-                    ws[f'M{18 + i}']._style = copy(ws[f'M{18 + j}']._style)
+                        ws[f'L{19 + i}'].value = 0
+                    ws[f'L{19 + i}']._style = copy(ws[f'L{19 + j}']._style)
 
                     try:
-                        ws[f'N{18 + i}'].value = egreso['meses'][11]['value']
+                        ws[f'M{19 + i}'].value = egreso['meses'][10]['value']
                     except:
-                        ws[f'N{18 + i}'].value = 0
-                    ws[f'N{18 + i}']._style = copy(ws[f'N{18 + j}']._style)
+                        ws[f'M{19 + i}'].value = 0
+                    ws[f'M{19 + i}']._style = copy(ws[f'M{19 + j}']._style)
+
+                    try:
+                        ws[f'N{19 + i}'].value = egreso['meses'][11]['value']
+                    except:
+                        ws[f'N{19 + i}'].value = 0
+                    ws[f'N{19 + i}']._style = copy(ws[f'N{19 + j}']._style)
 
                     i += 1
 
                 if len(egresos) >= 1:
 
-                    celda_egresos = 18 + i
+                    celda_egresos = 19 + i
 
-                    ws[f'C{18 + i}'] = f"=SUM(C{18 + j}:C{17 + i})"
-                    ws[f'D{18 + i}'] = f"=SUM(D{18 + j}:D{17 + i})"
-                    ws[f'E{18 + i}'] = f"=SUM(E{18 + j}:E{17 + i})"
-                    ws[f'F{18 + i}'] = f"=SUM(F{18 + j}:F{17 + i})"
-                    ws[f'G{18 + i}'] = f"=SUM(G{18 + j}:G{17 + i})"
-                    ws[f'H{18 + i}'] = f"=SUM(H{18 + j}:H{17 + i})"
-                    ws[f'I{18 + i}'] = f"=SUM(I{18 + j}:I{17 + i})"
-                    ws[f'J{18 + i}'] = f"=SUM(J{18 + j}:J{17 + i})"
-                    ws[f'K{18 + i}'] = f"=SUM(K{18 + j}:K{17 + i})"
-                    ws[f'L{18 + i}'] = f"=SUM(L{18 + j}:L{17 + i})"
-                    ws[f'M{18 + i}'] = f"=SUM(M{18 + j}:M{17 + i})"
-                    ws[f'N{18 + i}'] = f"=SUM(N{18 + j}:N{17 + i})"
+                    ws[f'C{19 + i}'] = f"=SUM(C{19 + j}:C{18 + i})"
+                    ws[f'D{19 + i}'] = f"=SUM(D{19 + j}:D{18 + i})"
+                    ws[f'E{19 + i}'] = f"=SUM(E{19 + j}:E{18 + i})"
+                    ws[f'F{19 + i}'] = f"=SUM(F{19 + j}:F{18 + i})"
+                    ws[f'G{19 + i}'] = f"=SUM(G{19 + j}:G{18 + i})"
+                    ws[f'H{19 + i}'] = f"=SUM(H{19 + j}:H{18 + i})"
+                    ws[f'I{19 + i}'] = f"=SUM(I{19 + j}:I{18 + i})"
+                    ws[f'J{19 + i}'] = f"=SUM(J{19 + j}:J{18 + i})"
+                    ws[f'K{19 + i}'] = f"=SUM(K{19 + j}:K{18 + i})"
+                    ws[f'L{19 + i}'] = f"=SUM(L{19 + j}:L{18 + i})"
+                    ws[f'M{19 + i}'] = f"=SUM(M{19 + j}:M{18 + i})"
+                    ws[f'N{19 + i}'] = f"=SUM(N{19 + j}:N{18 + i})"
 
-                    ws[f'C{19 + i}'] = f"=+(C{celda_ingresos}-C{celda_egresos})+C12"
-                    ws[f'D{19 + i}'] = f"=+(D{celda_ingresos}-D{celda_egresos})+D12"
-                    ws[f'E{19 + i}'] = f"=+(E{celda_ingresos}-E{celda_egresos})+E12"
-                    ws[f'F{19 + i}'] = f"=+(F{celda_ingresos}-F{celda_egresos})+F12"
-                    ws[f'G{19 + i}'] = f"=+(G{celda_ingresos}-G{celda_egresos})+G12"
-                    ws[f'H{19 + i}'] = f"=+(H{celda_ingresos}-H{celda_egresos})+H12"
-                    ws[f'I{19 + i}'] = f"=+(I{celda_ingresos}-I{celda_egresos})+I12"
-                    ws[f'J{19 + i}'] = f"=+(J{celda_ingresos}-J{celda_egresos})+J12"
-                    ws[f'K{19 + i}'] = f"=+(K{celda_ingresos}-K{celda_egresos})+K12"
-                    ws[f'L{19 + i}'] = f"=+(L{celda_ingresos}-L{celda_egresos})+L12"
-                    ws[f'M{19 + i}'] = f"=+(M{celda_ingresos}-M{celda_egresos})+M12"
-                    ws[f'N{19 + i}'] = f"=+(N{celda_ingresos}-N{celda_egresos})+N12"
+                    ws[f'C{20 + i}'] = f"=+(C{celda_ingresos}-C{celda_egresos})+C12"
+                    ws[f'D{20 + i}'] = f"=+(D{celda_ingresos}-D{celda_egresos})+D12"
+                    ws[f'E{20 + i}'] = f"=+(E{celda_ingresos}-E{celda_egresos})+E12"
+                    ws[f'F{20 + i}'] = f"=+(F{celda_ingresos}-F{celda_egresos})+F12"
+                    ws[f'G{20 + i}'] = f"=+(G{celda_ingresos}-G{celda_egresos})+G12"
+                    ws[f'H{20 + i}'] = f"=+(H{celda_ingresos}-H{celda_egresos})+H12"
+                    ws[f'I{20 + i}'] = f"=+(I{celda_ingresos}-I{celda_egresos})+I12"
+                    ws[f'J{20 + i}'] = f"=+(J{celda_ingresos}-J{celda_egresos})+J12"
+                    ws[f'K{20 + i}'] = f"=+(K{celda_ingresos}-K{celda_egresos})+K12"
+                    ws[f'L{20 + i}'] = f"=+(L{celda_ingresos}-L{celda_egresos})+L12"
+                    ws[f'M{20 + i}'] = f"=+(M{celda_ingresos}-M{celda_egresos})+M12"
+                    ws[f'N{20 + i}'] = f"=+(N{celda_ingresos}-N{celda_egresos})+N12"
 
-                    celda_disponible = 19 + i
+                    celda_disponible = 20 + i
 
                 else:
-                    celda_egresos = 20
-                    celda_disponible = 21
+                    celda_disponible = 22
 
 
                 valor_dict = instance.json['data']['lines'][index - 1]
 
                 valor_linea = 0
 
-                try:
-                    valor_linea += valor_dict['budgetIRACAUsed']
-                except:
-                    pass
 
-                try:
-                    valor_linea += valor_dict['budgedCommunity']
-                except:
-                    pass
+                for producto in valor_dict['supplies']:
+                    valor_linea += float(producto["price"]) * (float(producto["count"]["countIRACA"]) + float(producto["count"]["countOthers"]) + float(producto["count"]["countCommunity"]))
 
 
-                try:
-                    valor_linea += valor_dict['budgedOthers']
-                except:
-                    pass
 
 
                 ws[f'C12'] = valor_linea

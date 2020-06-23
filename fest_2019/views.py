@@ -637,6 +637,7 @@ class ProyectosLocalFlujoUpdateView(LoginRequiredMixin,
         kwargs['breadcrumb_active'] = f"{proyecto.nombre_proyecto}"
         kwargs['meses'] = int(proyecto.duracion)
         kwargs['flujo_caja'] = json.dumps(proyecto.flujo_caja)
+        kwargs['lineas'] = json.dumps(proyecto.json['data']['lines'])
         kwargs['nombre_modulo'] = 'Proyectos (Profesionales locales)'
         storage = get_messages(self.request)
         for message in storage:
@@ -908,6 +909,7 @@ class ProyectosMonitoreoFlujoUpdateView(LoginRequiredMixin,
         kwargs['breadcrumb_active'] = f"{proyecto.nombre_proyecto}"
         kwargs['meses'] = int(proyecto.duracion)
         kwargs['flujo_caja'] = json.dumps(proyecto.flujo_caja)
+        kwargs['lineas'] = json.dumps(proyecto.json['data']['lines'])
         kwargs['nombre_modulo'] = 'Proyectos (Monitoreo y Evaluación)'
         storage = get_messages(self.request)
         for message in storage:
@@ -1177,6 +1179,7 @@ class ProyectosEspecialistasFlujoUpdateView(LoginRequiredMixin,
         kwargs['breadcrumb_active'] = f"{proyecto.nombre_proyecto}"
         kwargs['meses'] = int(proyecto.duracion)
         kwargs['flujo_caja'] = json.dumps(proyecto.flujo_caja)
+        kwargs['lineas'] = json.dumps(proyecto.json['data']['lines'])
         kwargs['nombre_modulo'] = 'Proyectos (Especialistas)'
         storage = get_messages(self.request)
         for message in storage:
