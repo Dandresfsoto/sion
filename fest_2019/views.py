@@ -420,6 +420,7 @@ class MisProyectosFlujoUpdateView(LoginRequiredMixin,
         kwargs['breadcrumb_active'] = f"{proyecto.nombre_proyecto}"
         kwargs['meses'] = int(proyecto.duracion)
         kwargs['flujo_caja'] = json.dumps(proyecto.flujo_caja)
+        kwargs['lineas'] = json.dumps(proyecto.json['data']['lines'])
         storage = get_messages(self.request)
         for message in storage:
             kwargs['success'] = message

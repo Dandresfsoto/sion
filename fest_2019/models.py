@@ -3573,13 +3573,47 @@ class ObservacionesProyectosApi(models.Model):
 def ProyectosApiPostSave(sender, instance, **kwargs):
 
     try:
-        valor = int(instance.json['data']['budgetIRACAUsed']) + int(instance.json['data']['budgedCommunity']) + int(instance.json['data']['budgedOthers'])
+
+        valor = 0
+        numero_hogares = 0
+
+        for linea in instance.json['data']['lines']:
+            try:
+                valor_iraca = linea['budgetIRACAUsed']
+            except:
+                valor_iraca = 0
+
+
+            try:
+                valor_comunidades = linea['budgedCommunity']
+            except:
+                valor_comunidades = 0
+
+
+
+            try:
+                valor_otros = linea['budgedOthers']
+            except:
+                valor_otros = 0
+
+
+            valor += valor_iraca + valor_comunidades + valor_otros
+
+            try:
+                homes_linea = int(linea['homes'])
+            except:
+                homes_linea = 0
+
+            numero_hogares += homes_linea
+
+
+        #valor = int(instance.json['data']['budgetIRACAUsed']) + int(instance.json['data']['budgedCommunity']) + int(instance.json['data']['budgedOthers'])
         convenio = instance.json['data']['agreement']
         codigo_proyecto = instance.json['data']['projectCode']
         fecha_elaboracion = dateutil.parser.parse(instance.json['data']['creationDate'])
         #fecha_elaboracion = datetime.datetime.fromtimestamp(instance.json['data']['createdAt'] / 2e3)
         nombre_representante = instance.json['data']['legalRepresentative']
-        numero_hogares = instance.json['data']['homes']
+
         nombre_proyecto = instance.json['data']['projectName']
         linea = instance.json['data']['line']
         duracion = instance.json['data']['duration']
@@ -4176,6 +4210,466 @@ def ProyectosApiPostSave(sender, instance, **kwargs):
         ws['AA58'] = f"Anexo 4: {instance.anexo_4}"
 
 
+        index = 1
+
+        for linea in instance.json['data']['lines']:
+            ws = wb.get_sheet_by_name('Plan de inversion')
+            ws = wb.copy_worksheet(ws)
+            ws.title = f'Linea {index}'
+
+            ws.add_image(Image(settings.STATICFILES_DIRS[0] + '/img/logo_prosperidad_PI.png'), 'A1')
+            ws.add_image(Image(settings.STATICFILES_DIRS[0] + '/img/logo_ut_PI.png'), 'A2')
+
+
+            if instance.municipio != None:
+                ws['O6'] = instance.municipio.departamento.nombre
+                ws['O7'] = instance.municipio.nombre
+
+            ws['E7'] = instance.codigo_proyecto
+
+            if instance.resguado_indigena_consejo_comunitario != None:
+                ws['S6'] = instance.resguado_indigena_consejo_comunitario.nombre
+
+            ws['S7'] = instance.get_comunidades()
+
+            ws['V6'] = int(linea['homes'])
+
+            try:
+                productos_list = linea['supplies']
+            except:
+                pass
+            else:
+
+                i = 1
+
+                if len(productos_list) > 1:
+                    ws.insert_rows(11, amount=len(productos_list) - 1)
+
+                for product in productos_list:
+
+                    ws.row_dimensions[9 + i].height = 50
+
+                    ws[f'A{9 + i}'].value = i
+                    ws[f'A{9 + i}']._style = copy(ws[f'A10']._style)
+
+                    try:
+                        ws.merge_cells(f'B{9 + i}:F{9 + i}')
+                        ws[f'B{9 + i}'].value = product['name']
+                        ws[f'B{9 + i}']._style = copy(ws[f'B10']._style)
+                        ws[f'C{9 + i}']._style = copy(ws[f'C10']._style)
+                        ws[f'D{9 + i}']._style = copy(ws[f'D10']._style)
+                        ws[f'E{9 + i}']._style = copy(ws[f'E10']._style)
+                        ws[f'F{9 + i}']._style = copy(ws[f'F10']._style)
+
+                    except:
+                        pass
+
+                    try:
+                        ws.merge_cells(f'G{9 + i}:L{9 + i}')
+                        ws[f'G{9 + i}'].value = product['description']
+                        ws[f'G{9 + i}']._style = copy(ws[f'G10']._style)
+                        ws[f'H{9 + i}']._style = copy(ws[f'H10']._style)
+                        ws[f'I{9 + i}']._style = copy(ws[f'I10']._style)
+                        ws[f'J{9 + i}']._style = copy(ws[f'J10']._style)
+                        ws[f'K{9 + i}']._style = copy(ws[f'K10']._style)
+                        ws[f'L{9 + i}']._style = copy(ws[f'L10']._style)
+
+                    except:
+                        pass
+
+                    try:
+                        ws[f'M{9 + i}'].value = product['unit_of_measurement']
+                        ws[f'M{9 + i}']._style = copy(ws[f'M10']._style)
+                    except:
+                        pass
+
+                    try:
+                        ws[f'N{9 + i}'].value = int(product['count']['countIRACA']) + int(product['count']['countOthers']) + int(product['count']['countCommunity'])
+                        ws[f'N{9 + i}']._style = copy(ws[f'N10']._style)
+                    except:
+                        ws[f'N{9 + i}']._style = copy(ws[f'N10']._style)
+
+                    try:
+                        ws[f'O{9 + i}'].value = int(product['price'])
+                        ws[f'O{9 + i}']._style = copy(ws[f'O10']._style)
+                    except:
+                        pass
+
+                    try:
+                        ws[f'P{9 + i}'].value = int(product['price']) * (int(product['count']['countIRACA']) + int(product['count']['countOthers']) + int(product['count']['countCommunity']))
+                        ws[f'P{9 + i}']._style = copy(ws[f'P10']._style)
+                    except:
+                        ws[f'P{9 + i}']._style = copy(ws[f'P10']._style)
+
+                    try:
+                        ws[f'Q{9 + i}'].value = int(product['count']['countIRACA'])
+                        ws[f'Q{9 + i}']._style = copy(ws[f'Q10']._style)
+                    except:
+                        ws[f'Q{9 + i}']._style = copy(ws[f'Q10']._style)
+
+                    try:
+                        ws[f'R{9 + i}'].value = int(product['price']) * int(product['count']['countIRACA'])
+                        ws[f'R{9 + i}']._style = copy(ws[f'R10']._style)
+                    except:
+                        ws[f'R{9 + i}']._style = copy(ws[f'R10']._style)
+
+                    try:
+                        ws[f'S{9 + i}'].value = int(product['count']['countCommunity'])
+                        ws[f'S{9 + i}']._style = copy(ws[f'S10']._style)
+                    except:
+                        ws[f'S{9 + i}']._style = copy(ws[f'S10']._style)
+
+                    try:
+                        ws[f'T{9 + i}'].value = int(product['price']) * int(product['count']['countCommunity'])
+                        ws[f'T{9 + i}']._style = copy(ws[f'T10']._style)
+                    except:
+                        ws[f'T{9 + i}']._style = copy(ws[f'T10']._style)
+
+                    try:
+                        ws[f'U{9 + i}'].value = int(product['count']['countOthers'])
+                        ws[f'U{9 + i}']._style = copy(ws[f'U10']._style)
+                    except:
+                        ws[f'U{9 + i}']._style = copy(ws[f'U10']._style)
+
+                    try:
+                        ws[f'V{9 + i}'].value = int(product['price']) * int(product['count']['countOthers'])
+                        ws[f'V{9 + i}']._style = copy(ws[f'V10']._style)
+                    except:
+                        ws[f'V{9 + i}']._style = copy(ws[f'V10']._style)
+
+                    i += 1
+
+                ws.row_dimensions[9 + i].height = 50
+
+                ws[f'P{9 + i}'] = f"=SUM(P10:P{8 + i})"
+                ws[f'R{9 + i}'] = f"=SUM(R10:R{8 + i})"
+                ws[f'T{9 + i}'] = f"=SUM(T10:T{8 + i})"
+                ws[f'V{9 + i}'] = f"=SUM(V10:V{8 + i})"
+
+                ws.row_dimensions[10 + i].height = 20
+
+                ws.row_dimensions[11 + i].height = 50
+                ws[f'R{11 + i}'] = f"=R{9 + i}/V6"
+
+
+            index += 1
+
+
+
+        ws = wb.get_sheet_by_name('Plan de inversion')
+        wb.remove(ws)
+
+        index = 1
+
+        for flujo in instance.flujo_caja:
+            ws = wb.get_sheet_by_name('Flujo de caja')
+            ws = wb.copy_worksheet(ws)
+            ws.title = f'Flujo de caja {index}'
+
+            ws.add_image(Image(settings.STATICFILES_DIRS[0] + '/img/logo_prosperidad_FC.png'), 'B1')
+            ws.add_image(Image(settings.STATICFILES_DIRS[0] + '/img/logo_ut_FC.png'), 'B3')
+
+
+            ws['D5'] = f"COMUNIDAD(ES): {instance.get_comunidades()}"
+
+            try:
+                ingresos = flujo['ingresos']
+            except:
+                pass
+            else:
+
+                i = 1
+                cantidad_ingresos = len(ingresos)
+
+                if len(ingresos) > 1:
+                    ws.insert_rows(16, amount=len(ingresos) - 1)
+
+                for ingreso in ingresos:
+
+                    # ws.row_dimensions[14 + i].height = 50
+
+                    ws[f'B{14 + i}'].value = ingreso['description']
+                    ws[f'B{14 + i}']._style = copy(ws[f'B15']._style)
+
+                    try:
+                        ws[f'C{14 + i}'].value = ingreso['meses'][0]['value']
+                    except:
+                        ws[f'C{14 + i}'].value = 0
+
+                    ws[f'C{14 + i}']._style = copy(ws[f'C15']._style)
+
+                    try:
+                        ws[f'D{14 + i}'].value = ingreso['meses'][1]['value']
+                    except:
+                        ws[f'D{14 + i}'].value = 0
+
+                    ws[f'D{14 + i}']._style = copy(ws[f'D15']._style)
+
+                    try:
+                        ws[f'E{14 + i}'].value = ingreso['meses'][2]['value']
+                    except:
+                        ws[f'E{14 + i}'].value = 0
+
+                    ws[f'E{14 + i}']._style = copy(ws[f'E15']._style)
+
+                    try:
+                        ws[f'F{14 + i}'].value = ingreso['meses'][3]['value']
+                    except:
+                        ws[f'F{14 + i}'].value = 0
+                    ws[f'F{14 + i}']._style = copy(ws[f'F15']._style)
+
+                    try:
+                        ws[f'G{14 + i}'].value = ingreso['meses'][4]['value']
+                    except:
+                        ws[f'G{14 + i}'].value = 0
+                    ws[f'G{14 + i}']._style = copy(ws[f'G15']._style)
+
+                    try:
+                        ws[f'H{14 + i}'].value = ingreso['meses'][5]['value']
+                    except:
+                        ws[f'H{14 + i}'].value = 0
+                    ws[f'H{14 + i}']._style = copy(ws[f'H15']._style)
+
+                    try:
+                        ws[f'I{14 + i}'].value = ingreso['meses'][6]['value']
+                    except:
+                        ws[f'I{14 + i}'].value = 0
+                    ws[f'I{14 + i}']._style = copy(ws[f'I15']._style)
+
+                    try:
+                        ws[f'J{14 + i}'].value = ingreso['meses'][7]['value']
+                    except:
+                        ws[f'J{14 + i}'].value = 0
+                    ws[f'J{14 + i}']._style = copy(ws[f'J15']._style)
+
+                    try:
+                        ws[f'K{14 + i}'].value = ingreso['meses'][8]['value']
+                    except:
+                        ws[f'K{14 + i}'].value = 0
+                    ws[f'K{14 + i}']._style = copy(ws[f'K15']._style)
+
+                    try:
+                        ws[f'L{14 + i}'].value = ingreso['meses'][9]['value']
+                    except:
+                        ws[f'L{14 + i}'].value = 0
+                    ws[f'L{14 + i}']._style = copy(ws[f'L15']._style)
+
+                    try:
+                        ws[f'M{14 + i}'].value = ingreso['meses'][10]['value']
+                    except:
+                        ws[f'M{14 + i}'].value = 0
+                    ws[f'M{14 + i}']._style = copy(ws[f'M15']._style)
+
+                    try:
+                        ws[f'N{14 + i}'].value = ingreso['meses'][11]['value']
+                    except:
+                        ws[f'N{14 + i}'].value = 0
+                    ws[f'N{14 + i}']._style = copy(ws[f'N15']._style)
+
+                    i += 1
+
+                if len(ingresos) >= 1:
+                    celda_ingresos = 14 + i
+
+                    ws[f'C{14 + i}'] = f"=SUM(C15:C{13 + i})"
+                    ws[f'D{14 + i}'] = f"=SUM(D15:D{13 + i})"
+                    ws[f'E{14 + i}'] = f"=SUM(E15:E{13 + i})"
+                    ws[f'F{14 + i}'] = f"=SUM(F15:F{13 + i})"
+                    ws[f'G{14 + i}'] = f"=SUM(G15:G{13 + i})"
+                    ws[f'H{14 + i}'] = f"=SUM(H15:H{13 + i})"
+                    ws[f'I{14 + i}'] = f"=SUM(I15:I{13 + i})"
+                    ws[f'J{14 + i}'] = f"=SUM(J15:J{13 + i})"
+                    ws[f'K{14 + i}'] = f"=SUM(K15:K{13 + i})"
+                    ws[f'L{14 + i}'] = f"=SUM(L15:L{13 + i})"
+                    ws[f'M{14 + i}'] = f"=SUM(M15:M{13 + i})"
+                    ws[f'N{14 + i}'] = f"=SUM(N15:N{13 + i})"
+
+                else:
+                    celda_ingresos = 16
+
+            try:
+                egresos = flujo['egresos']
+            except:
+                pass
+            else:
+
+                i = cantidad_ingresos
+                j = cantidad_ingresos
+
+                if cantidad_ingresos > 1:
+                    inicio = 19 + cantidad_ingresos
+                else:
+                    inicio = 20
+
+                if len(egresos) > 1:
+                    ws.insert_rows(inicio, amount=len(egresos) - 1)
+
+                for egreso in egresos:
+
+                    # ws.row_dimensions[14 + i].height = 50
+
+                    ws[f'B{18 + i}'].value = egreso['description']
+                    ws[f'B{18 + i}']._style = copy(ws[f'B{18 + j}']._style)
+
+                    try:
+                        ws[f'C{18 + i}'].value = egreso['meses'][0]['value']
+                    except:
+                        ws[f'C{18 + i}'].value = 0
+
+                    ws[f'C{18 + i}']._style = copy(ws[f'C{18 + j}']._style)
+
+                    try:
+                        ws[f'D{18 + i}'].value = egreso['meses'][1]['value']
+                    except:
+                        ws[f'D{18 + i}'].value = 0
+
+                    ws[f'D{18 + i}']._style = copy(ws[f'D{18 + j}']._style)
+
+                    try:
+                        ws[f'E{18 + i}'].value = egreso['meses'][2]['value']
+                    except:
+                        ws[f'E{18 + i}'].value = 0
+
+                    ws[f'E{18 + i}']._style = copy(ws[f'E{18 + j}']._style)
+
+                    try:
+                        ws[f'F{18 + i}'].value = egreso['meses'][3]['value']
+                    except:
+                        ws[f'F{18 + i}'].value = 0
+                    ws[f'F{18 + i}']._style = copy(ws[f'F{18 + j}']._style)
+
+                    try:
+                        ws[f'G{18 + i}'].value = egreso['meses'][4]['value']
+                    except:
+                        ws[f'G{18 + i}'].value = 0
+                    ws[f'G{18 + i}']._style = copy(ws[f'G{18 + j}']._style)
+
+                    try:
+                        ws[f'H{18 + i}'].value = egreso['meses'][5]['value']
+                    except:
+                        ws[f'H{18 + i}'].value = 0
+                    ws[f'H{18 + i}']._style = copy(ws[f'H{18 + j}']._style)
+
+                    try:
+                        ws[f'I{18 + i}'].value = egreso['meses'][6]['value']
+                    except:
+                        ws[f'I{18 + i}'].value = 0
+                    ws[f'I{18 + i}']._style = copy(ws[f'I{18 + j}']._style)
+
+                    try:
+                        ws[f'J{18 + i}'].value = egreso['meses'][7]['value']
+                    except:
+                        ws[f'J{18 + i}'].value = 0
+                    ws[f'J{18 + i}']._style = copy(ws[f'J{18 + j}']._style)
+
+                    try:
+                        ws[f'K{18 + i}'].value = egreso['meses'][8]['value']
+                    except:
+                        ws[f'K{18 + i}'].value = 0
+                    ws[f'K{18 + i}']._style = copy(ws[f'K{18 + j}']._style)
+
+                    try:
+                        ws[f'L{18 + i}'].value = egreso['meses'][9]['value']
+                    except:
+                        ws[f'L{18 + i}'].value = 0
+                    ws[f'L{18 + i}']._style = copy(ws[f'L{18 + j}']._style)
+
+                    try:
+                        ws[f'M{18 + i}'].value = egreso['meses'][10]['value']
+                    except:
+                        ws[f'M{18 + i}'].value = 0
+                    ws[f'M{18 + i}']._style = copy(ws[f'M{18 + j}']._style)
+
+                    try:
+                        ws[f'N{18 + i}'].value = egreso['meses'][11]['value']
+                    except:
+                        ws[f'N{18 + i}'].value = 0
+                    ws[f'N{18 + i}']._style = copy(ws[f'N{18 + j}']._style)
+
+                    i += 1
+
+                if len(egresos) >= 1:
+
+                    celda_egresos = 18 + i
+
+                    ws[f'C{18 + i}'] = f"=SUM(C{18 + j}:C{17 + i})"
+                    ws[f'D{18 + i}'] = f"=SUM(D{18 + j}:D{17 + i})"
+                    ws[f'E{18 + i}'] = f"=SUM(E{18 + j}:E{17 + i})"
+                    ws[f'F{18 + i}'] = f"=SUM(F{18 + j}:F{17 + i})"
+                    ws[f'G{18 + i}'] = f"=SUM(G{18 + j}:G{17 + i})"
+                    ws[f'H{18 + i}'] = f"=SUM(H{18 + j}:H{17 + i})"
+                    ws[f'I{18 + i}'] = f"=SUM(I{18 + j}:I{17 + i})"
+                    ws[f'J{18 + i}'] = f"=SUM(J{18 + j}:J{17 + i})"
+                    ws[f'K{18 + i}'] = f"=SUM(K{18 + j}:K{17 + i})"
+                    ws[f'L{18 + i}'] = f"=SUM(L{18 + j}:L{17 + i})"
+                    ws[f'M{18 + i}'] = f"=SUM(M{18 + j}:M{17 + i})"
+                    ws[f'N{18 + i}'] = f"=SUM(N{18 + j}:N{17 + i})"
+
+                    ws[f'C{19 + i}'] = f"=+(C{celda_ingresos}-C{celda_egresos})+C12"
+                    ws[f'D{19 + i}'] = f"=+(D{celda_ingresos}-D{celda_egresos})+D12"
+                    ws[f'E{19 + i}'] = f"=+(E{celda_ingresos}-E{celda_egresos})+E12"
+                    ws[f'F{19 + i}'] = f"=+(F{celda_ingresos}-F{celda_egresos})+F12"
+                    ws[f'G{19 + i}'] = f"=+(G{celda_ingresos}-G{celda_egresos})+G12"
+                    ws[f'H{19 + i}'] = f"=+(H{celda_ingresos}-H{celda_egresos})+H12"
+                    ws[f'I{19 + i}'] = f"=+(I{celda_ingresos}-I{celda_egresos})+I12"
+                    ws[f'J{19 + i}'] = f"=+(J{celda_ingresos}-J{celda_egresos})+J12"
+                    ws[f'K{19 + i}'] = f"=+(K{celda_ingresos}-K{celda_egresos})+K12"
+                    ws[f'L{19 + i}'] = f"=+(L{celda_ingresos}-L{celda_egresos})+L12"
+                    ws[f'M{19 + i}'] = f"=+(M{celda_ingresos}-M{celda_egresos})+M12"
+                    ws[f'N{19 + i}'] = f"=+(N{celda_ingresos}-N{celda_egresos})+N12"
+
+                    celda_disponible = 19 + i
+
+                else:
+                    celda_egresos = 20
+                    celda_disponible = 21
+
+
+                valor_dict = instance.json['data']['lines'][index - 1]
+
+                valor_linea = 0
+
+                try:
+                    valor_linea += valor_dict['budgetIRACAUsed']
+                except:
+                    pass
+
+                try:
+                    valor_linea += valor_dict['budgedCommunity']
+                except:
+                    pass
+
+
+                try:
+                    valor_linea += valor_dict['budgedOthers']
+                except:
+                    pass
+
+
+                ws[f'C12'] = valor_linea
+                ws[f'D12'] = f"=+C{celda_disponible}"
+                ws[f'E12'] = f"=+D{celda_disponible}"
+                ws[f'F12'] = f"=+E{celda_disponible}"
+                ws[f'G12'] = f"=+F{celda_disponible}"
+                ws[f'H12'] = f"=+G{celda_disponible}"
+                ws[f'I12'] = f"=+H{celda_disponible}"
+                ws[f'J12'] = f"=+I{celda_disponible}"
+                ws[f'K12'] = f"=+J{celda_disponible}"
+                ws[f'L12'] = f"=+K{celda_disponible}"
+                ws[f'M12'] = f"=+L{celda_disponible}"
+                ws[f'N12'] = f"=+M{celda_disponible}"
+
+
+
+
+
+
+            index += 1
+
+        ws = wb.get_sheet_by_name('Flujo de caja')
+        wb.remove(ws)
+
+        """
         ws = wb.get_sheet_by_name('Plan de inversion')
         #logo_sican = Image(settings.STATICFILES_DIRS[0] + '/img/logo_prosperidad_2.png') #size=(400, 85))
 
@@ -4641,7 +5135,7 @@ def ProyectosApiPostSave(sender, instance, **kwargs):
             ws[f'M12'] = f"=+L{celda_disponible}"
             ws[f'N12'] = f"=+M{celda_disponible}"
 
-
+        """
 
         wb.save(output)
         filename = str(instance.id) + '.xlsx'

@@ -38,33 +38,22 @@ class ProyectosApiSerializer(serializers.ModelSerializer):
         fields = ['id','json']
         read_only_fields = ['id']
 
+
     def validate_json(self, validated_data):
         try:
-            documento_gestor = validated_data['documento']
-            tipo_proyecto = validated_data['data']['project_type']
-
-            documentos_hogares = []
-
-            for manager in validated_data['data']['managers']:
-                documentos_hogares.append(manager['document'])
-
-            documentos_hogares = set(documentos_hogares)
+            documento_gestor = validated_data['json']['documento']
+            codigo_proyecto = validated_data['json']['data']['projectCode']
 
         except:
             pass
         else:
 
-            query = ProyectosApi.objects.filter(json__documento=documento_gestor,json__data__project_type=tipo_proyecto)
+            query = ProyectosApi.objects.filter(json__documento=documento_gestor, json__data__projectCode=codigo_proyecto)
             if query.count() > 0:
 
                 for proyecto in query:
-                    documentos = set(proyecto.get_documentos_managers())
-
-                    interseccion = documentos_hogares.intersection(documentos)
-
-                    if len(interseccion) > 0:
-                        if not proyecto.actualizar_app:
-                            raise serializers.ValidationError("El proyecto no permite ser actualizado")
+                    if not proyecto.actualizar_app:
+                        raise serializers.ValidationError("El proyecto no permite ser actualizado")
 
 
 
@@ -74,16 +63,12 @@ class ProyectosApiSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
 
+        if validated_data['json']['data']['isSynchronized'] == False:
+            validated_data['json']['data']['isSynchronized'] = True
+
         try:
             documento_gestor = validated_data['json']['documento']
-            tipo_proyecto = validated_data['json']['data']['project_type']
-
-            documentos_hogares = []
-
-            for manager in validated_data['json']['data']['managers']:
-                documentos_hogares.append(manager['document'])
-
-            documentos_hogares = set(documentos_hogares)
+            codigo_proyecto = validated_data['json']['data']['projectCode']
 
         except:
             try:
@@ -100,28 +85,18 @@ class ProyectosApiSerializer(serializers.ModelSerializer):
             except:
                 user = None
 
-            query = ProyectosApi.objects.filter(json__documento=documento_gestor, json__data__project_type=tipo_proyecto)
+            query = ProyectosApi.objects.filter(json__documento=documento_gestor, json__data__projectCode=codigo_proyecto)
             if query.count() > 0:
 
                 copiado = False
 
                 for proyecto in query:
                     proyecto.agregar_observacion(user=user, estado="Actualización", descripcion="Proyecto actualizado")
-                    documentos = set(proyecto.get_documentos_managers())
 
-                    interseccion = documentos_hogares.intersection(documentos)
+                    instance = proyecto
+                    instance.json = validated_data['json']
+                    instance.save()
 
-                    if len(interseccion) > 0:
-                        instance = proyecto
-                        instance.json = validated_data['json']
-                        instance.save()
-                        copiado = True
-                        break
-
-
-                if copiado == False:
-                    instance = ProyectosApi.objects.create(**validated_data)
-                    instance.agregar_observacion(user=user, estado="Cargado",descripcion="Proyecto creado")
 
             else:
                 instance = ProyectosApi.objects.create(**validated_data)
