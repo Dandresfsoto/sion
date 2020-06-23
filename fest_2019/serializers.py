@@ -100,5 +100,5 @@ class ProyectosApiSerializer(serializers.ModelSerializer):
 
             else:
                 instance = ProyectosApi.objects.create(**validated_data)
-                instance.agregar_observacion(user=self.user, estado="Cargado", descripcion="Proyecto creado")
+                instance.agregar_observacion(user=user, estado="Cargado", descripcion="Proyecto creado")
         return instance
