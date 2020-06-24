@@ -3569,6 +3569,15 @@ class ObservacionesProyectosApi(models.Model):
 
 
 
+class PermisosMisProyectos(models.Model):
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
+
+
+    def __str__(self):
+        return str(self.user)
+
+
+
 @receiver(post_save, sender=ProyectosApi)
 def ProyectosApiPostSave(sender, instance, **kwargs):
 

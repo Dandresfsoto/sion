@@ -300,7 +300,7 @@ class MisProyectosUpdateView(LoginRequiredMixin,
 
     def dispatch(self, request, *args, **kwargs):
         proyecto = models.ProyectosApi.objects.get(id = self.kwargs['pk'])
-        if proyecto.json["documento"] != str(self.request.user.cedula):
+        if proyecto.json["documento"] != str(self.request.user.cedula) and self.request.user.id not in models.PermisosMisProyectos.objects.all().values_list('user__id', flat=True):
             return HttpResponseRedirect('../../')
         if proyecto.estado not in ['Cargado', 'Rechazo profesional local', 'Rechazo equipo monitoreo','Rechazo equipo especialistas']:
             return HttpResponseRedirect('../../')
@@ -343,7 +343,7 @@ class MisProyectosEstadoView(LoginRequiredMixin,
 
     def dispatch(self, request, *args, **kwargs):
         proyecto = models.ProyectosApi.objects.get(id = self.kwargs['pk'])
-        if proyecto.json["documento"] != str(self.request.user.cedula):
+        if proyecto.json["documento"] != str(self.request.user.cedula) and self.request.user.id not in models.PermisosMisProyectos.objects.all().values_list('user__id', flat=True):
             return HttpResponseRedirect('../../')
 
         if proyecto.estado not in ["Cargado", "Rechazo profesional local","Rechazo equipo monitoreo",'Rechazo equipo especialistas']:
@@ -399,7 +399,7 @@ class MisProyectosFlujoUpdateView(LoginRequiredMixin,
 
     def dispatch(self, request, *args, **kwargs):
         proyecto = models.ProyectosApi.objects.get(id = self.kwargs['pk'])
-        if proyecto.json["documento"] != str(self.request.user.cedula):
+        if proyecto.json["documento"] != str(self.request.user.cedula) and self.request.user.id not in models.PermisosMisProyectos.objects.all().values_list('user__id', flat=True):
             return HttpResponseRedirect('../../')
         if proyecto.estado not in ['Cargado', 'Rechazo profesional local', 'Rechazo equipo monitoreo','Rechazo equipo especialistas']:
             return HttpResponseRedirect('../../')
@@ -446,7 +446,7 @@ class MisProyectosIdentificacionUpdateView(LoginRequiredMixin,
 
     def dispatch(self, request, *args, **kwargs):
         proyecto = models.ProyectosApi.objects.get(id = self.kwargs['pk'])
-        if proyecto.json["documento"] != str(self.request.user.cedula):
+        if proyecto.json["documento"] != str(self.request.user.cedula) and self.request.user.id not in models.PermisosMisProyectos.objects.all().values_list('user__id', flat=True):
             return HttpResponseRedirect('../../')
         if proyecto.estado not in ['Cargado', 'Rechazo profesional local', 'Rechazo equipo monitoreo','Rechazo equipo especialistas']:
             return HttpResponseRedirect('../../')

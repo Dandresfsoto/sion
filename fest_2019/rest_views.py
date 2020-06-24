@@ -167,6 +167,9 @@ class MisProyectosListApi(BaseDatatableView):
             ]
         }
 
+        if self.request.user.id in models.PermisosMisProyectos.objects.all().values_list('user__id', flat=True):
+            return self.model.objects.all()
+
         return self.model.objects.filter(json__documento = str(self.request.user.cedula))
 
     def filter_queryset(self, qs):
