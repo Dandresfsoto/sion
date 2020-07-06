@@ -138,6 +138,8 @@ class MiGeoreferenciacionListApi(BaseDatatableView):
                 item.json['data']['position']['coords']['longitude'],
                 f"{int(item.json['data']['position']['coords']['altitude'])}",
                 f"{int(item.json['data']['position']['coords']['accuracy'])} metros",
+                f"{item.json['data']['guard']}" if 'guard' in item.json['data'].keys() else "",
+                f"{item.json['data']['community']}" if 'community' in item.json['data'].keys() else "",
                 '<i class="material-icons" style="color:#00a833">check_circle</i>' if not item.json['data']['position']['mocked'] else '<i class="material-icons" style="color:#f00">cancel</i>',
                 f"<div class='center-align'><a target='_blank' href='https://www.google.com/maps/@{item.json['data']['position']['coords']['latitude']},{item.json['data']['position']['coords']['longitude']}' class='tooltipped edit-table' data-position='top' data-delay='50' data-tooltip='Ver en el mapa'><i class='material-icons'>map</i></a></div>"
             ])
