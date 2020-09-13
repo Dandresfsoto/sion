@@ -1,5 +1,5 @@
 from __future__ import absolute_import, unicode_literals
-from sican_2018.celery import app
+from config.celery import app
 from mail_templated import send_mail
 from django.conf import settings
 from direccion_financiera.models import Reportes

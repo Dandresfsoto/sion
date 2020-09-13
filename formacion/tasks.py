@@ -1,5 +1,5 @@
 from __future__ import absolute_import, unicode_literals
-from sican_2018.celery import app
+from config.celery import app
 import openpyxl
 from io import BytesIO
 from usuarios.models import User
@@ -8,7 +8,7 @@ from openpyxl.drawing.image import Image
 from django.core.files import File
 from mail_templated import send_mail
 from direccion_financiera import models
-from sican_2018.functions import construir_reporte
+from config.functions import construir_reporte
 from reportes import models as models_reportes
 from usuarios.models import Notifications
 from formacion import models
