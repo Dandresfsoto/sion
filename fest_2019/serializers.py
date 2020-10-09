@@ -21,7 +21,10 @@ class GeoreferenciacionApiSerializer(serializers.ModelSerializer):
         except:
             instance = GeoreferenciacionApi.objects.create(**validated_data)
         else:
-            query = GeoreferenciacionApi.objects.filter(json__documento=documento_gestor,json__data__document = validated_data['json']['data']['document'])
+            if 'document' in validated_data['json']['data'].keys():
+                query = GeoreferenciacionApi.objects.filter(json__documento=documento_gestor,json__data__document = validated_data['json']['data']['document'])
+            else:
+                query = GeoreferenciacionApi.objects.filter(json__documento=documento_gestor,json__data__code = validated_data['json']['data']['code'])
             if query.count() > 0:
                 query.update(**validated_data)
                 instance = query[0]
