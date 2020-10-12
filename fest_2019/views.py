@@ -201,7 +201,18 @@ class Fest2019OptionsView(LoginRequiredMixin,
                 'sican_url': 'migeoreferenciacion/',
                 'sican_name': 'Mi georeferenciación',
                 'sican_icon': 'map',
-                'sican_description': 'Georeferenciación de hogares con la app GeoDatabase'
+                'sican_description': 'Georeferenciación de hogares y proyectos con la app GeoDatabase'
+            })
+
+        if self.request.user.has_perm('usuarios.fest_2019.georeferenciacion.ver'):
+            items.append({
+                'sican_categoria': 'Georeferenciación',
+                'sican_color': 'pink darken-3',
+                'sican_order': 13,
+                'sican_url': 'georeferenciacion/',
+                'sican_name': 'Georeferenciación',
+                'sican_icon': 'map',
+                'sican_description': 'Georeferenciación de hogares y proyectos con la app GeoDatabase'
             })
 
         """
@@ -260,6 +271,63 @@ class MiGeoreferenciacionListView(LoginRequiredMixin,
         for message in storage:
             kwargs['success'] = message
         return super(MiGeoreferenciacionListView,self).get_context_data(**kwargs)
+
+
+
+class GeoreferenciacionListView(LoginRequiredMixin,
+                           MultiplePermissionsRequiredMixin,
+                           TemplateView):
+
+    permissions = {
+        "all": [
+            "usuarios.fest_2019.ver",
+            "usuarios.fest_2019.georeferenciacion.ver",
+        ]
+    }
+    login_url = settings.LOGIN_URL
+    template_name = 'fest_2019/georeferenciacion/lista.html'
+
+
+    def get_context_data(self, **kwargs):
+        kwargs['title'] = "Georeferenciación"
+        kwargs['url_datatable'] = '/rest/v1.0/fest_2019/georeferenciacion/'
+        storage = get_messages(self.request)
+        for message in storage:
+            kwargs['success'] = message
+        return super(GeoreferenciacionListView,self).get_context_data(**kwargs)
+
+
+
+
+class InformeGeoreferenciacionView(View):
+
+    login_url = settings.LOGIN_URL
+
+    def dispatch(self, request, *args, **kwargs):
+
+        self.permissions = {
+            "ver": [
+                "usuarios.fest_2019.ver",
+                "usuarios.fest_2019.georeferenciacion.ver",
+            ]
+        }
+
+        if not request.user.is_authenticated:
+            return HttpResponseRedirect(self.login_url)
+        else:
+
+            if request.user.has_perms(self.permissions['ver']):
+                reporte = Reportes.objects.create(
+                    usuario=self.request.user,
+                    nombre='Informe de georeferenciación',
+                    consecutivo=Reportes.objects.filter(usuario=self.request.user).count() + 1
+                )
+
+                tasks.build_informe_georeferenciacion(reporte.id)
+                return redirect('/reportes/')
+            else:
+                return HttpResponseRedirect('../../')
+
 
 
 #----------------------------------------------------------------------------------

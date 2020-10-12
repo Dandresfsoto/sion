@@ -31,8 +31,26 @@ block side_nav_container
 
 
                     li(class="bold waves-effect waves-light breadcrum-active")
-                        a(href="#") Mi georeferenciación
+                        a(href="#") Georeferenciación
                             i(class="material-icons icon-sican") check_circle
+
+                    div(class="divider divider-perfil")
+
+
+    ul(class="collapsible",data-collapsible="accordion")
+        li(class="bold waves-effect waves-light button-menu")
+
+            div(class="collapsible-header active")
+                i(class="material-icons") dashboard
+                | Informes
+
+            div(class="collapsible-body collapsible-body-blue")
+                ul
+                    div(class="divider divider-perfil")
+
+                    li(class="bold waves-effect waves-light")
+                        a(href="informe/") Informe acumulado
+                            i(class="material-icons icon-sican") import_export
 
                     div(class="divider divider-perfil")
 
@@ -54,6 +72,8 @@ block container_principal
                     th Comunidad
                     th Validez
                     th Mapa
+                    th Gestor
+                    th Documento
             tbody
                 tr
                     td Tipo
@@ -67,6 +87,9 @@ block container_principal
                     td Comunidad
                     td Validez
                     td Mapa
+                    td Gestor
+                    td Documento
+
 
 
 block body_script_auth

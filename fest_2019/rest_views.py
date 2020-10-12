@@ -122,7 +122,7 @@ class MiGeoreferenciacionListApi(BaseDatatableView):
         search = self.request.GET.get(u'search[value]', None)
         if search:
             q = Q(json__data__document__icontains=search) | Q(json__data__name__icontains=search) | \
-                Q(json__data__lastName__icontains=search)
+                Q(json__data__lastName__icontains=search) | Q(json__data__code__icontains=search)
             qs = qs.filter(q)
         return qs
 
@@ -130,9 +130,8 @@ class MiGeoreferenciacionListApi(BaseDatatableView):
         data = []
         for item in qs:
             data.append([
-                item.json['data']['document'],
-                item.json['data']['name'],
-                item.json['data']['lastName'],
+                'Proyecto' if 'type' in item.json['data'].keys() else 'Hogar',
+                item.json['data']['code'] if 'type' in item.json['data'].keys() else f'{item.json["data"]["name"]} - {item.json["data"]["document"]}',
                 timezone.localtime(item.creation).strftime('%d de %B del %Y a las %I:%M:%S %p'),
                 item.json['data']['position']['coords']['latitude'],
                 item.json['data']['position']['coords']['longitude'],
@@ -147,6 +146,49 @@ class MiGeoreferenciacionListApi(BaseDatatableView):
 
 
 
+class GeoreferenciacionListApi(BaseDatatableView):
+    model = models.GeoreferenciacionApi
+    columns = ['id','id','id','creation']
+    order_columns = ['id','id','id','creation']
+
+    def get_initial_queryset(self):
+
+        self.permissions = {
+            "ver": [
+                "usuarios.fest_2019.ver",
+                "usuarios.fest_2019.georeferenciacion.ver",
+            ]
+        }
+
+        return self.model.objects.all()
+
+    def filter_queryset(self, qs):
+        search = self.request.GET.get(u'search[value]', None)
+        if search:
+            q = Q(json__data__document__icontains=search) | Q(json__data__name__icontains=search) | \
+                Q(json__data__lastName__icontains=search) | Q(json__data__code__icontains=search)
+            qs = qs.filter(q)
+        return qs
+
+    def prepare_results(self, qs):
+        data = []
+        for item in qs:
+            data.append([
+                'Proyecto' if 'type' in item.json['data'].keys() else 'Hogar',
+                item.json['data']['code'] if 'type' in item.json['data'].keys() else f'{item.json["data"]["name"]} - {item.json["data"]["document"]}',
+                timezone.localtime(item.creation).strftime('%d de %B del %Y a las %I:%M:%S %p'),
+                item.json['data']['position']['coords']['latitude'],
+                item.json['data']['position']['coords']['longitude'],
+                f"{int(item.json['data']['position']['coords']['altitude'])}",
+                f"{int(item.json['data']['position']['coords']['accuracy'])} metros",
+                f"{item.json['data']['guard']}" if 'guard' in item.json['data'].keys() else "",
+                f"{item.json['data']['community']}" if 'community' in item.json['data'].keys() else "",
+                '<i class="material-icons" style="color:#00a833">check_circle</i>' if not item.json['data']['position']['mocked'] else '<i class="material-icons" style="color:#f00">cancel</i>',
+                f"<div class='center-align'><a target='_blank' href='https://www.google.com/maps/@{item.json['data']['position']['coords']['latitude']},{item.json['data']['position']['coords']['longitude']}' class='tooltipped edit-table' data-position='top' data-delay='50' data-tooltip='Ver en el mapa'><i class='material-icons'>map</i></a></div>",
+                item.json['nombre'],
+                item.json['documento'],
+            ])
+        return data
 
 
 

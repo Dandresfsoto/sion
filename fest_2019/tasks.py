@@ -308,3 +308,46 @@ def build_informe_actividades(id):
 
 
     return "Reporte generado: " + filename
+
+@app.task
+def build_informe_georeferenciacion(id):
+    reporte = models_reportes.Reportes.objects.get(id = id)
+    proceso = "IRACA"
+
+    titulos = ["Consecutivo" ,"Tipo", "Nombre / Codigo", "Fecha creación", "Latitud", "Longitud", "Altitud", "Precisión", "Resguardo", "Comunidad", "Validez", "Gestor", "Documento"]
+
+    formatos = ['General','General', 'General', 'dd/mm/yyyy', 'General', 'General', 'General', 'General', 'General', 'General', 'General', 'General', 'General']
+
+    ancho_columnas = [20, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50]
+
+    contenidos = []
+
+    i = 0
+
+    for item in models.GeoreferenciacionApi.objects.all():
+        i += 1
+        contenidos.append([
+            int(i),
+            'Proyecto' if 'type' in item.json['data'].keys() else 'Hogar',
+            item.json['data']['code'] if 'type' in item.json['data'].keys() else f'{item.json["data"]["name"]} - {item.json["data"]["document"]}',
+            timezone.localtime(item.creation),
+            item.json['data']['position']['coords']['latitude'],
+            item.json['data']['position']['coords']['longitude'],
+            int(item.json['data']['position']['coords']['altitude']),
+            int(item.json['data']['position']['coords']['accuracy']),
+            f"{item.json['data']['guard']}" if 'guard' in item.json['data'].keys() else "",
+            f"{item.json['data']['community']}" if 'community' in item.json['data'].keys() else "",
+            "Valido" if not item.json['data']['position']['mocked'] else "Invalido",
+            item.json['nombre'],
+            item.json['documento'],
+        ])
+
+
+    output = construir_reporte(titulos, contenidos, formatos, ancho_columnas, reporte.nombre, reporte.creation, reporte.usuario, proceso)
+
+
+    filename = str(reporte.id) + '.xlsx'
+    reporte.file.save(filename, File(output))
+
+
+    return "Reporte generado: " + filename

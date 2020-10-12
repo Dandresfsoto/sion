@@ -13,6 +13,7 @@ urlpatterns = [
 
 
     path('migeoreferenciacion/', rest_views.MiGeoreferenciacionListApi.as_view()),
+    path('georeferenciacion/', rest_views.GeoreferenciacionListApi.as_view()),
 
 
     path('misproyectos/', rest_views.MisProyectosListApi.as_view()),

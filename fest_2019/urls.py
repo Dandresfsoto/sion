@@ -6,6 +6,8 @@ urlpatterns = [
 
 
     path('migeoreferenciacion/', views.MiGeoreferenciacionListView.as_view()),
+    path('georeferenciacion/', views.GeoreferenciacionListView.as_view()),
+    path('georeferenciacion/informe/', views.InformeGeoreferenciacionView.as_view()),
 
     path('misproyectos/', views.MisProyectosListView.as_view()),
     path('misproyectos/editar/<int:pk>/', views.MisProyectosUpdateView.as_view()),
