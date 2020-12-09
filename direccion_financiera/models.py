@@ -568,7 +568,7 @@ class Descuentos(models.Model):
 
     pago = models.ForeignKey(Pagos, on_delete=models.DO_NOTHING)
 
-    valor = MoneyField(max_digits=10, decimal_places=2, default_currency='COP')
+    valor = MoneyField(max_digits=20, decimal_places=2, default_currency='COP')
     concepto = models.TextField(max_length=500)
     observacion = models.TextField(max_length=500)
 
