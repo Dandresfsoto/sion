@@ -2,7 +2,7 @@ django==2.1.5
 django-environ==0.4.5
 psycopg2-binary==2.7.7
 Twisted==19.7.0
-celery==4.3.0
+celery==4.4.7
 django-crispy-forms==1.7.0
 crispy-forms-materialize==0.2
 django_celery_results==1.0.1
