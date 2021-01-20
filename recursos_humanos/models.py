@@ -65,6 +65,9 @@ class Contratistas(models.Model):
     def __str__(self):
         return '{0} {1} - {2}'.format(self.nombres,self.apellidos,str(self.cedula))
 
+    def get_cedula(self):
+        return str(self.cedula)
+
     def get_celular(self):
         celular = ''
 
