@@ -59,6 +59,12 @@ var socket = new ReconnectingWebSocket(ws_scheme + '://' + window.location.host 
     $('#id_hogares').select2();
 
 
+    $("#button-id-cargar").click(function () {
+        $("#id_hogares > option").prop("selected", "selected");
+        $("#id_hogares").trigger("change");
+    });
+
+
     $('#id_file').dropify({
         error: {
             'fileSize': 'El archivo es demasiado grande.',
@@ -93,39 +99,6 @@ var socket = new ReconnectingWebSocket(ws_scheme + '://' + window.location.host 
         }
     });
     $('#id_foto2').dropify({
-        error: {
-            'fileSize': 'El archivo es demasiado grande.',
-        },
-        messages: {
-            'default': 'Haz clic y selecciona la foto, tambien puedes arrastrarla y soltarlo aqui',
-            'replace': 'Haz clic y selecciona la foto, tambien puedes arrastrarla y soltarlo aqui',
-            'remove': 'Eliminar',
-            'error': 'Ooops, algo malo paso.'
-        }
-    });
-    $('#id_foto3').dropify({
-        error: {
-            'fileSize': 'El archivo es demasiado grande.',
-        },
-        messages: {
-            'default': 'Haz clic y selecciona la foto, tambien puedes arrastrarla y soltarlo aqui',
-            'replace': 'Haz clic y selecciona la foto, tambien puedes arrastrarla y soltarlo aqui',
-            'remove': 'Eliminar',
-            'error': 'Ooops, algo malo paso.'
-        }
-    });
-    $('#id_foto4').dropify({
-        error: {
-            'fileSize': 'El archivo es demasiado grande.',
-        },
-        messages: {
-            'default': 'Haz clic y selecciona la foto, tambien puedes arrastrarla y soltarlo aqui',
-            'replace': 'Haz clic y selecciona la foto, tambien puedes arrastrarla y soltarlo aqui',
-            'remove': 'Eliminar',
-            'error': 'Ooops, algo malo paso.'
-        }
-    });
-    $('#id_foto5').dropify({
         error: {
             'fileSize': 'El archivo es demasiado grande.',
         },

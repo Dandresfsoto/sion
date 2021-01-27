@@ -578,7 +578,13 @@ modelos = {
         'template': 'fest_2020_1/misrutas/actividades/instrumentos/templates/jic_4_vmc.html',
         'template_ver': 'fest_2020_1/misrutas/actividades/instrumentos/templates/jic_4_vmc_ver.html'
     },
-
+    # 2 documento pdf + 2 soporte + 3 fotos
+    'documento_general': {
+        'model': models.DocumentoGeneral,
+        'form': forms.DocumentoGeneralForm,
+        'template': 'fest_2020_1/misrutas/actividades/instrumentos/templates/documentos2soporte2fotos3.html',
+        'template_ver': 'fest_2020_1/misrutas/actividades/instrumentos/templates/documentos2soporte2fotos3_ver.html'
+    },
 }
 
 

@@ -5147,6 +5147,102 @@ class Documento2Soporte2Fotos3(models.Model):
     def get_extension(self):
         return self.file.name.split('.')[-1]
 
+
+def upload_dinamic_documento_general(instance, filename):
+    return '/'.join(['IRACA', str(instance.ruta.id), str(instance.instrumento.momento.nombre), filename])
+
+class DocumentoGeneral(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, unique=True, editable=False)
+    hogares = models.ManyToManyField(Hogares,related_name='hogares_documentogeneral',blank=True)
+    instrumento = models.ForeignKey(Instrumentos,on_delete=models.DO_NOTHING,related_name='instrumento_documentogeneral',blank=True,null=True)
+    ruta = models.ForeignKey(Rutas,on_delete=models.DO_NOTHING,related_name='ruta_documentogeneral',blank=True,null=True)
+    nombre = models.CharField(max_length=100)
+
+    file = ContentTypeRestrictedFileField(
+        upload_to=upload_dinamic_documento_general,
+        content_types=[
+            'application/pdf',
+        ],
+        max_upload_size=52428800,
+        max_length=255,
+        blank=True,
+        null=True
+    )
+    file2 = ContentTypeRestrictedFileField(
+        upload_to=upload_dinamic_documento_general,
+        content_types=[
+            'application/pdf',
+        ],
+        max_upload_size=52428800,
+        max_length=255,
+        blank=True,
+        null=True
+    )
+
+
+    foto1 = ContentTypeRestrictedFileField(
+        upload_to=upload_dinamic_documento_general,
+        content_types=[
+            'image/jpg',
+            'image/jpeg',
+            'image/png'
+        ],
+        max_upload_size=50485760,
+        max_length=255,
+        blank=True,
+        null=True
+    )
+
+    foto2 = ContentTypeRestrictedFileField(
+        upload_to=upload_dinamic_documento_general,
+        content_types=[
+            'image/jpg',
+            'image/jpeg',
+            'image/png'
+        ],
+        max_upload_size=50485760,
+        max_length=255,
+        blank=True,
+        null=True
+    )
+
+    def url_file(self):
+        url = None
+        try:
+            url = self.file.url
+        except:
+            pass
+        return url
+
+    def url_file2(self):
+        url = None
+        try:
+            url = self.file2.url
+        except:
+            pass
+        return url
+
+
+    def url_foto1(self):
+        url = None
+        try:
+            url = self.foto1.url
+        except:
+            pass
+        return url
+
+    def url_foto2(self):
+        url = None
+        try:
+            url = self.foto2.url
+        except:
+            pass
+        return url
+
+    def get_extension(self):
+        return self.file.name.split('.')[-1]
+
+
 def upload_dinamic_Documento2SoporteFotos3(instance, filename):
     return '/'.join(['FEST 2020', str(instance.ruta.id), instance.nombre, filename])
 

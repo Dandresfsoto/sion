@@ -19823,6 +19823,269 @@ class Documento2Soporte2Fotos3Form(forms.ModelForm):
             'foto5': 'Foto 5'
         }
 
+class DocumentoGeneralForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super(DocumentoGeneralForm, self).__init__(*args, **kwargs)
+
+
+        instrumento = models.Instrumentos.objects.get(id = kwargs['initial']['pk_instrumento'])
+
+
+
+        if instrumento.nivel == 'ruta':
+
+
+            self.helper = FormHelper(self)
+            self.helper.layout = Layout(
+
+                Row(
+                    Fieldset(
+                        kwargs['initial'].get('short_name'),
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Documentos PDF',
+                    )
+                ),
+                Row(
+                    Column(
+                        'file',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        'file2',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Registro Fotografico:',
+                    )
+                ),
+                Row(
+                    Column(
+                        'foto1',
+                        css_class='s6'
+                    ),
+                    Column(
+                        'foto2',
+                        css_class='s6'
+                    )
+                ),
+                Row(
+                    Column(
+                        Div(
+                            Submit(
+                                'submit',
+                                'Guardar',
+                                css_class='button-submit'
+                            ),
+                            css_class="right-align"
+                        ),
+                        css_class="s12"
+                    ),
+                )
+            )
+
+        elif instrumento.nivel == 'individual':
+            self.fields['hogares'] = forms.ModelChoiceField(label = "Hogar",queryset = models.Hogares.objects.filter(rutas=kwargs['initial']['pk_ruta']))
+
+            if 'pk_instrumento_object' in kwargs['initial']:
+
+                instrumento_object = models.InstrumentosRutaObject.objects.get(id = kwargs['initial']['pk_instrumento_object'])
+
+                try:
+                    self.fields['hogares'].initial = instrumento_object.hogares.all()[0]
+                except:
+                    pass
+
+            self.helper = FormHelper(self)
+            self.helper.layout = Layout(
+
+                Row(
+                    Fieldset(
+                        kwargs['initial'].get('short_name'),
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Documentos PDF',
+                    )
+                ),
+                Row(
+                    Column(
+                        'file',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        'file2',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Registro Fotografico:',
+                    )
+                ),
+                Row(
+                    Column(
+                        'foto1',
+                        css_class='s6'
+                    ),
+                    Column(
+                        'foto2',
+                        css_class='s6'
+                    )
+                ),
+                Row(
+                    Column(
+                        Div(
+                            Button(
+                                "cargar",
+                                'Cargar todos',
+                                css_class='button'
+                            ),
+                            css_class="left-align",
+                            css_id="cargar_todos"
+                        ),
+                        css_class="s12"
+                    ),
+                ),
+                Row(
+                    Column(
+                        'hogares',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        Div(
+                            Submit(
+                                'submit',
+                                'Guardar',
+                                css_class='button-submit'
+                            ),
+                            css_class="right-align"
+                        ),
+                        css_class="s12"
+                    ),
+                )
+            )
+
+        else:
+            self.fields['hogares'] = forms.ModelMultipleChoiceField(queryset=models.Hogares.objects.filter(rutas=kwargs['initial']['pk_ruta']))
+
+            if 'pk_instrumento_object' in kwargs['initial']:
+                instrumento_object = models.InstrumentosRutaObject.objects.get(id=kwargs['initial']['pk_instrumento_object'])
+
+                self.fields['hogares'].initial = instrumento_object.hogares.all()
+
+            self.helper = FormHelper(self)
+            self.helper.layout = Layout(
+
+                Row(
+                    Fieldset(
+                        kwargs['initial'].get('short_name'),
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Documentos PDF',
+                    )
+                ),
+                Row(
+                    Column(
+                        'file',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        'file2',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'Registro Fotografico:',
+                    )
+                ),
+                Row(
+                    Column(
+                        'foto1',
+                        css_class='s6'
+                    ),
+                    Column(
+                        'foto2',
+                        css_class='s6'
+                    )
+                ),
+                Row(
+                    Column(
+                        Div(
+                            Button(
+                                "cargar",
+                                'Cargar todos',
+                                css_class='button'
+                            ),
+                            css_class="left-align",
+                            css_id="cargar_todos"
+                        ),
+                        css_class="s12"
+                    ),
+                ),
+                Row(
+                    Column(
+                        'hogares',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Column(
+                        Div(
+                            Submit(
+                                'submit',
+                                'Guardar',
+                                css_class='button-submit'
+                            ),
+                            css_class="right-align"
+                        ),
+                        css_class="s12"
+                    ),
+                )
+            )
+
+
+    class Meta:
+        model = models.DocumentoGeneral
+        fields = ['file','file2','foto1','foto2']
+        widgets = {
+            'file': forms.ClearableFileInput(attrs={
+                'data-max-file-size': "50M",
+                'accept': 'application/pdf,application/x-pdf'}
+            ),
+            'file2': forms.ClearableFileInput(attrs={
+                'data-max-file-size': "50M",
+                'accept': 'application/pdf,application/x-pdf'}
+            ),
+
+
+            'foto1': forms.ClearableFileInput(attrs={'accept': 'image/jpg,image/jpeg,image/png'}),
+            'foto2': forms.ClearableFileInput(attrs={'accept': 'image/jpg,image/jpeg,image/png'}),
+        }
+        labels = {
+            'file': 'PDF 1',
+            'file2': 'PDF 2',
+            'foto1': 'Foto 1',
+            'foto2': 'Foto 2',
+        }
+
 class Documento2SoporteFotos3Form(forms.ModelForm):
 
     def clean(self):
