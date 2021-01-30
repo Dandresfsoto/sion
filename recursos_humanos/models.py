@@ -532,6 +532,7 @@ class Contratos(models.Model):
 def upload_dinamic_dir_soporte_contrato(instance, filename):
     return '/'.join(['Contratos', 'Soportes', str(instance.contrato.id), str(instance.soporte.id), filename])
 
+
 class SoportesContratos(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, unique=True, editable=False)
     codigo = models.IntegerField(blank=True,null=True)
