@@ -530,7 +530,7 @@ class Contratos(models.Model):
 
 
 def upload_dinamic_dir_soporte_contrato(instance, filename):
-    return '/'.join(['Contratos', 'Soportes',str(instance.contrato.nombre), str(instance.soporte.nombre), filename])
+    return '/'.join(['Contratos', 'Soportes', str(instance.contrato.nombre), str(instance.soporte.id), filename])
 
 class SoportesContratos(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, unique=True, editable=False)
@@ -538,7 +538,7 @@ class SoportesContratos(models.Model):
     soporte = models.ForeignKey(Soportes, on_delete=models.DO_NOTHING)
     numero = models.IntegerField(blank=True,null=True)
     contrato = models.ForeignKey(Contratos, on_delete=models.DO_NOTHING)
-    file = models.FileField(upload_to=upload_dinamic_dir_soporte_contrato,blank=True,null=True)
+    file = models.FileField(upload_to=upload_dinamic_dir_soporte_contrato,blank=True,null=True, max_length=255)
     estado = models.CharField(max_length=100,blank=True,null=True)
     observacion = models.CharField(max_length=500, blank=True, null=True)
 
