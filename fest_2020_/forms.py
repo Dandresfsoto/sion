@@ -19863,6 +19863,17 @@ class DocumentoGeneralForm(forms.ModelForm):
                 ),
                 Row(
                     Fieldset(
+                        'ARCHIVO RAR o ZIP',
+                    )
+                ),
+                Row(
+                    Column(
+                        'file3',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
                         'Registro Fotografico:',
                     )
                 ),
@@ -19925,6 +19936,17 @@ class DocumentoGeneralForm(forms.ModelForm):
                 Row(
                     Column(
                         'file2',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
+                        'ARCHIVO RAR o ZIP',
+                    )
+                ),
+                Row(
+                    Column(
+                        'file3',
                         css_class='s12'
                     )
                 ),
@@ -20013,6 +20035,17 @@ class DocumentoGeneralForm(forms.ModelForm):
                 ),
                 Row(
                     Fieldset(
+                        'ARCHIVO RAR o ZIP',
+                    )
+                ),
+                Row(
+                    Column(
+                        'file3',
+                        css_class='s12'
+                    )
+                ),
+                Row(
+                    Fieldset(
                         'Registro Fotografico:',
                     )
                 ),
@@ -20064,7 +20097,7 @@ class DocumentoGeneralForm(forms.ModelForm):
 
     class Meta:
         model = models.DocumentoGeneral
-        fields = ['file','file2','foto1','foto2']
+        fields = ['file','file2','file3','foto1','foto2']
         widgets = {
             'file': forms.ClearableFileInput(attrs={
                 'data-max-file-size': "50M",
@@ -20074,6 +20107,10 @@ class DocumentoGeneralForm(forms.ModelForm):
                 'data-max-file-size': "50M",
                 'accept': 'application/pdf,application/x-pdf'}
             ),
+            'file3': forms.ClearableFileInput(attrs={
+                'data-max-file-size': "50M",
+                'accept': '.zip,.rar,.7zip'}
+            ),
 
 
             'foto1': forms.ClearableFileInput(attrs={'accept': 'image/jpg,image/jpeg,image/png'}),
@@ -20082,6 +20119,7 @@ class DocumentoGeneralForm(forms.ModelForm):
         labels = {
             'file': 'PDF 1',
             'file2': 'PDF 2',
+            'file3': 'PDF 3',
             'foto1': 'Foto 1',
             'foto2': 'Foto 2',
         }

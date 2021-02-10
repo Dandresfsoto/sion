@@ -5178,6 +5178,21 @@ class DocumentoGeneral(models.Model):
         blank=True,
         null=True
     )
+    file3 = ContentTypeRestrictedFileField(
+        upload_to=upload_dinamic_documento_general,
+        content_types=[
+            'application/x-rar-compressed',
+            'application/octet-stream',
+            'application/zip',
+            'application/octet-stream',
+            'application/x-zip-compressed',
+            'multipart/x-zip',
+        ],
+        max_upload_size=52428800,
+        max_length=255,
+        blank=True,
+        null=True
+    )
 
 
     foto1 = ContentTypeRestrictedFileField(
@@ -5218,6 +5233,14 @@ class DocumentoGeneral(models.Model):
         url = None
         try:
             url = self.file2.url
+        except:
+            pass
+        return url
+
+    def url_file3(self):
+        url = None
+        try:
+            url = self.file3.url
         except:
             pass
         return url
