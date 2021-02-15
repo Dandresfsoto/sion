@@ -174,7 +174,7 @@ class Fest2020OptionsView(LoginRequiredMixin,
         return items
 
     def get_context_data(self, **kwargs):
-        kwargs['title'] = "IRACS"
+        kwargs['title'] = "IRACA"
         kwargs['items'] = self.get_items()
         return super(Fest2020OptionsView,self).get_context_data(**kwargs)
 
