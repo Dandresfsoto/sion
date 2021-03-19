@@ -175,7 +175,7 @@ class GeoreferenciacionListApi(BaseDatatableView):
         for item in qs:
             data.append([
                 'Proyecto' if 'type' in item.json['data'].keys() else 'Hogar',
-                item.json['data']['code'] if 'type' in item.json['data'].keys() else f'{item.json["data"]["name"]} - {item.json["data"]["document"]}',
+                item.json['data']['code'] if item.json['data']['type'] == 'project' else f'{item.json["data"]["name"]} - {item.json["data"]["document"]}',
                 timezone.localtime(item.creation).strftime('%d de %B del %Y a las %I:%M:%S %p'),
                 item.json['data']['position']['coords']['latitude'],
                 item.json['data']['position']['coords']['longitude'],
