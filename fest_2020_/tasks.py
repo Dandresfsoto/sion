@@ -91,7 +91,7 @@ def build_tablero_control_componente(id, id_componente):
 
 
     for momento in models.Momentos.objects.filter(componente=componente).order_by('consecutivo'):
-        order.append(momento.id)
+        order.append(momento)
         titulos.append(f'{momento.nombre}')
         titulos.append(f'Gestor')
         titulos.append(f'Ruta')
@@ -104,24 +104,26 @@ def build_tablero_control_componente(id, id_componente):
 
     i = 0
 
-    for hogar in models.Hogares.objects.filter(rutas__componente=componente):
+    hogares = models.Hogares.objects.filter(rutas__componente=componente).distinct()
+    for hogar in hogares:
+        rutas = hogar.rutas.all()
+        for ruta in rutas:
 
-        i += 1
+            i += 1
 
-        lista = [
-            i,
-            str(hogar.documento),
-            str(hogar.get_full_name())
-        ]
+            lista = [
+                i,
+                str(hogar.documento),
+                str(hogar.get_full_name())
+            ]
 
-        for id_momento in order:
-            momento = models.Momentos.objects.get(id = id_momento)
+            for momento in order:
 
-            lista.append(hogar.get_estado_momento(momento))
-            lista.append(hogar.get_gestor_cedula_momento(momento))
-            lista.append(hogar.get_ruta_momento(momento))
+                lista.append(hogar.get_estado_momento(momento, ruta))
+                lista.append(ruta.contrato.contratista.cedula)
+                lista.append(ruta.nombre)
 
-        contenidos.append(lista)
+            contenidos.append(lista)
 
 
     output = construir_reporte(titulos, contenidos, formatos, ancho_columnas, reporte.nombre, reporte.creation,

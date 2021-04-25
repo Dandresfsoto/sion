@@ -837,9 +837,9 @@ class Hogares(models.Model):
         return self.get_nombres() + ' ' + self.get_apellidos() + ' - ' + str(self.documento)
 
 
-    def get_estado_momento(self, momento):
+    def get_estado_momento(self, momento, ruta):
 
-        instrumentos = InstrumentosRutaObject.objects.filter(momento = momento, hogares=self).order_by('creacion')
+        instrumentos = InstrumentosRutaObject.objects.filter(momento = momento, hogares=self, ruta=ruta).order_by('creacion')
 
         try:
             estado = instrumentos[0].estado
